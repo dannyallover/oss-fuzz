@@ -14,7 +14,7 @@ namespace asn1_proto {
     std::string ProtoToDER(const ASN1Object& asn1Obj);
 
    private:
-    std::stringstream data_;
+    std::stringstream der_;
     std::vector<uint8_t> encoder;
 
     void ParseToHex(std::vector<uint8_t> encoder);

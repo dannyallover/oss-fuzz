@@ -22,6 +22,22 @@
 
 namespace asn1_proto {
 
+  std::vector<uint8_t> ASN1ProtoConverter::NumToVector(uint64_t len) {
+    std::vector<uint8_t> num;
+    int shift = 7;
+    while(shift >= 0) {
+      if(((len>>(shift*8))&BYTE_MASK) == 0) {
+        shift--;
+      } else {
+        break;
+      }
+    }
+    for(int i = shift; i >= 0; i--) {
+      num.push_back(((len>>(i*8))&BYTE_MASK));
+    }
+    return num;
+  }
+
   std::vector<uint8_t> ASN1ProtoConverter::AddNums(std::vector<uint8_t> len1, std::vector<uint8_t> len2) {
     if(len1.size() > len2.size()) {
       len1.swap(len2);
@@ -70,33 +86,17 @@ namespace asn1_proto {
     return AddNums(len, NumToVector(OFFSET));
   }
 
-  std::vector<uint8_t> ASN1ProtoConverter::ParseBool(const ASN1Boolean& asn1Bool) {
-    encoder.push_back(BOOL_TAG);
-    std::vector<uint8_t> len = AppendLength(NumToVector(DEFAULT_SIZE), encoder.size());
-    encoder.push_back(asn1Bool.val());
-    return len;
-  }
-
   std::vector<uint8_t> ASN1ProtoConverter::ParseNull(const ASN1Null& asn1Null) {
     encoder.push_back(NULL_TAG);
     encoder.push_back(NULL_VALUE);
     return {OFFSET};
   }
 
-  std::vector<uint8_t> ASN1ProtoConverter::NumToVector(uint64_t len) {
-    std::vector<uint8_t> num;
-    int shift = 7;
-    while(shift >= 0) {
-      if(((len>>(shift*8))&BYTE_MASK) == 0) {
-        shift--;
-      } else {
-        break;
-      }
-    }
-    for(int i = shift; i >= 0; i--) {
-      num.push_back(((len>>(i*8))&BYTE_MASK));
-    }
-    return num;
+  std::vector<uint8_t> ASN1ProtoConverter::ParseBool(const ASN1Boolean& asn1Bool) {
+    encoder.push_back(BOOL_TAG);
+    std::vector<uint8_t> len = AppendLength(NumToVector(DEFAULT_SIZE), encoder.size());
+    encoder.push_back(asn1Bool.val());
+    return len;
   }
 
   std::vector<uint8_t> ASN1ProtoConverter::ParseInt(const ASN1Integer& asn1Int) {
@@ -111,16 +111,6 @@ namespace asn1_proto {
       encoder.push_back(DEFAULT_VALUE);
     }
     return len;
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::ParseSequence(const ASN1Seq& asn1Seq) {
-    encoder.push_back(SEQUENCE_TAG);
-    int lenPos = encoder.size();
-    std::vector<uint8_t> len;
-    for(const auto asn1Obj : asn1Seq.asn1_obj()) {
-      len = AddNums(len, ParseObject(asn1Obj));
-    }
-    return AppendLength(len, lenPos);
   }
 
   std::vector<uint8_t> ASN1ProtoConverter::ParseIA5String(const ASN1IA5String& asn1IA5) {
@@ -149,6 +139,26 @@ namespace asn1_proto {
     }
   }
 
+  std::vector<uint8_t> ASN1ProtoConverter::ParseSequenceOf(const ASN1SeqOf& asn1SeqOf) {
+    encoder.push_back(SEQUENCE_OF_TAG);
+    int lenPos = encoder.size();
+    std::vector<uint8_t> len;
+    for(int i = 0; i < (uint8_t)asn1SeqOf.rep_value(); i++) {
+      len = AddNums(len, ParseObject(asn1SeqOf.asn1_obj()));
+    }
+    return AppendLength(len, lenPos);
+  }
+
+  std::vector<uint8_t> ASN1ProtoConverter::ParseSequence(const ASN1Seq& asn1Seq) {
+    encoder.push_back(SEQUENCE_TAG);
+    int lenPos = encoder.size();
+    std::vector<uint8_t> len;
+    for(const auto asn1Obj : asn1Seq.asn1_obj()) {
+      len = AddNums(len, ParseObject(asn1Obj));
+    }
+    return AppendLength(len, lenPos);
+  }
+
   std::vector<uint8_t> ASN1ProtoConverter::ParsePrimitive(const ASN1Primitive& asn1Primitive) {
     if(asn1Primitive.has_asn1_int()) {
       return ParseInt(asn1Primitive.asn1_int());
@@ -159,16 +169,6 @@ namespace asn1_proto {
     } else {
       return ParseNull(asn1Primitive.asn1_null());
     }
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::ParseSequenceOf(const ASN1SeqOf& asn1SeqOf) {
-    encoder.push_back(SEQUENCE_OF_TAG);
-    int lenPos = encoder.size();
-    std::vector<uint8_t> len;
-    for(int i = 0; i < (uint8_t)asn1SeqOf.rep_value(); i++) {
-      len = AddNums(len, ParseObject(asn1SeqOf.asn1_obj()));
-    }
-    return AppendLength(len, lenPos);
   }
 
   std::vector<uint8_t> ASN1ProtoConverter::ParseConstructive(const ASN1Constructive& asn1Constructive) {
@@ -193,16 +193,16 @@ namespace asn1_proto {
 
   void ASN1ProtoConverter::ParseToHex(std::vector<uint8_t> encoder) {
     for(const uint8_t byte : encoder) {
-      data_ << std::hex << ((byte >> 4) & NIBBLE_MASK);
-      data_ << std::hex << (byte & NIBBLE_MASK);
-      data_ << " ";
+      der_ << std::hex << ((byte >> 4) & NIBBLE_MASK);
+      der_ << std::hex << (byte & NIBBLE_MASK);
+      der_ << " ";
     }
   }
 
   std::string ASN1ProtoConverter::ProtoToDER(const ASN1Object& asn1Obj) {
     ParseObject(asn1Obj);
     ParseToHex(encoder);
-    return data_.str();
+    return der_.str();
   }
 
 }
