@@ -1,0 +1,68 @@
+syntax = "proto2";
+
+package asn1_proto;
+
+message ASN1Object {
+  required ASN1Null asn1_null = 1; // the default value is NULL
+  oneof types {
+    ASN1Primitive asn1_primitive = 2;
+    ASN1Constructive asn1_constructive = 3;
+  }
+}
+
+message ASN1Primitive {
+  required ASN1Null asn1_null = 1; // the default value is NULL
+  oneof types {
+    ASN1Boolean asn1_bool = 2;
+    ASN1Integer asn1_int = 3;
+    ASN1String asn1_str = 4;
+  }
+}
+
+message ASN1Constructive {
+  required ASN1Null asn1_null = 1; // the default value is NULL
+  oneof types {
+    ASN1Seq asn1_seq = 2;
+    ASN1SeqOf asn1_seq_of = 3;
+  }
+}
+
+message ASN1String {
+  required ASN1Null asn1_null = 1; // the default value is NULL
+  oneof types {
+    ASN1PrintableString asn1_ps = 2;
+    ASN1IA5String asn1_ia5 = 3;
+  }
+}
+
+message ASN1PrintableString {
+  required string asn1_ps = 1;
+}
+
+message ASN1IA5String {
+  required string asn1_ia5 = 1;
+}
+
+message ASN1Integer {
+  required bytes val = 1;
+}
+
+message ASN1Boolean {
+  required bool val = 1;
+}
+
+message ASN1Null {
+  required bool val = 1;
+}
+
+message ASN1Seq {
+  repeated ASN1Object asn1_obj = 1;
+}
+
+message ASN1SeqOf {
+  // proto doesn't allow repeated types in oneof
+  // so we have a repeated value that specifies
+  // how many times we repeat the object
+  required uint32 rep_value = 1;
+  required ASN1Object asn1_obj = 2;
+}
