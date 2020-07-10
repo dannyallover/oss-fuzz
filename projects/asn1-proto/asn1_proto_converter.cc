@@ -40,12 +40,12 @@ namespace asn1_proto {
   }
 
   size_t ASN1ProtoConverter::LongForm(const size_t assigned_len, const size_t len_pos) {
-    uint8_t lenBytes = GetNumBytes(assigned_len);
-    if(assigned_len > 127 || lenBytes > 1) {
+    uint8_t len_bytes = GetNumBytes(assigned_len);
+    if(assigned_len > 127 || len_bytes > 1) {
       uint8_t longForm = (1 << 7);
-      longForm += lenBytes;
+      longForm += len_bytes;
       encoder_.insert(encoder_.begin()+len_pos, longForm);
-      return assigned_len + lenBytes;
+      return len_bytes;
     }
     return 0;
   }
@@ -58,8 +58,8 @@ namespace asn1_proto {
       assigned_len = actual_len;
     }
     Append(assigned_len, len_pos);
-    assigned_len += LongForm(assigned_len, len_pos);
-    return assigned_len;
+    size_t long_len_bytes = LongForm(assigned_len, len_pos);
+    return GetNumBytes(assigned_len) + long_len_bytes;
   }
 
   size_t ASN1ProtoConverter::ParseValue(const Value& val) {
