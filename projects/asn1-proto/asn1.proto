@@ -34,6 +34,9 @@ message Length {
 message Value {
   // was going to use oneof
   // but oneof doesn't allow repeated
+  // work around: use repeated pdu when
+  // size is greater than 0 and use
+  // val otherwise
   repeated PDU pdu = 1; // constructed
   required bytes val = 2; // primitive
 }
