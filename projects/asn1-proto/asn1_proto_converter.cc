@@ -6,203 +6,128 @@
 #include <stack>
 #include <cmath>
 
-#define SEQUENCE_TAG 0x30
-#define SEQUENCE_OF_TAG 0x30
-#define INT_TAG 0x02
-#define NULL_TAG 0x05
-#define IA5_STRING_TAG 0x16
-#define PRINTABLE_STRING_TAG 0x13
-#define BOOL_TAG 0x01
-#define OFFSET 0x02
-#define NULL_VALUE 0x00
-#define DEFAULT_VALUE 0x01
-#define DEFAULT_SIZE 0x01
+#define UNIVERSAL 0b00 << 6
+#define APPLICATION 0b10 << 6
+#define CONTEXT_SPECIFIC 0b10 << 6
+#define PRIVATE 0b11 << 6
+#define PRIMITIVE 0b0 << 5
+#define CONSTRUCTED 0b1 << 5
 #define BYTE_MASK 0xFF
-#define NIBBLE_MASK 0xF
+
+int classes[] = {UNIVERSAL, APPLICATION, CONTEXT_SPECIFIC, PRIVATE};
+int encodings[] = {PRIMITIVE, CONSTRUCTED};
 
 namespace asn1_proto {
 
-  std::vector<uint8_t> ASN1ProtoConverter::NumToVector(uint64_t len) {
-    std::vector<uint8_t> num;
-    int shift = 7;
+  uint8_t ASN1ProtoConverter::GetNumBytes(size_t num) {
+    int shift = sizeof(size_t);
     while(shift >= 0) {
-      if(((len>>(shift*8))&BYTE_MASK) == 0) {
-        shift--;
-      } else {
-        break;
+      if(((num>>(shift*8))&BYTE_MASK) != 0) {
+        return shift;
+      }
+      shift--;
+    }
+    return 0;
+  }
+
+  void ASN1ProtoConverter::Append(size_t len, size_t pos) {
+    int len_num_bytes = GetNumBytes(len);
+    std::vector<uint8_t> len_vec;
+    for(int i = len_num_bytes; i >= 0; i--) {
+      len_vec.push_back((len>>(i*7))&BYTE_MASK);
+    }
+    encoder_.insert(encoder_.begin() + pos, len_vec.begin(), len_vec.end());
+  }
+
+  size_t ASN1ProtoConverter::LongForm(const size_t assigned_len, const size_t len_pos) {
+    uint8_t lenBytes = GetNumBytes(assigned_len);
+    if(assigned_len > 127 || lenBytes > 1) {
+      uint8_t longForm = (1 << 7);
+      longForm += lenBytes;
+      encoder_.insert(encoder_.begin()+len_pos, longForm);
+      return assigned_len + lenBytes;
+    }
+    return 0;
+  }
+
+  size_t ASN1ProtoConverter::ParseLength(const Length& len, const size_t actual_len, const size_t len_pos) {
+    size_t assigned_len = 0;
+    if(len.has_length_override()) {
+      assigned_len = len.length_override().size();
+    } else {
+      assigned_len = actual_len;
+    }
+    Append(assigned_len, len_pos);
+    assigned_len += LongForm(assigned_len, len_pos);
+    return assigned_len;
+  }
+
+  size_t ASN1ProtoConverter::ParseValue(const Value& val) {
+    size_t len = 0;
+    if(val.pdu().size() > 0) {
+      for(const PDU pdu : val.pdu()) {
+        len += ParsePDU(pdu);
+      }
+    } else {
+      len = val.val().size();
+      encoder_.insert(encoder_.end(), val.val().begin(), val.val().end());
+    }
+    return len;
+  }
+
+  size_t ASN1ProtoConverter::HighTagForm(const uint8_t cl, const uint8_t enc, const uint32_t tag) {
+    uint8_t numBytes = GetNumBytes(tag);
+    size_t res = (cl | enc | 0b11111);
+    for(int i = numBytes; i >= 0; i--) {
+      res <<= 8;
+      if(i != 0) {
+        res |= ((0b0 << 7) | ((tag >> (i*7)) & 0x7F));
+      } else if(i == 0) {
+        res |= ((0b1 << 7) | ((tag >> (i*7)) & 0x7F));
       }
     }
-    for(int i = shift; i >= 0; i--) {
-      num.push_back(((len>>(i*8))&BYTE_MASK));
-    }
-    return num;
+    return res;
   }
 
-  std::vector<uint8_t> ASN1ProtoConverter::AddNums(std::vector<uint8_t> len1, std::vector<uint8_t> len2) {
-    if(len1.size() > len2.size()) {
-      len1.swap(len2);
-    }
-
-    std::vector<uint8_t> sum;
-
-    int size1 = len1.size();
-    int size2 = len2.size();
-    int diff = size2 - size1;
-
-    uint16_t carry = 0;
-
-    for(int i=size1-1; i>= 0; i--) {
-      uint16_t num = len1[i] + len2[i+diff] + carry;
-      sum.push_back(num%0x100);
-      carry = (num/0x100);
-    }
-
-    for(int i = size2-size1-1; i>=0; i--) {
-      uint16_t num = len2[i] + carry;
-      sum.push_back(num%0x100);
-      carry = (num/0x100);
-    }
-
-    if(carry) {
-      sum.push_back(carry);
-    }
-
-    reverse(sum.begin(), sum.end());
-
-    return sum;
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::AppendLength(std::vector<uint8_t> len, int lenPos) {
-    encoder.insert(encoder.begin()+lenPos, len.begin(), len.end());
-    if(len.size() == 0) {
-      encoder.insert(encoder.begin()+lenPos, 0x00);
-    } else if(len.size() > 1 || (len[0]&BYTE_MASK) > 127) {
-      uint8_t extra = len.size();
-      uint8_t longForm = (1 << 7);
-      longForm += extra;
-      encoder.insert(encoder.begin()+lenPos, longForm);
-      len = AddNums(len, NumToVector(extra));
-    }
-    return AddNums(len, NumToVector(OFFSET));
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::ParseNull(const ASN1Null& asn1Null) {
-    encoder.push_back(NULL_TAG);
-    encoder.push_back(NULL_VALUE);
-    return {OFFSET};
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::ParseBool(const ASN1Boolean& asn1Bool) {
-    encoder.push_back(BOOL_TAG);
-    std::vector<uint8_t> len = AppendLength(NumToVector(DEFAULT_SIZE), encoder.size());
-    encoder.push_back(asn1Bool.val());
-    return len;
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::ParseInt(const ASN1Integer& asn1Int) {
-    encoder.push_back(INT_TAG);
-    std::string val = asn1Int.val().data();
-    std::vector<uint8_t> len;
-    if(val.begin() != val.end()) {
-      len = AppendLength(NumToVector(val.size()), encoder.size());
-      encoder.insert(encoder.end(), val.begin(), val.end());
+  size_t ASN1ProtoConverter::ParseIdentifier(const Identifier& id) {
+    uint8_t cl = classes[id.cls()];
+    uint8_t enc = encodings[id.encoding()];
+    uint32_t tag = id.tag();
+    size_t res;
+    if(tag <= 31) {
+      res = (cl | enc | tag);
     } else {
-      len = AppendLength(NumToVector(DEFAULT_SIZE), encoder.size());
-      encoder.push_back(DEFAULT_VALUE);
+      res = HighTagForm(cl, enc, tag);
     }
-    return len;
+    Append(res, encoder_.size());
+    return GetNumBytes(res);
   }
 
-  std::vector<uint8_t> ASN1ProtoConverter::ParseIA5String(const ASN1IA5String& asn1IA5) {
-    encoder.push_back(IA5_STRING_TAG);
-    std::string str = asn1IA5.asn1_ia5();
-    std::vector<uint8_t> len = AppendLength(NumToVector(str.size()), encoder.size());
-    encoder.insert(encoder.end(), str.begin(), str.end());
-    return len;
+  size_t ASN1ProtoConverter::ParsePDU(const PDU& pdu) {
+    size_t id_len = ParseIdentifier(pdu.id());
+    size_t len_pos = encoder_.size();
+    size_t val_len = ParseValue(pdu.val());
+    size_t len_len = ParseLength(pdu.len(), id_len + val_len, len_pos);
+    return id_len + val_len;
   }
 
-  std::vector<uint8_t> ASN1ProtoConverter::ParsePrintableString(const ASN1PrintableString& asn1PS) {
-    encoder.push_back(PRINTABLE_STRING_TAG);
-    std::string str = asn1PS.asn1_ps();
-    std::vector<uint8_t> len = AppendLength(NumToVector(str.size()), encoder.size());
-    encoder.insert(encoder.end(), str.begin(), str.end());
-    return len;
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::ParseString(const ASN1String& asn1Str) {
-    if(asn1Str.has_asn1_ps()) {
-      return ParsePrintableString(asn1Str.asn1_ps());
-    } else if(asn1Str.has_asn1_ia5()) {
-      return ParseIA5String(asn1Str.asn1_ia5());
-    } else {
-      return ParseNull(asn1Str.asn1_null());
-    }
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::ParseSequenceOf(const ASN1SeqOf& asn1SeqOf) {
-    encoder.push_back(SEQUENCE_OF_TAG);
-    int lenPos = encoder.size();
-    std::vector<uint8_t> len;
-    for(int i = 0; i < (uint8_t)asn1SeqOf.rep_value(); i++) {
-      len = AddNums(len, ParseObject(asn1SeqOf.asn1_obj()));
-    }
-    return AppendLength(len, lenPos);
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::ParseSequence(const ASN1Seq& asn1Seq) {
-    encoder.push_back(SEQUENCE_TAG);
-    int lenPos = encoder.size();
-    std::vector<uint8_t> len;
-    for(const auto asn1Obj : asn1Seq.asn1_obj()) {
-      len = AddNums(len, ParseObject(asn1Obj));
-    }
-    return AppendLength(len, lenPos);
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::ParsePrimitive(const ASN1Primitive& asn1Primitive) {
-    if(asn1Primitive.has_asn1_int()) {
-      return ParseInt(asn1Primitive.asn1_int());
-    } else if(asn1Primitive.has_asn1_bool()){
-      return ParseBool(asn1Primitive.asn1_bool());
-    } else if(asn1Primitive.has_asn1_str()) {
-      return ParseString(asn1Primitive.asn1_str());
-    } else {
-      return ParseNull(asn1Primitive.asn1_null());
-    }
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::ParseConstructive(const ASN1Constructive& asn1Constructive) {
-    if(asn1Constructive.has_asn1_seq()) {
-      return ParseSequence(asn1Constructive.asn1_seq());
-    } else if(asn1Constructive.has_asn1_seq_of()) {
-      return ParseSequenceOf(asn1Constructive.asn1_seq_of());
-    }else {
-      return ParseNull(asn1Constructive.asn1_null());
-    }
-  }
-
-  std::vector<uint8_t> ASN1ProtoConverter::ParseObject(const ASN1Object& asn1Obj) {
-    if(asn1Obj.has_asn1_constructive()) {
-      return ParseConstructive(asn1Obj.asn1_constructive());
-    } else if(asn1Obj.has_asn1_primitive()) {
-      return ParsePrimitive(asn1Obj.asn1_primitive());
-    } else {
-      return ParseNull(asn1Obj.asn1_null());
-    }
-  }
-
-  void ASN1ProtoConverter::ParseToHex(std::vector<uint8_t> encoder) {
-    for(const uint8_t byte : encoder) {
-      der_ << std::hex << ((byte >> 4) & NIBBLE_MASK);
-      der_ << std::hex << (byte & NIBBLE_MASK);
+    // using this function for checking
+  void ASN1ProtoConverter::ParseToBits() {
+    for(const uint8_t byte : encoder_) {
+      for(int i = 7; i>=0; i--) {
+        if(((byte >> i) & 0b1) == 1) {
+          der_ << "1";
+        } else {
+          der_ << "0";
+        }
+      }
       der_ << " ";
     }
   }
 
-  std::string ASN1ProtoConverter::ProtoToDER(const ASN1Object& asn1Obj) {
-    ParseObject(asn1Obj);
-    ParseToHex(encoder);
+  std::string ASN1ProtoConverter::ProtoToDER(const PDU& pdu) {
+    ParsePDU(pdu);
+    ParseToBits();
     return der_.str();
   }
-
 }
