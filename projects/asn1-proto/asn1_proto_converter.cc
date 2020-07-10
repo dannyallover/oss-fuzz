@@ -77,30 +77,30 @@ namespace asn1_proto {
 
   size_t ASN1ProtoConverter::HighTagForm(const uint8_t cl, const uint8_t enc, const uint32_t tag) {
     uint8_t numBytes = GetNumBytes(tag);
-    size_t res = (cl | enc | 0b11111);
+    size_t id_parsed = (cl | enc | 0b11111);
     for(int i = numBytes; i >= 0; i--) {
-      res <<= 8;
+      id_parsed <<= 8;
       if(i != 0) {
-        res |= ((0b0 << 7) | ((tag >> (i*7)) & 0x7F));
+        id_parsed |= ((0b0 << 7) | ((tag >> (i*7)) & 0x7F));
       } else if(i == 0) {
-        res |= ((0b1 << 7) | ((tag >> (i*7)) & 0x7F));
+        id_parsed |= ((0b1 << 7) | ((tag >> (i*7)) & 0x7F));
       }
     }
-    return res;
+    return id_parsed;
   }
 
   size_t ASN1ProtoConverter::ParseIdentifier(const Identifier& id) {
     uint8_t cl = classes[id.cls()];
-    uint8_t enc = encodings[id.encoding()];
+    uint8_t enc = encodings[id.enc()];
     uint32_t tag = id.tag();
-    size_t res;
+    size_t id_parsed;
     if(tag <= 31) {
-      res = (cl | enc | tag);
+      id_parsed = (cl | enc | tag);
     } else {
-      res = HighTagForm(cl, enc, tag);
+      id_parsed = HighTagForm(cl, enc, tag);
     }
-    Append(res, encoder_.size());
-    return GetNumBytes(res);
+    Append(id_parsed, encoder_.size());
+    return GetNumBytes(id_parsed);
   }
 
   size_t ASN1ProtoConverter::ParsePDU(const PDU& pdu) {
