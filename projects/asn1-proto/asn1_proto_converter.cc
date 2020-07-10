@@ -108,7 +108,7 @@ namespace asn1_proto {
     size_t len_pos = encoder_.size();
     size_t val_len = ParseValue(pdu.val());
     size_t len_len = ParseLength(pdu.len(), id_len + val_len, len_pos);
-    return id_len + val_len;
+    return id_len + val_len + len_len;
   }
 
     // using this function for checking
