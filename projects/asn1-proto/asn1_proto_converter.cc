@@ -40,8 +40,8 @@ size_t ASN1ProtoConverter::ParseLength(const Length &len,
                                        const size_t len_pos) {
   size_t assigned_len = 0;
   if (len.has_length_override()) {
-    assigned_len = len.length_override().size();
-  } else if (len.has_indefinite_form()) {
+    sscanf(len.length_override().c_str(), "%zu", &assigned_len);
+  } else if (len.has_indefinite_form() && len.indefinite_form()) {
     assigned_len = 0x80;
     // value is placed before length
     // so the pdu's value is already in encoder
@@ -61,7 +61,7 @@ size_t ASN1ProtoConverter::ParseValue(const Value &val) {
     for (const auto &val_ele : val.val_array()) {
       if (val_ele.has_pdu()) {
         len += ParsePDU(val_ele.pdu());
-      } else if (val_ele.has_val_bits() && val_ele.val_bits().size() != 0) {
+      } else if (val_ele.has_val_bits()) {
         len = val_ele.val_bits().size();
         encoder_.insert(encoder_.end(), val_ele.val_bits().begin(),
                         val_ele.val_bits().end());
