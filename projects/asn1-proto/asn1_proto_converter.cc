@@ -66,7 +66,8 @@ size_t ASN1ProtoConverter::ParseValue(const Value &val) {
         len += ParsePDU(val_ele.pdu());
       } else if (val_ele.has_val_bits()) {
         len = val_ele.val_bits().size();
-        encoder_.insert(encoder_.end(), val_ele.val_bits().begin(), val_ele.val_bits().end());
+        encoder_.insert(encoder_.end(), val_ele.val_bits().begin(),
+                        val_ele.val_bits().end());
       } else {
         len = 0;
       }
