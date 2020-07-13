@@ -28,7 +28,7 @@ enum Encoding {
 
 message Length {
   oneof types {
-    bool indefinite_length = 1;
+    bool indefinite_form = 1;
     bytes length_override = 2;
   }
 }
