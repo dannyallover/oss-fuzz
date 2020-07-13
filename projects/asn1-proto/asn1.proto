@@ -27,8 +27,10 @@ enum Encoding {
 }
 
 message Length {
-  // todo: add indefinite_length
-  optional bytes length_override = 1;
+  oneof types {
+    bool indefinite_length = 1;
+    bytes length_override = 2;
+  }
 }
 
 message ValueElement {

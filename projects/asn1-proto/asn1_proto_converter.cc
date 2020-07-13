@@ -41,6 +41,12 @@ size_t ASN1ProtoConverter::ParseLength(const Length &len,
   size_t assigned_len = 0;
   if (len.has_length_override()) {
     assigned_len = len.length_override().size();
+  } else if (len.has_indefinite_length()) {
+    assigned_len = 0x80;
+    // value is placed before length
+    // so the pdu's value is already in encoder
+    // we push 0x00 (End-of-Content) for indefinite length
+    encoder_.push_back(0x00);
   } else {
     assigned_len = actual_len;
   }
