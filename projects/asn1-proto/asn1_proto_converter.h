@@ -17,12 +17,15 @@ public:
 private:
   std::stringstream der_;
   std::vector<uint8_t> encoder_;
-  size_t ParsePDU(const PDU &pdu);
-  size_t ParseIdentifier(const Identifier &id);
-  size_t HighTagForm(const uint8_t cl, const uint8_t enc, const uint32_t tag);
-  size_t ParseLength(const Length &len, size_t actual_len, size_t len_pos);
-  size_t LongForm(size_t assigned_len, size_t len_pos);
-  size_t ParseValue(const Value &val);
+  size_t EncodePDU(const PDU &pdu);
+  size_t EncodeIdentifier(const Identifier &id);
+  uint64_t EncodeHighTagForm(const uint8_t cl, const uint8_t enc, const uint32_t tag);
+  size_t EncodeLength(const Length &len, size_t actual_len, size_t len_pos);
+  size_t EncodeOverrideLength(const std::string len, const size_t len_pos);
+  size_t EncodeIndefiniteLength(const size_t len_pos);
+  size_t EncodeCorrectLength(const size_t actual_len, const size_t len_pos);
+  size_t EncodeLongForm(size_t assigned_len, size_t len_pos);
+  size_t EncodeValue(const Value &val);
   void AppendBytes(size_t num, size_t pos);
   uint8_t GetNumBytes(size_t num);
   void ParseToBits();
