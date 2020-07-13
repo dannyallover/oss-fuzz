@@ -59,7 +59,7 @@ size_t ASN1ProtoConverter::ParseLength(const Length &len,
 }
 
 size_t ASN1ProtoConverter::ParseValue(const Value &val) {
-  size_t len;
+  size_t len = 0;
   if (val.val_array().size() > 0) {
     for (const auto &val_ele : val.val_array()) {
       if (val_ele.has_pdu()) {
@@ -68,8 +68,6 @@ size_t ASN1ProtoConverter::ParseValue(const Value &val) {
         len = val_ele.val_bits().size();
         encoder_.insert(encoder_.end(), val_ele.val_bits().begin(),
                         val_ele.val_bits().end());
-      } else {
-        len = 0;
       }
     }
   }
