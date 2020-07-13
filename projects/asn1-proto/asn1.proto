@@ -34,8 +34,10 @@ message Length {
 }
 
 message ValueElement {
-  optional PDU pdu = 1;
-  optional bytes val_bits = 2;
+  oneof types {
+    PDU pdu = 1;
+    bytes val_bits = 2;
+  }
 }
 
 message Value {

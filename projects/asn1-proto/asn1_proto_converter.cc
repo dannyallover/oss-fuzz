@@ -13,13 +13,13 @@ uint8_t ASN1ProtoConverter::GetNumBytes(size_t num) {
   return 0;
 }
 
-void ASN1ProtoConverter::Append(size_t len, size_t pos) {
-  uint8_t len_num_bytes = GetNumBytes(len);
+void ASN1ProtoConverter::AppendBytes(size_t num, size_t pos) {
+  uint8_t len_num_bytes = GetNumBytes(num);
   std::vector<uint8_t> len_vec;
   for (uint8_t i = len_num_bytes; i != 0; i--) {
-    len_vec.push_back((len >> (i * 7)) & 0xFF);
+    len_vec.push_back((num >> (i * 7)) & 0xFF);
   }
-  len_vec.push_back((len & 0xFF));
+  len_vec.push_back((num & 0xFF));
   encoder_.insert(encoder_.begin() + pos, len_vec.begin(), len_vec.end());
 }
 
@@ -29,7 +29,7 @@ size_t ASN1ProtoConverter::LongForm(const size_t assigned_len,
   if (assigned_len > 127) {
     uint8_t longForm = (1 << 7);
     longForm += len_bytes;
-    encoder_.insert(encoder_.begin() + len_pos, longForm);
+    AppendBytes(longForm, len_pos);
     return len_bytes;
   }
   return 0;
@@ -45,12 +45,15 @@ size_t ASN1ProtoConverter::ParseLength(const Length &len,
     assigned_len = 0x80;
     // value is placed before length
     // so the pdu's value is already in encoder
-    // we push 0x00 (End-of-Content) for indefinite form
-    encoder_.push_back(0x00);
+    // we push 0x00 0x00 (End-of-Content) for indefinite form
+    // which is considered a zero-length object so we
+    // need not add anything to the assigned_len
+    AppendBytes(0x00, encoder_.size());
+    AppendBytes(0x00, encoder_.size());
   } else {
     assigned_len = actual_len;
   }
-  Append(assigned_len, len_pos);
+  AppendBytes(assigned_len, len_pos);
   size_t long_len_bytes = LongForm(assigned_len, len_pos);
   return GetNumBytes(assigned_len) + long_len_bytes;
 }
@@ -63,8 +66,7 @@ size_t ASN1ProtoConverter::ParseValue(const Value &val) {
         len += ParsePDU(val_ele.pdu());
       } else if (val_ele.has_val_bits()) {
         len = val_ele.val_bits().size();
-        encoder_.insert(encoder_.end(), val_ele.val_bits().begin(),
-                        val_ele.val_bits().end());
+        encoder_.insert(encoder_.end(), val_ele.val_bits().begin(), val_ele.val_bits().end());
       } else {
         len = 0;
       }
@@ -96,7 +98,7 @@ size_t ASN1ProtoConverter::ParseIdentifier(const Identifier &id) {
   } else {
     id_parsed = HighTagForm(cls, enc, tag);
   }
-  Append(id_parsed, encoder_.size());
+  AppendBytes(id_parsed, encoder_.size());
   return GetNumBytes(id_parsed);
 }
 
@@ -128,4 +130,4 @@ std::string ASN1ProtoConverter::ProtoToDER(const PDU &pdu) {
   return der_.str();
 }
 
-}
+} // namespace asn1_proto

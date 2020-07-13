@@ -23,7 +23,7 @@ private:
   size_t ParseLength(const Length &len, size_t actual_len, size_t len_pos);
   size_t LongForm(size_t assigned_len, size_t len_pos);
   size_t ParseValue(const Value &val);
-  void Append(size_t num, size_t pos);
+  void AppendBytes(size_t num, size_t pos);
   uint8_t GetNumBytes(size_t num);
   void ParseToBits();
 };
