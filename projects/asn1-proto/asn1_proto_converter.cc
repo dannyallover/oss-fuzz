@@ -41,8 +41,8 @@ size_t ASN1ProtoConverter::EncodeLongForm(const size_t assigned_len,
 }
 
 /* If Override Length is set, then
- * this function will set the legnth
- * to the abritrary bytes assigned by the proto
+ * this function will set the length
+ * to the arbitrary bytes assigned by the proto
  */
 size_t ASN1ProtoConverter::EncodeOverrideLength(const std::string len,
                                                 const size_t len_pos) {
