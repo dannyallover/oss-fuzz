@@ -10,7 +10,7 @@ uint8_t ASN1ProtoConverter::GetNumBytes(size_t num) {
   uint8_t shift = sizeof(num);
   while (shift != 0) {
     if (((num >> (shift * 8)) & 0xFF) != 0) {
-      return shift;
+      return shift + 1;
     }
     shift--;
   }
