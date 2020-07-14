@@ -1,0 +1,15 @@
+syntax = "proto2";
+
+package cert_proto;
+
+message X509Certificate {
+    required SignatureValue sig_value = 3;
+}
+
+message SignatureValue {
+    required ASN1BitString asn1_bit_string = 1;
+}
+
+message ASN1BitString {
+    required string val = 1;
+}
