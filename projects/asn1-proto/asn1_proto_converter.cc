@@ -33,8 +33,9 @@ size_t ASN1ProtoConverter::EncodeLongForm(const size_t assigned_len,
                                           const size_t len_pos) {
   uint8_t len_bytes = GetNumBytes(assigned_len);
   if (assigned_len > 127) {
-    uint8_t long_form = (0x80 | len_bytes);
-    AppendBytes(long_form, len_pos);
+    // long form has hight bit set to 1 and lower bits
+    // set to number of bytes to encode length
+    AppendBytes((0x80 | len_bytes), len_pos);
     return len_bytes;
   }
   return 0;
@@ -46,12 +47,8 @@ size_t ASN1ProtoConverter::EncodeLongForm(const size_t assigned_len,
  */
 size_t ASN1ProtoConverter::EncodeOverrideLength(const std::string len,
                                                 const size_t len_pos) {
-  size_t assigned_len;
-  std::stringstream len_read(len);
-  len_read >> assigned_len;
-  AppendBytes(assigned_len, len_pos);
-  size_t long_len_bytes = EncodeLongForm(assigned_len, len_pos);
-  return GetNumBytes(assigned_len) + long_len_bytes;
+  encoder_.insert(encoder_.begin() + len_pos, len.begin(), len.end());
+  return len.size() + long_len_bytes;
 }
 
 /* If Override Length is not set but
