@@ -38,18 +38,15 @@ size_t ASN1ProtoConverter::EncodeLongForm(const size_t assigned_len,
 }
 
 // If Override Length is set, then this function will set the length to the
-// arbitrary bytes assigned by the proto
+// arbitrary bytes assigned by the proto.
 size_t ASN1ProtoConverter::EncodeOverrideLength(const std::string len,
                                                 const size_t len_pos) {
   encoder_.insert(encoder_.begin() + len_pos, len.begin(), len.end());
   return len.size();
 }
 
-/* If Override Length is not set but
- * Indefinite Form is, then this function
- * will set the length and EOC per the
- * Indefinite Form rules
- */
+// If Override Length is not set but, Indefinite Form is, then this function
+// will set the length and EOC per the Indefinite Form rules.
 size_t ASN1ProtoConverter::EncodeIndefiniteLength(const size_t len_pos) {
   AppendBytes(0x80, len_pos);
   // The value is placed before length, so the pdu's value is already in
@@ -61,10 +58,8 @@ size_t ASN1ProtoConverter::EncodeIndefiniteLength(const size_t len_pos) {
   return 3; // it takes one byte to encode 0x80
 }
 
-/* If Override Length and Inefinite Form
- * are not set, then this function will
- * assign the actual length of the pdu
- */
+// If Override Length and Inefinite Form are not set, then this function will
+// assign the actual length of the pdu.
 size_t ASN1ProtoConverter::EncodeCorrectLength(const size_t actual_len,
                                                const size_t len_pos) {
   AppendBytes(actual_len, len_pos);
@@ -89,7 +84,7 @@ size_t ASN1ProtoConverter::EncodeLength(const Length &len,
 
 size_t ASN1ProtoConverter::EncodeValue(const Value &val) {
   size_t len = 0;
-  for(const auto& val_ele : val.val_array()){
+  for (const auto &val_ele : val.val_array()) {
     if (val_ele.has_pdu()) {
       len += EncodePDU(val_ele.pdu());
     } else {
@@ -102,8 +97,8 @@ size_t ASN1ProtoConverter::EncodeValue(const Value &val) {
 }
 
 uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t cls,
-                                             const uint8_t encoding,
-                                             const uint32_t tag) {
+                                               const uint8_t encoding,
+                                               const uint32_t tag) {
   uint8_t numBytes = GetNumBytes(tag);
   // High tag form requires the lower 5 bits to be set to 1.
   uint64_t id_parsed = (cls | encoding | 0x1F);
