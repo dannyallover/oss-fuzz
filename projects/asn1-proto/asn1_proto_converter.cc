@@ -17,8 +17,8 @@ uint8_t ASN1ProtoConverter::GetNumBytes(const size_t num) {
 // the result into into |encoder_| at |pos|.
 void ASN1ProtoConverter::AppendBytes(const size_t num, const size_t pos) {
   std::vector<uint8_t> len_vec;
-  for (uint8_t i = GetNumBytes(num); i != 0; i--) {
-    len_vec.push_back((num >> ((i - 1) * 7)) & 0xFF);
+  for (uint8_t shift = GetNumBytes(num); shift != 0; shift--) {
+    len_vec.push_back((num >> ((shift - 1) * 7)) & 0xFF);
   }
   encoder_.insert(encoder_.begin() + pos, len_vec.begin(), len_vec.end());
 }
