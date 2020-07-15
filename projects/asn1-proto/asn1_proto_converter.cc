@@ -73,8 +73,7 @@ size_t ASN1ProtoConverter::EncodeCorrectLength(const size_t actual_len,
                                                const size_t len_pos) {
   AppendBytes(actual_len, len_pos);
   size_t len_num_bytes = GetNumBytes(actual_len);
-  // according to spec, we use long form if
-  // if the length is greater than 127
+  // we use long form if the length is greater than 127
   if (actual_len > 127) {
     return len_num_bytes + EncodeLongForm(actual_len, len_pos);
   }
@@ -113,12 +112,15 @@ size_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t cls,
                                              const uint8_t enc,
                                              const uint32_t tag) {
   uint8_t numBytes = GetNumBytes(tag);
+  // high tag form requires to set
+  // the lower 5 bits to 1
   size_t id_parsed = (cls | enc | 0x1F);
   id_parsed <<= 8;
   for (uint8_t i = numBytes; i != 0; i--) {
     id_parsed |= ((tag >> (i * 7)) & 0x7F);
     id_parsed <<= 8;
   }
+  // the high bit on the last byte is 1
   id_parsed |= ((0x01 << 7) | (tag & 0x7F));
   return id_parsed;
 }
