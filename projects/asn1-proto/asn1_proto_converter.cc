@@ -73,7 +73,6 @@ size_t ASN1ProtoConverter::EncodeCorrectLength(const size_t actual_len,
                                                const size_t len_pos) {
   AppendBytes(actual_len, len_pos);
   size_t len_num_bytes = GetNumBytes(actual_len);
-  // we use long form if the length is greater than 127
   if (actual_len > 127) {
     return len_num_bytes + EncodeLongForm(actual_len, len_pos);
   }
