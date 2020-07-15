@@ -5,12 +5,10 @@ namespace asn1_proto {
 // Returns the number of bytes needed to encode |num| into a variable-length
 // unsigned integer with no leading zeros.
 uint8_t ASN1ProtoConverter::GetNumBytes(const size_t num) {
-  uint8_t shift = sizeof(num);
-  while (shift != 0) {
+  for (uint8_t shift = sizeof(num); shift != 0; --shift) {
     if (((num >> ((shift - 1) * 8)) & 0xFF) != 0) {
       return shift;
     }
-    shift--;
   }
   return 0;
 }
@@ -116,8 +114,8 @@ uint64_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
   uint8_t enc = static_cast<uint8_t>(id.encoding()) << 5;
   uint32_t tag =
       id.tag().has_random_tag() ? id.tag().random_tag() : id.tag().known_tag();
-  uint64_t id_parsed =
-      tag <= 31 ? (id_class | enc | tag) : EncodeHighTagForm(id_class, enc, tag);
+  uint64_t id_parsed = tag <= 31 ? (id_class | enc | tag)
+                                 : EncodeHighTagForm(id_class, enc, tag);
   AppendBytes(id_parsed, encoder_.size());
   return GetNumBytes(id_parsed);
 }
