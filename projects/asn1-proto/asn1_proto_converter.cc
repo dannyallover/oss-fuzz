@@ -96,12 +96,12 @@ size_t ASN1ProtoConverter::EncodeValue(const Value &val) {
   return len;
 }
 
-uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t cls,
+uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
                                                const uint8_t encoding,
                                                const uint32_t tag) {
   uint8_t numBytes = GetNumBytes(tag);
   // High tag form requires the lower 5 bits to be set to 1.
-  uint64_t id_parsed = (cls | encoding | 0x1F);
+  uint64_t id_parsed = (id_class | encoding | 0x1F);
   id_parsed <<= 8;
   for (uint8_t i = numBytes; i != 0; i--) {
     id_parsed |= ((tag >> (i * 7)) & 0x7F);
@@ -113,12 +113,12 @@ uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t cls,
 }
 
 size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
-  uint8_t cls = static_cast<uint8_t>(id.cls()) << 6;
+  uint8_t id_class = static_cast<uint8_t>(id.id_class()) << 6;
   uint8_t enc = static_cast<uint8_t>(id.encoding()) << 5;
   uint32_t tag =
       id.tag().has_random_tag() ? id.tag().random_tag() : id.tag().known_tag();
   size_t id_parsed =
-      tag <= 31 ? (cls | enc | tag) : EncodeHighTagForm(cls, enc, tag);
+      tag <= 31 ? (id_class | enc | tag) : EncodeHighTagForm(id_class, enc, tag);
   AppendBytes(id_parsed, encoder_.size());
   return GetNumBytes(id_parsed);
 }
