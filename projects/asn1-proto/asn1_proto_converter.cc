@@ -89,13 +89,13 @@ size_t ASN1ProtoConverter::EncodeLength(const Length &len,
 
 size_t ASN1ProtoConverter::EncodeValue(const Value &val) {
   size_t len = 0;
-  for (auto it = val.val_array().begin(); it != val.val_array().end(); ++it) {
-    if (it->has_pdu()) {
-      len += EncodePDU(it->pdu());
+  for(const auto& val_ele : val.val_array()){
+    if (val_ele.has_pdu()) {
+      len += EncodePDU(val_ele.pdu());
     } else {
-      len += it->val_bits().size();
-      encoder_.insert(encoder_.end(), it->val_bits().begin(),
-                      it->val_bits().end());
+      len += val_ele.val_bits().size();
+      encoder_.insert(encoder_.end(), val_ele.val_bits().begin(),
+                      val_ele.val_bits().end());
     }
   }
   return len;
