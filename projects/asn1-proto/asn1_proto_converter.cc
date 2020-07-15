@@ -128,7 +128,7 @@ size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
   uint8_t cls = static_cast<uint8_t>(id.cls()) << 6;
   uint8_t enc = static_cast<uint8_t>(id.enc()) << 5;
   uint32_t tag =
-      id.tag().has_random_tag() ? id.tag().random_tag() : id.tag().valid_tag();
+      id.tag().has_random_tag() ? id.tag().random_tag() : id.tag().known_tag();
   size_t id_parsed =
       tag <= 31 ? (cls | enc | tag) : EncodeHighTagForm(cls, enc, tag);
   AppendBytes(id_parsed, encoder_.size());

@@ -16,10 +16,10 @@ message Identifier {
 
 message Tag {
   optional uint32 random_tag = 1;
-  required ValidTag valid_tag = 2;
+  required KnownTag known_tag = 2;
 }
 
-enum ValidTag {
+enum KnownTag {
   bool = 1;
   int = 2;
   bit_string = 3;
