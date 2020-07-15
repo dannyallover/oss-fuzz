@@ -18,9 +18,8 @@ uint8_t ASN1ProtoConverter::GetNumBytes(const size_t num) {
 // Converts |num| to a variable-length, big-endian representation and inserts
 // the result into into |encoder_| at |pos|.
 void ASN1ProtoConverter::AppendBytes(const size_t num, const size_t pos) {
-  uint8_t len_num_bytes = GetNumBytes(num);
   std::vector<uint8_t> len_vec;
-  for (uint8_t i = len_num_bytes; i != 0; i--) {
+  for (uint8_t i = GetNumBytes(num); i != 0; i--) {
     len_vec.push_back((num >> ((i - 1) * 7)) & 0xFF);
   }
   encoder_.insert(encoder_.begin() + pos, len_vec.begin(), len_vec.end());
@@ -112,12 +111,12 @@ uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
   return id_parsed;
 }
 
-size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
+uint64_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
   uint8_t id_class = static_cast<uint8_t>(id.id_class()) << 6;
   uint8_t enc = static_cast<uint8_t>(id.encoding()) << 5;
   uint32_t tag =
       id.tag().has_random_tag() ? id.tag().random_tag() : id.tag().known_tag();
-  size_t id_parsed =
+  uint64_t id_parsed =
       tag <= 31 ? (id_class | enc | tag) : EncodeHighTagForm(id_class, enc, tag);
   AppendBytes(id_parsed, encoder_.size());
   return GetNumBytes(id_parsed);
