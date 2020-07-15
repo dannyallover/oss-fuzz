@@ -9,8 +9,8 @@ namespace asn1_proto {
 uint8_t ASN1ProtoConverter::GetNumBytes(size_t num) {
   uint8_t shift = sizeof(num);
   while (shift != 0) {
-    if (((num >> (shift * 8)) & 0xFF) != 0) {
-      return shift + 1;
+    if (((num >> ((shift - 1) * 8)) & 0xFF) != 0) {
+      return shift;
     }
     shift--;
   }
@@ -23,7 +23,7 @@ uint8_t ASN1ProtoConverter::GetNumBytes(size_t num) {
 void ASN1ProtoConverter::AppendBytes(size_t num, size_t pos) {
   uint8_t len_num_bytes = GetNumBytes(num);
   std::vector<uint8_t> len_vec;
-  for (uint8_t i = len_num_bytes + 1; i != 0; i--) {
+  for (uint8_t i = len_num_bytes; i != 0; i--) {
     len_vec.push_back((num >> ((i - 1) * 7)) & 0xFF);
   }
   encoder_.insert(encoder_.begin() + pos, len_vec.begin(), len_vec.end());
@@ -32,13 +32,10 @@ void ASN1ProtoConverter::AppendBytes(size_t num, size_t pos) {
 size_t ASN1ProtoConverter::EncodeLongForm(const size_t assigned_len,
                                           const size_t len_pos) {
   uint8_t len_bytes = GetNumBytes(assigned_len);
-  if (assigned_len > 127) {
-    // long form has hight bit set to 1 and lower bits
-    // set to number of bytes to encode length
-    AppendBytes((0x80 | len_bytes), len_pos);
-    return len_bytes;
-  }
-  return 0;
+  // long form has hight bit set to 1 and lower bits
+  // set to number of bytes to encode length
+  AppendBytes((0x80 | len_bytes), len_pos);
+  return len_bytes;
 }
 
 /* If Override Length is set, then
@@ -48,7 +45,7 @@ size_t ASN1ProtoConverter::EncodeLongForm(const size_t assigned_len,
 size_t ASN1ProtoConverter::EncodeOverrideLength(const std::string len,
                                                 const size_t len_pos) {
   encoder_.insert(encoder_.begin() + len_pos, len.begin(), len.end());
-  return len.size() + long_len_bytes;
+  return len.size();
 }
 
 /* If Override Length is not set but
@@ -75,8 +72,13 @@ size_t ASN1ProtoConverter::EncodeIndefiniteLength(const size_t len_pos) {
 size_t ASN1ProtoConverter::EncodeCorrectLength(const size_t actual_len,
                                                const size_t len_pos) {
   AppendBytes(actual_len, len_pos);
-  size_t long_len_bytes = EncodeLongForm(actual_len, len_pos);
-  return GetNumBytes(actual_len) + long_len_bytes;
+  size_t len_num_bytes = GetNumBytes(actual_len);
+  // according to spec, we use long form if
+  // if the length is greater than 127
+  if (actual_len > 127) {
+    return len_num_bytes + EncodeLongForm(actual_len, len_pos);
+  }
+  return len_num_bytes;
 }
 
 size_t ASN1ProtoConverter::EncodeLength(const Length &len,
@@ -98,7 +100,7 @@ size_t ASN1ProtoConverter::EncodeValue(const Value &val) {
       if (val_ele.has_pdu()) {
         len += EncodePDU(val_ele.pdu());
       } else {
-        len = val_ele.val_bits().size();
+        len += val_ele.val_bits().size();
         encoder_.insert(encoder_.end(), val_ele.val_bits().begin(),
                         val_ele.val_bits().end());
       }
@@ -124,13 +126,10 @@ size_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t cls,
 size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
   uint8_t cls = static_cast<uint8_t>(id.cls()) << 6;
   uint8_t enc = static_cast<uint8_t>(id.enc()) << 5;
-  uint32_t tag = id.tag();
-  size_t id_parsed;
-  if (tag <= 31) {
-    id_parsed = (cls | enc | tag);
-  } else {
-    id_parsed = EncodeHighTagForm(cls, enc, tag);
-  }
+  uint32_t tag =
+      id.tag().has_random_tag() ? id.tag().random_tag() : id.tag().valid_tag();
+  size_t id_parsed =
+      tag <= 31 ? (cls | enc | tag) : EncodeHighTagForm(cls, enc, tag);
   AppendBytes(id_parsed, encoder_.size());
   return GetNumBytes(id_parsed);
 }
@@ -139,7 +138,7 @@ size_t ASN1ProtoConverter::EncodePDU(const PDU &pdu) {
   size_t id_len = EncodeIdentifier(pdu.id());
   size_t len_pos = encoder_.size();
   size_t val_len = EncodeValue(pdu.val());
-  size_t len_len = EncodeLength(pdu.len(), id_len + val_len, len_pos);
+  size_t len_len = EncodeLength(pdu.len(), val_len, len_pos);
   return id_len + val_len + len_len;
 }
 
