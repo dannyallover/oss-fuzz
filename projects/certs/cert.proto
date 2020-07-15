@@ -2,14 +2,78 @@ syntax = "proto2";
 
 package cert_proto;
 
-message X509Certificate {
-    required SignatureValue sig_value = 3;
+message PDU {
+  required Identifier id = 1;
+  required Length len = 2;
+  required Value val = 3;
 }
 
-message SignatureValue {
-    required ASN1BitString asn1_bit_string = 1;
+message Identifier {
+  required Class cls = 2;
+  required Encoding enc = 1;
+  required Tag tag = 3;
 }
 
-message ASN1BitString {
-    required string val = 1;
+message Tag {
+  optional uint32 random_tag = 1;
+  required ValidTag valid_tag = 2; 
+}
+
+enum ValidTag {
+  bool = 1;
+  int = 2;
+  bit_string = 3;
+  octet_string = 4;
+  null = 5;
+  object_identifier = 6;
+  object_descriptor = 7;
+  instance_of = 8; // or external
+  real = 9;
+  enumerated = 10;
+  embedded_pdv = 11;
+  utf8_string = 12;
+  relative_oid = 13;
+  sequence = 16; // or sequence of
+  set = 17; // or set of
+  numeric_string = 18;
+  printable_string = 19;
+  teletex_string = 20; // or t61 string
+  videotex_string = 21;
+  ia5_string = 22;
+  utc_time = 23;
+  generalized_time = 24;
+  graphic_string = 25;
+  visible_string = 26;
+  general_string = 27;
+  univeral_string = 28;
+  character_string = 29;
+  bmp_string = 30;
+}
+
+enum Class {
+  Universal = 0;
+  Application = 1;
+  ContextSpecific = 2;
+  Private = 3;
+}
+
+enum Encoding {
+  Primitive = 0;
+  Constructed = 1;
+}
+
+message Length {
+  oneof types {
+    bool indefinite_form = 1;
+    bytes length_override = 2;
+  }
+}
+
+message ValueElement {
+  optional PDU pdu = 1;
+  required bytes val_bits = 2;
+}
+
+message Value {
+  repeated ValueElement val_array = 1;
 }
