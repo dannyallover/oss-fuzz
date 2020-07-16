@@ -28,7 +28,7 @@ size_t ASN1ProtoConverter::EncodeLongForm(const size_t assigned_len,
   uint8_t len_bytes = GetNumBytes(assigned_len);
   // Long-form length is encoded as a byte with the high-bit set to indicate the
   // long-form, while the remaining bits indicate how many bytes are used to
-  // encode the length (X.690,2015, 8.1.3.5).
+  // encode the length (X.690, 2015, 8.1.3.5).
   AppendBytes((0x80 | len_bytes), len_pos);
   return len_bytes;
 }
@@ -106,7 +106,7 @@ uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
     id_parsed |= ((tag >> (i * 7)) & 0x7F);
     id_parsed <<= 8;
   }
-  // The high bit on the last byte is 1 (X.690, 2015, 8.1.2.4.2).
+  // The high bit on the last byte is set to 1 (X.690, 2015, 8.1.2.4.2).
   id_parsed |= ((0x01 << 7) | (tag & 0x7F));
   return id_parsed;
 }
@@ -115,7 +115,7 @@ size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
   // The class comprises the the 7th and 8th bit of the identifier (X.690,
   // 2015, 8.1.2).
   uint8_t id_class = static_cast<uint8_t>(id.id_class()) << 6;
-  // The encoding comprises the 6 bit of the identifier (X.690, 2015, 8.1.2).
+  // The encoding comprises the 6th bit of the identifier (X.690, 2015, 8.1.2).
   uint8_t encoding = static_cast<uint8_t>(id.encoding()) << 5;
 
   uint32_t tag =
