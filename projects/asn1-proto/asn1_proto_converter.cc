@@ -43,7 +43,8 @@ size_t ASN1ProtoConverter::EncodeOverrideLength(const std::string len,
 }
 
 // If Override Length is not set but, Indefinite Form is, then this function
-// will set the length and EOC per the Indefinite Form rules.
+// will set the length and EOC per the Indefinite Form rules (X.690,
+// 2015, 8.1.3.6).
 size_t ASN1ProtoConverter::EncodeIndefiniteLength(const size_t len_pos) {
   AppendBytes(0x80, len_pos);
   // The value is placed before length, so the pdu's value is already in
@@ -56,11 +57,14 @@ size_t ASN1ProtoConverter::EncodeIndefiniteLength(const size_t len_pos) {
 }
 
 // If Override Length and Inefinite Form are not set, then this function will
-// assign the actual length of the pdu.
+// assign the actual length of the pdu according to DER definite form (X.690,
+// 2015, 8.1.3-8.1.5 & 10.1).
 size_t ASN1ProtoConverter::EncodeCorrectLength(const size_t actual_len,
                                                const size_t len_pos) {
   AppendBytes(actual_len, len_pos);
   size_t len_num_bytes = GetNumBytes(actual_len);
+  // The long form is used when the length is larger than 127 (X.690,
+  // 2015, 8.1.3.3).
   if (actual_len > 127) {
     return len_num_bytes + EncodeLongForm(actual_len, len_pos);
   }
@@ -105,18 +109,23 @@ uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
     id_parsed |= ((tag >> (i * 7)) & 0x7F);
     id_parsed <<= 8;
   }
-  // The high bit on the last byte is 1 (X.690, 2015, 8.1.2.4.1.2).
+  // The high bit on the last byte is 1 (X.690, 2015, 8.1.2.4.2).
   id_parsed |= ((0x01 << 7) | (tag & 0x7F));
   return id_parsed;
 }
 
 size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
+  // The class comprises the the 7th and 8th bit of the identifier (X.690, 2015, 8.1.2).
   uint8_t id_class = static_cast<uint8_t>(id.id_class()) << 6;
-  uint8_t enc = static_cast<uint8_t>(id.encoding()) << 5;
+  // The encoding comprises the 6 bit of the identifier (X.690, 2015, 8.1.2).
+  uint8_t encoding = static_cast<uint8_t>(id.encoding()) << 5;
+
   uint32_t tag =
       id.tag().has_high_tag() ? id.tag().high_tag() : id.tag().low_tag();
-  uint64_t id_parsed = tag <= 31 ? (id_class | enc | tag)
-                                 : EncodeHighTagForm(id_class, enc, tag);
+  // When the tag is less than 31, we encode with a single octet; otherwise,
+  // we use the high tag form (X.690, 2015, 8.1.2).
+  uint64_t id_parsed = tag < 31 ? (id_class | encoding | tag)
+                                 : EncodeHighTagForm(id_class, encoding, tag);
   AppendBytes(id_parsed, encoder_.size());
   return GetNumBytes(id_parsed);
 }
@@ -124,7 +133,7 @@ size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
 size_t ASN1ProtoConverter::EncodePDU(const PDU &pdu) {
   depth_++;
   // We artifically limit the stack depth to avoid stack overflow.
-  if(depth_ > 67000) {
+  if (depth_ > 67000) {
     return;
   }
   size_t id_len = EncodeIdentifier(pdu.id());
