@@ -26,10 +26,9 @@ void ASN1ProtoConverter::AppendBytes(const size_t num, const size_t pos) {
 size_t ASN1ProtoConverter::EncodeLongForm(const size_t assigned_len,
                                           const size_t len_pos) {
   uint8_t len_bytes = GetNumBytes(assigned_len);
-  // See X.690 (2015), 8.1.3.5
   // Long-form length is encoded as a byte with the high-bit set to indicate the
   // long-form, while the remaining bits indicate how many bytes are used to
-  // encode the length, followed by the actual encoded length.
+  // encode the length, followed by the actual encoded length (X.690, 2015, 8.1.3.5).
   AppendBytes((0x80 | len_bytes), len_pos);
   return len_bytes;
 }
@@ -52,7 +51,7 @@ size_t ASN1ProtoConverter::EncodeIndefiniteLength(const size_t len_pos) {
   // assigned_len.
   AppendBytes(0x00, encoder_.size());
   AppendBytes(0x00, encoder_.size());
-  return 3; // it takes one byte to encode 0x80
+  return 3;
 }
 
 // If Override Length and Inefinite Form are not set, then this function will
@@ -97,14 +96,14 @@ uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
                                                const uint8_t encoding,
                                                const uint32_t tag) {
   uint8_t numBytes = GetNumBytes(tag);
-  // High tag form requires the lower 5 bits to be set to 1.
+  // High tag form requires the lower 5 bits to be set to 1 (X.690, 2015, 8.1.2.4.1).
   uint64_t id_parsed = (id_class | encoding | 0x1F);
   id_parsed <<= 8;
   for (uint8_t i = numBytes; i != 0; i--) {
     id_parsed |= ((tag >> (i * 7)) & 0x7F);
     id_parsed <<= 8;
   }
-  // The high bit on the last byte is 1.
+  // The high bit on the last byte is 1 (X.690, 2015, 8.1.2.4.1.2).
   id_parsed |= ((0x01 << 7) | (tag & 0x7F));
   return id_parsed;
 }

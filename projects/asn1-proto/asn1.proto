@@ -16,6 +16,8 @@ message Identifier {
 
 message Tag {
   optional uint32 high_tag = 1;
+  // We know that most of the existing ASN1 tags
+  // are going to be encoded with one byte.
   required UInt8 low_tag = 2;
 }
 
@@ -278,6 +280,7 @@ enum UInt8 {
   VAL255 = 255;
 }
 
+// We set the values of the class according to X.690, 2015, 8.1.2.2.
 enum Class {
   Universal = 0;
   Application = 1;
@@ -285,14 +288,23 @@ enum Class {
   Private = 3;
 }
 
+// We set the values of the encoding according to X.690, 2015, 8.1.2.5.
 enum Encoding {
   Primitive = 0;
   Constructed = 1;
 }
 
 message Length {
+  // If |types| is absent, the encoded length will be correctly encoded
+  // according to the DER definite form (X.690, 2015, 8.1.3-8.1.5 & 10.1).
   oneof types {
+    // If set, causes the length to be encoded using the
+    // indefinite-form encoding (X.690, 2015, 8.1.3.6).
     bool indefinite_form = 1;
+
+    // If set, the literal value from |length_override| will be used as the
+    // encoded length. This also accounts for incorrectly-encoded
+    // lengths (e.g. non-minimal encodings).
     bytes length_override = 2;
   }
 }
