@@ -16,8 +16,8 @@ message Identifier {
 
 message Tag {
   optional uint32 high_tag = 1;
-  // We know that most of the existing ASN1 tags
-  // are going to be encoded with one byte.
+  // |low_tag| is the default because we know that most of the 
+  // existing ASN1 tags are going to be encoded with one byte.
   required UInt8 low_tag = 2;
 }
 
