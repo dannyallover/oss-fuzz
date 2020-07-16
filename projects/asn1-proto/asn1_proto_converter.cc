@@ -115,7 +115,8 @@ uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
 }
 
 size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
-  // The class comprises the the 7th and 8th bit of the identifier (X.690, 2015, 8.1.2).
+  // The class comprises the the 7th and 8th bit of the identifier (X.690,
+  // 2015, 8.1.2).
   uint8_t id_class = static_cast<uint8_t>(id.id_class()) << 6;
   // The encoding comprises the 6 bit of the identifier (X.690, 2015, 8.1.2).
   uint8_t encoding = static_cast<uint8_t>(id.encoding()) << 5;
@@ -125,7 +126,7 @@ size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
   // When the tag is less than 31, we encode with a single octet; otherwise,
   // we use the high tag form (X.690, 2015, 8.1.2).
   uint64_t id_parsed = tag < 31 ? (id_class | encoding | tag)
-                                 : EncodeHighTagForm(id_class, encoding, tag);
+                                : EncodeHighTagForm(id_class, encoding, tag);
   AppendBytes(id_parsed, encoder_.size());
   return GetNumBytes(id_parsed);
 }
