@@ -110,7 +110,7 @@ uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
   return id_parsed;
 }
 
-uint64_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
+size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
   uint8_t id_class = static_cast<uint8_t>(id.id_class()) << 6;
   uint8_t enc = static_cast<uint8_t>(id.encoding()) << 5;
   uint32_t tag =
