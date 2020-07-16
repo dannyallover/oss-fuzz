@@ -28,8 +28,7 @@ size_t ASN1ProtoConverter::EncodeLongForm(const size_t assigned_len,
   uint8_t len_bytes = GetNumBytes(assigned_len);
   // Long-form length is encoded as a byte with the high-bit set to indicate the
   // long-form, while the remaining bits indicate how many bytes are used to
-  // encode the length, followed by the actual encoded length (X.690,
-  // 2015, 8.1.3.5).
+  // encode the length (X.690,2015, 8.1.3.5).
   AppendBytes((0x80 | len_bytes), len_pos);
   return len_bytes;
 }
@@ -48,22 +47,20 @@ size_t ASN1ProtoConverter::EncodeOverrideLength(const std::string len,
 size_t ASN1ProtoConverter::EncodeIndefiniteLength(const size_t len_pos) {
   AppendBytes(0x80, len_pos);
   // The value is placed before length, so the pdu's value is already in
-  // encoder. We push 0x00 0x00 (End-of-Content) for indefinite form, which is
-  // considered a zero-length object so we need not add anything to the
-  // assigned_len.
+  // |encoder_|, so we push EOC to the end of |encoder_|.
   AppendBytes(0x00, encoder_.size());
   AppendBytes(0x00, encoder_.size());
   return 3;
 }
 
 // If Override Length and Inefinite Form are not set, then this function will
-// assign the actual length of the pdu according to DER definite form (X.690,
+// assign the actual length of the pdu according to DER definite-form (X.690,
 // 2015, 8.1.3-8.1.5 & 10.1).
 size_t ASN1ProtoConverter::EncodeCorrectLength(const size_t actual_len,
                                                const size_t len_pos) {
   AppendBytes(actual_len, len_pos);
   size_t len_num_bytes = GetNumBytes(actual_len);
-  // The long form is used when the length is larger than 127 (X.690,
+  // The long-form is used when the length is larger than 127 (X.690,
   // 2015, 8.1.3.3).
   if (actual_len > 127) {
     return len_num_bytes + EncodeLongForm(actual_len, len_pos);
