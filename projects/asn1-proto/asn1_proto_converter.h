@@ -15,11 +15,13 @@ public:
   std::string ProtoToDER(const PDU &pdu);
 
 private:
+  size_t depth_;
   std::stringstream der_;
   std::vector<uint8_t> encoder_;
   size_t EncodePDU(const PDU &pdu);
   uint64_t EncodeIdentifier(const Identifier &id);
-  uint64_t EncodeHighTagForm(const uint8_t cl, const uint8_t encoding, const uint32_t tag);
+  uint64_t EncodeHighTagForm(const uint8_t cl, const uint8_t encoding,
+                             const uint32_t tag);
   size_t EncodeLength(const Length &len, size_t actual_len, size_t len_pos);
   size_t EncodeOverrideLength(const std::string len, const size_t len_pos);
   size_t EncodeIndefiniteLength(const size_t len_pos);

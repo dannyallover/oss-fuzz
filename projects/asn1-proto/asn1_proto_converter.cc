@@ -28,7 +28,8 @@ size_t ASN1ProtoConverter::EncodeLongForm(const size_t assigned_len,
   uint8_t len_bytes = GetNumBytes(assigned_len);
   // Long-form length is encoded as a byte with the high-bit set to indicate the
   // long-form, while the remaining bits indicate how many bytes are used to
-  // encode the length, followed by the actual encoded length (X.690, 2015, 8.1.3.5).
+  // encode the length, followed by the actual encoded length (X.690,
+  // 2015, 8.1.3.5).
   AppendBytes((0x80 | len_bytes), len_pos);
   return len_bytes;
 }
@@ -96,7 +97,8 @@ uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
                                                const uint8_t encoding,
                                                const uint32_t tag) {
   uint8_t numBytes = GetNumBytes(tag);
-  // High tag form requires the lower 5 bits to be set to 1 (X.690, 2015, 8.1.2.4.1).
+  // High tag form requires the lower 5 bits to be set to 1 (X.690,
+  // 2015, 8.1.2.4.1).
   uint64_t id_parsed = (id_class | encoding | 0x1F);
   id_parsed <<= 8;
   for (uint8_t i = numBytes; i != 0; i--) {
@@ -120,10 +122,16 @@ uint64_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
 }
 
 size_t ASN1ProtoConverter::EncodePDU(const PDU &pdu) {
+  depth_++;
+  // We artifically limit the stack depth to avoid stack overflow.
+  if(depth_ > 67000) {
+    return;
+  }
   size_t id_len = EncodeIdentifier(pdu.id());
   size_t len_pos = encoder_.size();
   size_t val_len = EncodeValue(pdu.val());
   size_t len_len = EncodeLength(pdu.len(), val_len, len_pos);
+  depth_--;
   return id_len + val_len + len_len;
 }
 
