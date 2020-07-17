@@ -15,9 +15,6 @@
 # limitations under the License.
 #
 ################################################################################
-mkdir -p $WORK/boringssl
-cd $WORK/boringssl
-
 CFLAGS="$CFLAGS -DBORINGSSL_UNSAFE_FUZZER_MODE"
 CXXFLAGS="$CXXFLAGS -DBORINGSSL_UNSAFE_FUZZER_MODE"
 
@@ -37,14 +34,16 @@ fuzzerFiles=$(find $SRC/boringssl/fuzz/ -name "*.cc")
 
 find . -name "*.a"
 
-for F in $fuzzerFiles; do
-  fuzzerName=$(basename $F .cc)
-  echo "Building fuzzer $fuzzerName"
-  $CXX $CXXFLAGS -std=c++11 \
-      -o $OUT/${fuzzerName} $LIB_FUZZING_ENGINE $F \
-      -I $SRC/boringssl/include ./ssl/libssl.a  ./crypto/libcrypto.a
+rm -rf genfiles && mkdir genfiles && LPM/external.protobuf/bin/protoc asn1.proto --cpp_out=genfiles --proto_path=$SRC
 
-  if [ -d "$SRC/boringssl/fuzz/${fuzzerName}_corpus" ]; then
-    zip -j $OUT/${fuzzerName}_seed_corpus.zip $SRC/boringssl/fuzz/${fuzzerName}_corpus/*
-  fi
-done
+$CXX $CXXFLAGS -I genfiles -I . -I libprotobuf-mutator/ -I LPM/external.protobuf/include -I include $LIB_FUZZING_ENGINE \
+    $SRC/asn1_proto_main.cc genfiles/asn1.pb.cc $SRC/asn1_proto_converter.cc \
+    -I $SRC/boringssl/include ./ssl/libssl.a  ./crypto/libcrypto.a \
+    LPM/src/libfuzzer/libprotobuf-mutator-libfuzzer.a \
+    LPM/src/libprotobuf-mutator.a \
+    LPM/external.protobuf/lib/libprotobuf.a \
+    -o  $OUT/asn1_proto_generate_1 \
+
+$CXX $CXXFLAGS -std=c++11 \
+  -o $OUT/asn1_proto_generate_2 $LIB_FUZZING_ENGINE $SRC/fuzz.cc \
+  -I $SRC/boringssl/include ./ssl/libssl.a  ./crypto/libcrypto.a
