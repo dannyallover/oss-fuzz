@@ -1,33 +1,34 @@
 #ifndef ASN1_PROTO_CONVERTER_H_
 #define ASN1_PROTO_CONVERTER_H_
 
-#include "asn1.pb.h"
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include "asn1.pb.h"
 
 namespace asn1_proto {
 
 class ASN1ProtoConverter {
-public:
+ public:
   // Encodes |pdu| to DER, returning the encoded bytes of the PDU in
   // |encoder_|.
-  std::vector<uint8_t> ProtoToDER(const PDU &pdu);
+  std::vector<uint8_t> ProtoToDER(const PDU& pdu);
 
-private:
+ private:
   size_t depth_;
   std::vector<uint8_t> encoder_;
   // Enocdes |pdu| to DER, returning the number of bytes needed encode |pdu|.
-  size_t EncodePDU(const PDU &pdu);
+  size_t EncodePDU(const PDU& pdu);
   // Encodes |id| to DER according to X.690 (2015), 8.1.2.
   // Returns number of bytes needed to encode |id|.
-  size_t EncodeIdentifier(const Identifier &id);
+  size_t EncodeIdentifier(const Identifier& id);
   // Concatinates |id_class|, |encoding|, and |tag| according to DER high tag
   // form rules (X.690 (2015), 8.1.2.4), returning high-tag-identifier
   // |id_parsed|.
-  uint64_t EncodeHighTagForm(const uint8_t id_class, const uint8_t encoding,
+  uint64_t EncodeHighTagForm(const uint8_t id_class,
+                             const uint8_t encoding,
                              const uint32_t tag);
   // Encodes the length in |actual_len| to DER, returning the length
   // in bytes of the encoded length. |len_pos| contains the offset in |encoder_|
@@ -35,7 +36,7 @@ private:
   // encoding, in order to produce invalid lengths. To correctly call this, the
   // tag must already be encoded immediately prior to |len_pos|, and the
   // remainder of |encoder_| represents the encoded value.
-  size_t EncodeLength(const Length &len, size_t actual_len, size_t len_pos);
+  size_t EncodeLength(const Length& len, size_t actual_len, size_t len_pos);
   // Writes |raw_length| to |encoder_| at |len_pos| and returns the number of
   // bytes written to |encoder_|.
   size_t EncodeOverrideLength(const std::string raw_len, const size_t len_pos);
@@ -50,7 +51,7 @@ private:
   size_t EncodeCorrectLength(const size_t actual_len, const size_t len_pos);
   // Extracts bytes from |val| and inserts them into |enocder_|, returning
   // number of bytes needed to encode |val|.
-  size_t EncodeValue(const Value &val);
+  size_t EncodeValue(const Value& val);
   // Converts |num| to a variable-length, big-endian representation and inserts
   // the result into into |encoder_| at |pos|.
   void AppendBytes(const size_t num, const size_t pos);
@@ -61,6 +62,6 @@ private:
   void ParseToBits();
 };
 
-} // namespace asn1_proto
+}  // namespace asn1_proto
 
 #endif

@@ -51,7 +51,7 @@ size_t ASN1ProtoConverter::EncodeCorrectLength(const size_t actual_len,
   return len_num_bytes;
 }
 
-size_t ASN1ProtoConverter::EncodeLength(const Length &len,
+size_t ASN1ProtoConverter::EncodeLength(const Length& len,
                                         const size_t actual_len,
                                         const size_t len_pos) {
   if (len.has_length_override()) {
@@ -63,9 +63,9 @@ size_t ASN1ProtoConverter::EncodeLength(const Length &len,
   }
 }
 
-size_t ASN1ProtoConverter::EncodeValue(const Value &val) {
+size_t ASN1ProtoConverter::EncodeValue(const Value& val) {
   size_t len = 0;
-  for (const auto &val_ele : val.val_array()) {
+  for (const auto& val_ele : val.val_array()) {
     if (val_ele.has_pdu()) {
       len += EncodePDU(val_ele.pdu());
     } else {
@@ -97,7 +97,7 @@ uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
   return id_parsed;
 }
 
-size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
+size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier& id) {
   // The class comprises the the 7th and 8th bit of the identifier (X.690
   // (2015), 8.1.2).
   uint8_t id_class = static_cast<uint8_t>(id.id_class()) << 6;
@@ -115,7 +115,7 @@ size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
   return GetNumBytes(id_parsed);
 }
 
-size_t ASN1ProtoConverter::EncodePDU(const PDU &pdu) {
+size_t ASN1ProtoConverter::EncodePDU(const PDU& pdu) {
   depth_++;
   // Artifically limit the stack depth to avoid stack overflow.
   if (depth_ > 67000) {
@@ -142,9 +142,9 @@ void ASN1ProtoConverter::ParseToBits() {
   }
 }
 
-std::vector<uint8_t> ASN1ProtoConverter::ProtoToDER(const PDU &pdu) {
+std::vector<uint8_t> ASN1ProtoConverter::ProtoToDER(const PDU& pdu) {
   EncodePDU(pdu);
   return encoder_;
 }
 
-} // namespace asn1_proto
+}  // namespace asn1_proto
