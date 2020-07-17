@@ -16,7 +16,6 @@ public:
 
 private:
   size_t depth_;
-  std::stringstream der_;
   std::vector<uint8_t> encoder_;
   size_t EncodePDU(const PDU &pdu);
   size_t EncodeIdentifier(const Identifier &id);
