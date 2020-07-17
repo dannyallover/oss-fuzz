@@ -18,7 +18,7 @@ uint8_t ASN1ProtoConverter::GetNumBytes(const size_t num) {
 void ASN1ProtoConverter::AppendBytes(const size_t num, const size_t pos) {
   std::vector<uint8_t> len_vec;
   for (uint8_t shift = GetNumBytes(num); shift != 0; shift--) {
-    len_vec.push_back((num >> ((shift - 1) * 7)) & 0xFF);
+    len_vec.push_back((num >> ((shift - 1) * 8)) & 0xFF);
   }
   encoder_.insert(encoder_.begin() + pos, len_vec.begin(), len_vec.end());
 }
@@ -113,7 +113,7 @@ uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
   for (uint8_t i = numBytes; i != 0; i--) {
     // If it's not the last byte, the high bit is set to 1 (X.690,
     // 2015, 8.1.2.4.2).
-    id_parsed |= ((0x01 << 7) | ((tag >> (i * 8)) & 0x7F));
+    id_parsed |= ((0x01 << 7) | ((tag >> (i * 7)) & 0x7F));
     id_parsed <<= 8;
   }
   id_parsed |= (tag & 0x7F);
@@ -167,7 +167,7 @@ void ASN1ProtoConverter::ParseToBits() {
 
 std::vector<uint8_t> ASN1ProtoConverter::ProtoToDER(const PDU &pdu) {
   EncodePDU(pdu);
-  // Note: take out following two lines later (currently used for testing).
+  // Note: take out following two lines (currently used for testing).
   ParseToBits();
   std::cout << der_.str() << "\n" << std::endl;
   return encoder_;

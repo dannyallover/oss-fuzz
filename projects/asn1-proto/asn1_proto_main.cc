@@ -5,4 +5,7 @@
 DEFINE_PROTO_FUZZER(const asn1_proto::PDU &asn1) {
   asn1_proto::ASN1ProtoConverter converter = asn1_proto::ASN1ProtoConverter();
   std::vector<uint8_t> encoded = converter.ProtoToDER(asn1);
+  // The pointer to the array and size will used in future fuzz targets.
+  uint8_t *ptr = &encoded[0];
+  size_t size = encode.size();
 }
