@@ -12,13 +12,14 @@ namespace asn1_proto {
 
 class ASN1ProtoConverter {
 public:
+  // Encodes |pdu| to DER, returning the encoded bytes of the PDU in
+  // |encoder_|.
   std::vector<uint8_t> ProtoToDER(const PDU &pdu);
 
 private:
   size_t depth_;
   std::vector<uint8_t> encoder_;
-  // Encodes |pdu| to DER, returning the encoded bytes of the PDU in
-  // |encoder_|.
+  // Enocdes |pdu| to DER, returning the number of bytes needed encode |pdu|.
   size_t EncodePDU(const PDU &pdu);
   // Encodes |id| to DER according to X.690 (2015), 8.1.2.
   // Returns number of bytes needed to encode |id|.
