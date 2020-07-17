@@ -22,7 +22,6 @@ message Tag {
 }
 
 enum UInt8 {
-  VAL0 = 0;
   VAL1 = 1;
   VAL2 = 2;
   VAL3 = 3;

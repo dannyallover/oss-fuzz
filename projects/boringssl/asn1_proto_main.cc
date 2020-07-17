@@ -37,9 +37,4 @@ DEFINE_PROTO_FUZZER(const asn1_proto::PDU &asn1) {
   const uint8_t* ptr = &der[0];
   size_t size = der.size();
   FUZZ_HELPER(ptr, size);
-  // for(int i = 0; i < size; i++) {
-  //   std::cout << ((*(ptr + i))&0xFF) << " ";
-  // }
-  // std::cout << std::endl;
-  // std::cout << std::endl;
 }
