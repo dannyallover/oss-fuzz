@@ -71,13 +71,14 @@ size_t ASN1ProtoConverter::EncodeCorrectLength(const size_t actual_len,
 size_t ASN1ProtoConverter::EncodeLength(const Length &len,
                                         const size_t actual_len,
                                         const size_t len_pos) {
-  if (len.has_length_override()) {
-    return EncodeOverrideLength(len.length_override(), len_pos);
-  } else if (len.has_indefinite_form() && len.indefinite_form()) {
-    return EncodeIndefiniteLength(len_pos);
-  } else {
-    return EncodeCorrectLength(actual_len, len_pos);
-  }
+  // if (len.has_length_override()) {
+  //   return EncodeOverrideLength(len.length_override(), len_pos);
+  // } else if (len.has_indefinite_form() && len.indefinite_form()) {
+  //   return EncodeIndefiniteLength(len_pos);
+  // } else {
+  //   return EncodeCorrectLength(actual_len, len_pos);
+  // }
+  return EncodeCorrectLength(actual_len, len_pos);
 }
 
 size_t ASN1ProtoConverter::EncodeValue(const Value &val) {
@@ -85,10 +86,14 @@ size_t ASN1ProtoConverter::EncodeValue(const Value &val) {
   for (const auto &val_ele : val.val_array()) {
     if (val_ele.has_pdu()) {
       len += EncodePDU(val_ele.pdu());
-    } else {
+    } else if (val_ele.val_bits().size() != 0) {
       len += val_ele.val_bits().size();
       encoder_.insert(encoder_.end(), val_ele.val_bits().begin(),
                       val_ele.val_bits().end());
+    } else {
+      // If the value is empty, we push back EOC.
+      len += 1;
+      encoder_.push_back(0x00);
     }
   }
   return len;
@@ -97,17 +102,21 @@ size_t ASN1ProtoConverter::EncodeValue(const Value &val) {
 uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
                                                const uint8_t encoding,
                                                const uint32_t tag) {
-  uint8_t numBytes = GetNumBytes(tag);
+  // The high tag form base 128 encodes the tag (X.690, 2015, 8.1.2).
+  // We, therefore, calculate how many bytes we need to base 128 encode
+  // the high tag.
+  uint8_t numBytes = GetNumBytes(tag << GetNumBytes(tag));
   // High tag form requires the lower 5 bits to be set to 1 (X.690,
   // 2015, 8.1.2.4.1).
   uint64_t id_parsed = (id_class | encoding | 0x1F);
   id_parsed <<= 8;
   for (uint8_t i = numBytes; i != 0; i--) {
-    id_parsed |= ((tag >> (i * 7)) & 0x7F);
+    // If it's not the last byte, the high bit is set to 1 (X.690,
+    // 2015, 8.1.2.4.2).
+    id_parsed |= ((0x01 << 7) | ((tag >> (i * 8)) & 0x7F));
     id_parsed <<= 8;
   }
-  // The high bit on the last byte is set to 1 (X.690, 2015, 8.1.2.4.2).
-  id_parsed |= ((0x01 << 7) | (tag & 0x7F));
+  id_parsed |= (tag & 0x7F);
   return id_parsed;
 }
 
@@ -158,6 +167,7 @@ void ASN1ProtoConverter::ParseToBits() {
 
 std::vector<uint8_t> ASN1ProtoConverter::ProtoToDER(const PDU &pdu) {
   EncodePDU(pdu);
+  // Note: take out following two lines later (currently used for testing).
   ParseToBits();
   std::cout << der_.str() << "\n" << std::endl;
   return encoder_;
