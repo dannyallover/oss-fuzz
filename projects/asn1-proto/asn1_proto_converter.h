@@ -12,7 +12,7 @@ namespace asn1_proto {
 
 class ASN1ProtoConverter {
 public:
-  std::string ProtoToDER(const PDU &pdu);
+  std::vector<uint8_t> ProtoToDER(const PDU &pdu);
 
 private:
   size_t depth_;

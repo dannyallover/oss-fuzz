@@ -120,7 +120,7 @@ size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
 
   uint32_t tag =
       id.tag().has_high_tag() ? id.tag().high_tag() : id.tag().low_tag();
-  // When the tag is less than 31, we encode with a single octet; otherwise,
+  // When the tag is less than 31, we encode with a single byte; otherwise,
   // we use the high tag form (X.690, 2015, 8.1.2).
   uint64_t id_parsed = tag < 31 ? (id_class | encoding | tag)
                                 : EncodeHighTagForm(id_class, encoding, tag);
@@ -132,7 +132,7 @@ size_t ASN1ProtoConverter::EncodePDU(const PDU &pdu) {
   depth_++;
   // We artifically limit the stack depth to avoid stack overflow.
   if (depth_ > 67000) {
-    return;
+    return 0;
   }
   size_t id_len = EncodeIdentifier(pdu.id());
   size_t len_pos = encoder_.size();
@@ -156,10 +156,11 @@ void ASN1ProtoConverter::ParseToBits() {
   }
 }
 
-std::string ASN1ProtoConverter::ProtoToDER(const PDU &pdu) {
+std::vector<uint8_t> ASN1ProtoConverter::ProtoToDER(const PDU &pdu) {
   EncodePDU(pdu);
   ParseToBits();
-  return der_.str();
+  std::cout << der_.str() << "\n" << std::endl;
+  return encoder_;
 }
 
 } // namespace asn1_proto
