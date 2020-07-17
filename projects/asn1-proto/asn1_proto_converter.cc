@@ -31,13 +31,14 @@ size_t ASN1ProtoConverter::EncodeOverrideLength(const std::string len,
   return len.size();
 }
 
-// If Override Length is not set but, Indefinite Form is, then this function
+// If Override Length is not set but Indefinite Form is, then this function
 // will set the length and EOC per the Indefinite Form rules (X.690,
 // 2015, 8.1.3.6).
 size_t ASN1ProtoConverter::EncodeIndefiniteLength(const size_t len_pos) {
   AppendBytes(0x80, len_pos);
-  // The value is placed before length, so the pdu's value is already in
-  // |encoder_|, so we push EOC to the end of |encoder_|.
+  // The pdu's value is inserted before the length, so the pdu's value is
+  // already in |encoder_| at the end. Therefore, we push EOC to the end of
+  // |encoder_|.
   AppendBytes(0x00, encoder_.size());
   AppendBytes(0x00, encoder_.size());
   return 3;
