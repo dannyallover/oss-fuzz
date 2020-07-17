@@ -25,7 +25,6 @@ private:
   size_t EncodeOverrideLength(const std::string len, const size_t len_pos);
   size_t EncodeIndefiniteLength(const size_t len_pos);
   size_t EncodeCorrectLength(const size_t actual_len, const size_t len_pos);
-  size_t EncodeLongForm(size_t assigned_len, size_t len_pos);
   size_t EncodeValue(const Value &val);
   void AppendBytes(const size_t num, const size_t pos);
   uint8_t GetNumBytes(const size_t num);
