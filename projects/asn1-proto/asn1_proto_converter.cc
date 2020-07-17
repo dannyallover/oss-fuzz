@@ -2,8 +2,6 @@
 
 namespace asn1_proto {
 
-// Returns the number of bytes needed to encode |num| into a variable-length
-// unsigned integer with no leading zeros.
 uint8_t ASN1ProtoConverter::GetNumBytes(const size_t num) {
   for (uint8_t shift = sizeof(num); shift != 0; --shift) {
     if (((num >> ((shift - 1) * 8)) & 0xFF) != 0) {
@@ -13,8 +11,6 @@ uint8_t ASN1ProtoConverter::GetNumBytes(const size_t num) {
   return 1;
 }
 
-// Converts |num| to a variable-length, big-endian representation and inserts
-// the result into into |encoder_| at |pos|.
 void ASN1ProtoConverter::AppendBytes(const size_t num, const size_t pos) {
   std::vector<uint8_t> len_vec;
   for (uint8_t shift = GetNumBytes(num); shift != 0; shift--) {
@@ -23,40 +19,32 @@ void ASN1ProtoConverter::AppendBytes(const size_t num, const size_t pos) {
   encoder_.insert(encoder_.begin() + pos, len_vec.begin(), len_vec.end());
 }
 
-// If Override Length is set, then this function will set the length to the
-// arbitrary bytes assigned by the proto.
-size_t ASN1ProtoConverter::EncodeOverrideLength(const std::string len,
+size_t ASN1ProtoConverter::EncodeOverrideLength(const std::string raw_len,
                                                 const size_t len_pos) {
-  encoder_.insert(encoder_.begin() + len_pos, len.begin(), len.end());
-  return len.size();
+  encoder_.insert(encoder_.begin() + len_pos, raw_len.begin(), raw_len.end());
+  return raw_len.size();
 }
 
-// If Override Length is not set but Indefinite Form is, then this function
-// will set the length and EOC per the Indefinite Form rules (X.690,
-// 2015, 8.1.3.6).
 size_t ASN1ProtoConverter::EncodeIndefiniteLength(const size_t len_pos) {
   AppendBytes(0x80, len_pos);
-  // The pdu's value is inserted before the length, so the pdu's value is
-  // already in |encoder_| at the end. Therefore, we push EOC to the end of
-  // |encoder_|.
+  // The PDU's value is from |len_pos| to the end of |encoder_|, so just add an
+  // EOC marker to the end.
   AppendBytes(0x00, encoder_.size());
   AppendBytes(0x00, encoder_.size());
   return 3;
 }
 
-// If Override Length and Inefinite Form are not set, then this function will
-// assign the actual length of the pdu according to DER definite-form (X.690,
-// 2015, 8.1.3-8.1.5 & 10.1).
 size_t ASN1ProtoConverter::EncodeCorrectLength(const size_t actual_len,
                                                const size_t len_pos) {
   AppendBytes(actual_len, len_pos);
   size_t len_num_bytes = GetNumBytes(actual_len);
-  // The long-form is used when the length is larger than 127 (X.690,
-  // 2015, 8.1.3.3).
+  // X.690 (2015), 8.1.3.3: The long-form is used when the length is
+  // larger than 127.
   if (actual_len > 127) {
+    // See X.690 (2015) 8.1.3.5.
     // Long-form length is encoded as a byte with the high-bit set to indicate
     // the long-form, while the remaining bits indicate how many bytes are used
-    // to encode the length (X.690, 2015, 8.1.3.5).
+    // to encode the length.
     AppendBytes((0x80 | len_num_bytes), len_pos);
     len_num_bytes += 1;
   }
@@ -92,17 +80,16 @@ size_t ASN1ProtoConverter::EncodeValue(const Value &val) {
 uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
                                                const uint8_t encoding,
                                                const uint32_t tag) {
-  // The high tag form base 128 encodes the tag (X.690, 2015, 8.1.2).
-  // We, therefore, calculate how many bytes we need to base 128 encode
-  // the high tag.
+  // The high tag form base 128 encodes the tag (X.690 (2015), 8.1.2).
+  // Compute number of bytes needed to base 128 encode the high tag.
   uint8_t numBytes = GetNumBytes(tag << GetNumBytes(tag));
-  // High tag form requires the lower 5 bits to be set to 1 (X.690,
-  // 2015, 8.1.2.4.1).
+  // High tag form requires the lower 5 bits to be set to 1 (X.690
+  // (2015), 8.1.2.4.1).
   uint64_t id_parsed = (id_class | encoding | 0x1F);
   id_parsed <<= 8;
   for (uint8_t i = numBytes - 1; i != 0; i--) {
-    // If it's not the last byte, the high bit is set to 1 (X.690,
-    // 2015, 8.1.2.4.2).
+    // If it's not the last byte, the high bit is set to 1 (X.690
+    // (2015), 8.1.2.4.2).
     id_parsed |= ((0x01 << 7) | ((tag >> (i * 7)) & 0x7F));
     id_parsed <<= 8;
   }
@@ -111,16 +98,16 @@ uint64_t ASN1ProtoConverter::EncodeHighTagForm(const uint8_t id_class,
 }
 
 size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
-  // The class comprises the the 7th and 8th bit of the identifier (X.690,
-  // 2015, 8.1.2).
+  // The class comprises the the 7th and 8th bit of the identifier (X.690
+  // (2015), 8.1.2).
   uint8_t id_class = static_cast<uint8_t>(id.id_class()) << 6;
-  // The encoding comprises the 6th bit of the identifier (X.690, 2015, 8.1.2).
+  // The encoding comprises the 6th bit of the identifier (X.690 (2015), 8.1.2).
   uint8_t encoding = static_cast<uint8_t>(id.encoding()) << 5;
 
   uint32_t tag =
       id.tag().has_high_tag() ? id.tag().high_tag() : id.tag().low_tag();
-  // When the tag is less than 31, we encode with a single byte; otherwise,
-  // we use the high tag form (X.690, 2015, 8.1.2).
+  // When the tag is less than 31, encode with a single byte; otherwise,
+  // use the high tag form (X.690 (2015), 8.1.2).
   uint64_t id_parsed = tag < 31 ? (id_class | encoding | tag)
                                 : EncodeHighTagForm(id_class, encoding, tag);
 
@@ -130,7 +117,7 @@ size_t ASN1ProtoConverter::EncodeIdentifier(const Identifier &id) {
 
 size_t ASN1ProtoConverter::EncodePDU(const PDU &pdu) {
   depth_++;
-  // We artifically limit the stack depth to avoid stack overflow.
+  // Artifically limit the stack depth to avoid stack overflow.
   if (depth_ > 67000) {
     return 0;
   }
@@ -142,7 +129,6 @@ size_t ASN1ProtoConverter::EncodePDU(const PDU &pdu) {
   return id_len + val_len + len_len;
 }
 
-// This function is used for testing and validation.
 void ASN1ProtoConverter::ParseToBits() {
   for (const uint8_t byte : encoder_) {
     for (int i = 7; i >= 0; i--) {
@@ -158,11 +144,6 @@ void ASN1ProtoConverter::ParseToBits() {
 
 std::vector<uint8_t> ASN1ProtoConverter::ProtoToDER(const PDU &pdu) {
   EncodePDU(pdu);
-  if (x == true) {
-    ParseToBits();
-    std::cout << std::endl;
-    std::cout << std::endl;
-  }
   return encoder_;
 }
 
