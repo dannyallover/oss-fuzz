@@ -16,11 +16,12 @@
 ################################################################################
 
 # Compile cert proto.
-rm -rf genfiles && mkdir genfiles && LPM/external.protobuf/bin/protoc cert.proto --cpp_out=genfiles --proto_path=$SRC
+rm -rf genfiles && mkdir genfiles && LPM/external.protobuf/bin/protoc cert.proto asn1_pdu.proto asn1_types.proto --cpp_out=genfiles --proto_path=$SRC
 
 # Compile LPM fuzzer.
 $CXX $CXXFLAGS -I genfiles -I . -I libprotobuf-mutator/ -I LPM/external.protobuf/include -I include $LIB_FUZZING_ENGINE \
-    $SRC/cert_proto_main.cc genfiles/cert.pb.cc $SRC/cert_proto_converter.cc \
+    $SRC/cert_proto_main.cc genfiles/cert.pb.cc genfiles/asn1_pdu.pb.cc genfiles/asn1_types.pb.cc \
+    $SRC/cert_proto_converter.cc $SRC/asn1_pdu_proto_to_der.cc $SRC/asn1_types_proto_to_der.cc \
     LPM/src/libfuzzer/libprotobuf-mutator-libfuzzer.a \
     LPM/src/libprotobuf-mutator.a \
     LPM/external.protobuf/lib/libprotobuf.a \
