@@ -15,13 +15,28 @@ void CertProtoConverter::ParseToBits() {
   }
 }
 
-std::vector<uint8_t> CertProtoConverter::EncodeCertificate(const X509Certificate& cert) {
-  pdu2der = asn1_pdu::ASN1PDUProtoToDER();
-  auto pdu = cert.signature_value();
-  auto pdu_encoded = pdu2der.ProtoToDER(pdu);
+void CertProtoConverter::EncodeSignatureValue(
+    const asn1_types::ASN1BitString& bit_string) {
+  std::vector<uint8_t> encoded_bit_string =
+      types2der.EncodeBitString(bit_string);
+  encoder_.insert(encoder_.end(), encoded_bit_string.begin(),
+                  encoded_bit_string.end());
+}
 
-  // ParseToBits(res);
-  return pdu_encoded;
+std::vector<uint8_t> CertProtoConverter::EncodeCertificate(
+    const X509Certificate& cert) {
+  pdu2der = asn1_pdu::ASN1PDUProtoToDER();
+  types2der = asn1_types::ASN1TypesProtoToDER();
+  EncodeSignatureValue(cert.signature_value());
+  // ParseToBits();
+  for (const uint8_t byte : encoder_) {
+    std::cout << std::hex << ((byte >> 4)&0xF);
+    std::cout << std::hex << (byte&0xF);
+    std::cout << " ";
+  }
+  std::cout << std::endl;
+  std::cout << std::endl;
+  return encoder_;
 }
 
 }  // namespace cert_proto

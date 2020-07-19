@@ -6,9 +6,9 @@
 #include <string>
 #include <typeinfo>
 #include <vector>
-#include "cert.pb.h"
-#include "asn1_types_proto_to_der.h"
 #include "asn1_pdu_proto_to_der.h"
+#include "asn1_types_proto_to_der.h"
+#include "cert.pb.h"
 
 namespace cert_proto {
 
@@ -20,6 +20,8 @@ class CertProtoConverter {
   size_t depth_;
   std::vector<uint8_t> encoder_;
   asn1_pdu::ASN1PDUProtoToDER pdu2der;
+  asn1_types::ASN1TypesProtoToDER types2der;
+  void EncodeSignatureValue(const asn1_types::ASN1BitString& bit_string);
   void ParseToBits();
 };
 

@@ -6,6 +6,5 @@ import "asn1_types.proto";
 package cert_proto;
 
 message X509Certificate {
-  required asn1_types.ASN1Integer asn1_int = 1;
-  required asn1_pdu.PDU signature_value = 2;
+  required asn1_types.ASN1BitString signature_value = 3;
 }
