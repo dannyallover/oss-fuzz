@@ -1,12 +1,12 @@
 #ifndef ASN1_PROTO_TO_DER_H_
 #define ASN1_PROTO_TO_DER_H_
 
+#include <cmath>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <typeinfo>
 #include <vector>
-#include <cmath>
 #include "asn1.pb.h"
 
 namespace asn1_proto {
@@ -29,8 +29,8 @@ class ASN1ProtoToDER {
   // high-tag-number form rules (X.690 (2015), 8.1.2.4), returning
   // number of bytes needed to encode the identifier.
   uint8_t EncodeHighTagNumberForm(const uint8_t id_class,
-                                   const uint8_t encoding,
-                                   const uint32_t tag);
+                                  const uint8_t encoding,
+                                  const uint32_t tag);
   // Encodes the length in |actual_len| to DER, returning the length
   // in bytes of the encoded length. |len_pos| contains the offset in |encoder_|
   // where the length should be encoded. |len| can be used to affect the

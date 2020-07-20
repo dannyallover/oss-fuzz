@@ -80,8 +80,8 @@ size_t ASN1ProtoToDER::EncodeValue(const Value& val) {
 }
 
 uint8_t ASN1ProtoToDER::EncodeHighTagNumberForm(const uint8_t id_class,
-                                                 const uint8_t encoding,
-                                                 const uint32_t tag_num) {
+                                                const uint8_t encoding,
+                                                const uint32_t tag_num) {
   // The high-tag-number form base 128 encodes |tag_num| (X.690 (2015), 8.1.2).
   uint8_t num_bytes = GetNumBytes(tag_num, 128);
   // High-tag-number form requires the lower 5 bits of the identifier to be set
@@ -115,7 +115,7 @@ uint8_t ASN1ProtoToDER::EncodeIdentifier(const Identifier& id) {
     return EncodeHighTagNumberForm(id_class, encoding, tag_num)
   }
   AppendBytes((id_class | encoding | tag_num), encoder_.size());
-  return 1; // low-tag-number form requires 1 byte to encode.
+  return 1;  // low-tag-number form requires 1 byte to encode.
 }
 
 size_t ASN1ProtoToDER::EncodePDU(const PDU& pdu) {
