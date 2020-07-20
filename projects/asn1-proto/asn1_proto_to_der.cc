@@ -99,7 +99,7 @@ uint8_t ASN1ProtoToDER::EncodeHighTagNumberForm(const uint8_t id_class,
   return GetNumBytes(id_parsed, 256);
 }
 
-size_t ASN1ProtoToDER::EncodeIdentifier(const Identifier& id) {
+uint8_t ASN1ProtoToDER::EncodeIdentifier(const Identifier& id) {
   // The class comprises the 7th and 8th bit of the identifier (X.690
   // (2015), 8.1.2).
   uint8_t id_class = static_cast<uint8_t>(id.id_class()) << 6;
@@ -124,7 +124,7 @@ size_t ASN1ProtoToDER::EncodePDU(const PDU& pdu) {
   if (depth_ > 67000) {
     return 0;
   }
-  size_t id_len = EncodeIdentifier(pdu.id());
+  uint8_t id_len = EncodeIdentifier(pdu.id());
   size_t len_pos = encoder_.size();
   size_t val_len = EncodeValue(pdu.val());
   size_t len_len = EncodeLength(pdu.len(), val_len, len_pos);

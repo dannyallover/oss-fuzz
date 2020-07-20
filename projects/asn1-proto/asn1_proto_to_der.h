@@ -24,10 +24,10 @@ class ASN1ProtoToDER {
   size_t EncodePDU(const PDU& pdu);
   // Encodes |id| to DER according to X.690 (2015), 8.1.2.
   // Returns number of bytes needed to encode |id|.
-  size_t EncodeIdentifier(const Identifier& id);
+  uint8_t EncodeIdentifier(const Identifier& id);
   // Concatinates |id_class|, |encoding|, and |tag| according to DER
   // high-tag-number form rules (X.690 (2015), 8.1.2.4), returning
-  // high-tag-number form identifier |id_parsed|.
+  // number of bytes needed to encode the identifier.
   uint8_t EncodeHighTagNumberForm(const uint8_t id_class,
                                    const uint8_t encoding,
                                    const uint32_t tag);
