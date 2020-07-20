@@ -20,8 +20,8 @@ rm -rf genfiles && mkdir genfiles && LPM/external.protobuf/bin/protoc asn1.proto
 
 # Compile LPM fuzzer.
 $CXX $CXXFLAGS -I genfiles -I . -I libprotobuf-mutator/ -I LPM/external.protobuf/include -I include $LIB_FUZZING_ENGINE \
-    $SRC/asn1_proto_main.cc genfiles/asn1.pb.cc $SRC/asn1_proto_converter.cc \
+    $SRC/fuzz.cc genfiles/asn1.pb.cc $SRC/asn1_proto_to_der.cc \
     LPM/src/libfuzzer/libprotobuf-mutator-libfuzzer.a \
     LPM/src/libprotobuf-mutator.a \
     LPM/external.protobuf/lib/libprotobuf.a \
-    -o  $OUT/asn1_proto_generate \
+    -o  $OUT/asn1_fuzz \

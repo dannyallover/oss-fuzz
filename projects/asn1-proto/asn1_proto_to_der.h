@@ -1,16 +1,17 @@
-#ifndef ASN1_PROTO_CONVERTER_H_
-#define ASN1_PROTO_CONVERTER_H_
+#ifndef ASN1_PROTO_TO_DER_H_
+#define ASN1_PROTO_TO_DER_H_
 
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <typeinfo>
 #include <vector>
+#include <cmath>
 #include "asn1.pb.h"
 
 namespace asn1_proto {
 
-class ASN1ProtoConverter {
+class ASN1ProtoToDER {
  public:
   // Encodes |pdu| to DER, returning the encoded bytes of the PDU in
   // |encoder_|.
@@ -24,12 +25,12 @@ class ASN1ProtoConverter {
   // Encodes |id| to DER according to X.690 (2015), 8.1.2.
   // Returns number of bytes needed to encode |id|.
   size_t EncodeIdentifier(const Identifier& id);
-  // Concatinates |id_class|, |encoding|, and |tag| according to DER high tag
-  // form rules (X.690 (2015), 8.1.2.4), returning high-tag-identifier
-  // |id_parsed|.
-  uint64_t EncodeHighTagForm(const uint8_t id_class,
-                             const uint8_t encoding,
-                             const uint32_t tag);
+  // Concatinates |id_class|, |encoding|, and |tag| according to DER
+  // high-tag-number form rules (X.690 (2015), 8.1.2.4), returning
+  // high-tag-number form identifier |id_parsed|.
+  uint8_t EncodeHighTagNumberForm(const uint8_t id_class,
+                                   const uint8_t encoding,
+                                   const uint32_t tag);
   // Encodes the length in |actual_len| to DER, returning the length
   // in bytes of the encoded length. |len_pos| contains the offset in |encoder_|
   // where the length should be encoded. |len| can be used to affect the
@@ -48,18 +49,18 @@ class ASN1ProtoConverter {
   // Encodes the length in |actual_len| using the definite-form length (X.690
   // (2015), 8.1.3-8.1.5 & 10.1) into |encoder_| at |len_pos|, returning number
   // of bytes needed to encode |actual_len|.
-  size_t EncodeCorrectLength(const size_t actual_len, const size_t len_pos);
+  size_t EncodeDefiniteLength(const size_t actual_len, const size_t len_pos);
   // Extracts bytes from |val| and inserts them into |enocder_|, returning
   // number of bytes needed to encode |val|.
   size_t EncodeValue(const Value& val);
   // Converts |num| to a variable-length, big-endian representation and inserts
   // the result into into |encoder_| at |pos|.
   void AppendBytes(const size_t num, const size_t pos);
-  // Returns the number of bytes needed to encode |num| into a variable-length
-  // unsigned integer with no leading zeros.
-  uint8_t GetNumBytes(const size_t num);
+  // Returns the number of bytes needed to |base| encode |num| into a
+  // variable-length unsigned integer with no leading zeros.
+  uint8_t GetNumBytes(const size_t num, const size_t base);
   // Prints bits in |encoder_|. Used for testing and validation.
-  void ParseToBits();
+  void PrintEncodedBits();
 };
 
 }  // namespace asn1_proto
