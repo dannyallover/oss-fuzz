@@ -80,7 +80,7 @@ message Length {
 
     // If |length_override| is set, the literal value from |length_override|
     // will be used as the encoded length. This also accounts for 
-    // incorrectly-encoded lengths (e.g. non-minimal encodings).
+    // incorrectly-encoded DER lengths (e.g. non-minimal encodings).
     bytes length_override = 2;
   }
 }
