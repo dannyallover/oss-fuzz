@@ -4,19 +4,20 @@ namespace asn1_proto {
 
 uint8_t ASN1ProtoToDER::GetNumBytes(const size_t num, const size_t base) {
   uint8_t base_bits = log2(base);
-  for (uint8_t num_bits = sizeof(num) * 8; num_bits != 0; --num_bits) {
-    if ((num >> num_bits) & 0x01) {
-      return ceil(num_bits / base_bits);
+  for (uint8_t num_bits = sizeof(num) * 8; num_bits > base_bits;
+       num_bits -= base_bits) {
+    if ((num >> num_bits)) {
+      return ceil((double)num_bits / base_bits);
     }
   }
   // Special-case: zero requires one, not zero bytes.
   return 1;
 }
 
-void ASN1ProtoToDER::AppendBytes(const size_t num, const size_t pos) {
+void ASN1ProtoToDER::AppendVariableInt(const size_t value, const size_t pos) {
   std::vector<uint8_t> len_vec;
-  for (uint8_t shift = GetNumBytes(num, 256); shift != 0; shift--) {
-    len_vec.push_back((num >> ((shift - 1) * 8)) & 0xFF);
+  for (uint8_t shift = GetNumBytes(value, 256); shift != 0; --shift) {
+    len_vec.push_back((value >> ((shift - 1) * 8)) & 0xFF);
   }
   encoder_.insert(encoder_.begin() + pos, len_vec.begin(), len_vec.end());
 }
@@ -28,26 +29,28 @@ size_t ASN1ProtoToDER::EncodeOverrideLength(const std::string raw_len,
 }
 
 size_t ASN1ProtoToDER::EncodeIndefiniteLength(const size_t len_pos) {
-  AppendBytes(0x80, len_pos);
+  AppendVariableInt(0x80, len_pos);
   // The PDU's value is from |len_pos| to the end of |encoder_|, so just add an
   // EOC marker to the end.
-  AppendBytes(0x00, encoder_.size());
-  AppendBytes(0x00, encoder_.size());
+  AppendVariableInt(0x00, encoder_.size());
+  AppendVariableInt(0x00, encoder_.size());
   return 3;
 }
 
 size_t ASN1ProtoToDER::EncodeDefiniteLength(const size_t actual_len,
                                             const size_t len_pos) {
-  AppendBytes(actual_len, len_pos);
+  AppendVariableInt(actual_len, len_pos);
   size_t len_num_bytes = GetNumBytes(actual_len, 256);
   // X.690 (2015), 8.1.3.3: The long-form is used when the length is
   // larger than 127.
+  // Note: |len_num_bytes| is not checked here, because it will return
+  // 1 for values [128..255], but those require the long-form length.
   if (actual_len > 127) {
     // See X.690 (2015) 8.1.3.5.
     // Long-form length is encoded as a byte with the high-bit set to indicate
     // the long-form, while the remaining bits indicate how many bytes are used
     // to encode the length.
-    AppendBytes((0x80 | len_num_bytes), len_pos);
+    AppendVariableInt((0x80 | len_num_bytes), len_pos);
     len_num_bytes += 1;
   }
   return len_num_bytes;
@@ -88,15 +91,15 @@ uint8_t ASN1ProtoToDER::EncodeHighTagNumberForm(const uint8_t id_class,
   // to 1 (X.690 (2015), 8.1.2.4.1).
   uint64_t id_parsed = (id_class | encoding | 0x1F);
   id_parsed <<= 8;
-  for (uint8_t i = num_bytes - 1; i != 0; i--) {
+  for (uint8_t i = num_bytes - 1; i != 0; --i) {
     // If it's not the last byte, the high bit is set to 1 (X.690
     // (2015), 8.1.2.4.2).
     id_parsed |= ((0x01 << 7) | ((tag_num >> (i * 7)) & 0x7F));
     id_parsed <<= 8;
   }
   id_parsed |= (tag_num & 0x7F);
-  AppendBytes(id_parsed, encoder.size());
-  return GetNumBytes(id_parsed, 256);
+  AppendVariableInt(id_parsed, encoder_.size());
+  return num_bytes + 1;
 }
 
 uint8_t ASN1ProtoToDER::EncodeIdentifier(const Identifier& id) {
@@ -112,14 +115,14 @@ uint8_t ASN1ProtoToDER::EncodeIdentifier(const Identifier& id) {
   // When the tag number is greater than or equal to 31, encode with a single
   // byte; otherwise, use the high-tag-number form (X.690 (2015), 8.1.2).
   if (tag_num >= 31) {
-    return EncodeHighTagNumberForm(id_class, encoding, tag_num)
+    return EncodeHighTagNumberForm(id_class, encoding, tag_num);
   }
-  AppendBytes((id_class | encoding | tag_num), encoder_.size());
+  AppendVariableInt((id_class | encoding | tag_num), encoder_.size());
   return 1;  // low-tag-number form requires 1 byte to encode.
 }
 
 size_t ASN1ProtoToDER::EncodePDU(const PDU& pdu) {
-  depth_++;
+  ++depth_;
   // Artifically limit the stack depth to avoid stack overflow.
   if (depth_ > 67000) {
     return 0;
@@ -128,13 +131,13 @@ size_t ASN1ProtoToDER::EncodePDU(const PDU& pdu) {
   size_t len_pos = encoder_.size();
   size_t val_len = EncodeValue(pdu.val());
   size_t len_len = EncodeLength(pdu.len(), val_len, len_pos);
-  depth_--;
+  --depth_;
   return id_len + val_len + len_len;
 }
 
 void ASN1ProtoToDER::PrintEncodedBits() {
   for (const uint8_t byte : encoder_) {
-    for (int i = 7; i >= 0; i--) {
+    for (int i = 7; i >= 0; --i) {
       if (((byte >> i) & 0x01)) {
         std::cout << "1";
       } else {
