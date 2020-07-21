@@ -8,7 +8,8 @@ message Identifier {
 }
 
 // See X.690 (2015), 8.1.2.2.
-enum Class {Universal = 0;
+enum Class {
+  Universal = 0;
   Application = 1;
   ContextSpecific = 2;
   Private = 3;
@@ -25,22 +26,7 @@ message ASN1BitString {
   required string val = 2;
 }
 
-message ASN1PrintableString {
-  required Identifier id = 1;
-  required string val = 2;
-}
-
-message ASN1IA5String {
-  required Identifier id = 1;
-  required string val = 2;
-}
-
 message ASN1Integer {
   required Identifier id = 1;
-  required bytes val = 2;
-}
-
-message ASN1Boolean {
-  required Identifier id = 1;
-  required bool val = 2;
+  required uint64 val = 2;
 }
