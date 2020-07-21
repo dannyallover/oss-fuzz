@@ -28,14 +28,6 @@ std::vector<uint8_t> CertProtoConverter::EncodeCertificate(
   pdu2der = asn1_pdu::ASN1PDUProtoToDER();
   types2der = asn1_types::ASN1TypesProtoToDER();
   EncodeSignatureValue(cert.signature_value());
-  // ParseToBits();
-  for (const uint8_t byte : encoder_) {
-    std::cout << std::hex << ((byte >> 4)&0xF);
-    std::cout << std::hex << (byte&0xF);
-    std::cout << " ";
-  }
-  std::cout << std::endl;
-  std::cout << std::endl;
   return encoder_;
 }
 

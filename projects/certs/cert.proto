@@ -1,7 +1,7 @@
 syntax = "proto2";
 
-import "asn1_pdu.proto";
-import "asn1_types.proto";
+import "asn1_pdu.proto"; // To use a ASN1 PDU.
+import "asn1_types.proto"; // To use a specific ASN1 type.
 
 package cert_proto;
 
