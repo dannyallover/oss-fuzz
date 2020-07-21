@@ -21,7 +21,7 @@ class CertProtoConverter {
   std::vector<uint8_t> encoder_;
   asn1_pdu::ASN1PDUProtoToDER pdu2der;
   asn1_types::ASN1TypesProtoToDER types2der;
-  void EncodeSignatureValue(const asn1_types::ASN1BitString& bit_string);
+  void EncodeSignatureValue(const Signature& signature);
   void ParseToBits();
 };
 

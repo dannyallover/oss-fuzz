@@ -21,12 +21,12 @@ enum Encoding {
   Constructed = 1;
 }
 
-message ASN1BitString {
+message BitString {
   required Identifier id = 1;
   required string val = 2;
 }
 
-message ASN1Integer {
+message Integer {
   required Identifier id = 1;
   required uint64 val = 2;
 }

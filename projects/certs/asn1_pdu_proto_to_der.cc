@@ -149,7 +149,7 @@ void ASN1PDUProtoToDER::PrintEncodedBits() {
   }
 }
 
-std::vector<uint8_t> ASN1PDUProtoToDER::ProtoToDER(const PDU& pdu) {
+std::vector<uint8_t> ASN1PDUProtoToDER::PDUToDER(const PDU& pdu) {
   EncodePDU(pdu);
   return encoder_;
 }

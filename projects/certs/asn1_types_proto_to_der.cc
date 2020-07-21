@@ -14,7 +14,7 @@ void ASN1TypesProtoToDER::EncodeIdentifier(const Identifier& id,
 }
 
 std::vector<uint8_t> ASN1TypesProtoToDER::EncodeBitString(
-    const ASN1BitString& bit_string) {
+    const BitString& bit_string) {
   std::vector<uint8_t> encoder_;
   EncodeIdentifier(bit_string.id(), 0x03, encoder_);
   encoder_.push_back(bit_string.val().size() + 1);

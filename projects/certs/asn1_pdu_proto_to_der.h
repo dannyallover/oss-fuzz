@@ -14,7 +14,7 @@ class ASN1PDUProtoToDER {
  public:
   // Encodes |pdu| to DER, returning the encoded bytes of the PDU in
   // |encoder_|.
-  std::vector<uint8_t> ProtoToDER(const PDU& pdu);
+  std::vector<uint8_t> PDUToDER(const PDU& pdu);
 
  private:
   std::vector<uint8_t> encoder_;

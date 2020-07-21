@@ -16,18 +16,23 @@ void CertProtoConverter::ParseToBits() {
 }
 
 void CertProtoConverter::EncodeSignatureValue(
-    const asn1_types::ASN1BitString& bit_string) {
-  std::vector<uint8_t> encoded_bit_string =
-      types2der.EncodeBitString(bit_string);
-  encoder_.insert(encoder_.end(), encoded_bit_string.begin(),
-                  encoded_bit_string.end());
+    const Signature& signature) {
+  std::vector<uint8_t> encoded_signature;
+  if(signature.has_invalid_signature()) {
+    encoded_signature = pdu2der.PDUToDER(signature.invalid_signature());
+  } else {
+    encoded_signature = types2der.EncodeBitString(signature.valid_signature());
+  }
+  
+  encoder_.insert(encoder_.end(), encoded_signature.begin(),
+                  encoded_signature.end());
 }
 
 std::vector<uint8_t> CertProtoConverter::EncodeCertificate(
     const X509Certificate& cert) {
   pdu2der = asn1_pdu::ASN1PDUProtoToDER();
   types2der = asn1_types::ASN1TypesProtoToDER();
-  EncodeSignatureValue(cert.signature_value());
+  EncodeSignatureValue(cert.signature());
   return encoder_;
 }
 

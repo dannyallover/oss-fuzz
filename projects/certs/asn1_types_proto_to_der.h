@@ -8,7 +8,7 @@ namespace asn1_types {
     
 class ASN1TypesProtoToDER {
  public:
-  std::vector<uint8_t> EncodeBitString(const ASN1BitString& bit_string);
+  std::vector<uint8_t> EncodeBitString(const BitString& bit_string);
 
  private:
   void EncodeIdentifier(const Identifier& id,
