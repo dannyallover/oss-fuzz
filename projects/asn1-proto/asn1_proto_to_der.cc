@@ -145,6 +145,9 @@ std::vector<uint8_t> ASN1ProtoToDER::ProtoToDER(const PDU& pdu) {
   encoder_.clear();
   depth_ = 0;
   EncodePDU(pdu);
+  if(kErrRecursionLimitReached) {
+    encoder_.clear();
+  }
   return encoder_;
 }
 
