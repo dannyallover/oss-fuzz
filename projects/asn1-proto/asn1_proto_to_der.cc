@@ -5,6 +5,7 @@ namespace asn1_proto {
 // The maximum level of recursion allowed. Values greater than this will just
 // fail.
 static constexpr size_t kRecursionLimit = 200;
+
 // Signal that the recursion limit has been exceeded by a
 // message or value and to abort further processing.
 static constexpr bool kErrRecursionLimitReached = false;
