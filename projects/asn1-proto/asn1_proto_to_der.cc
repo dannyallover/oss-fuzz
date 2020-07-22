@@ -2,7 +2,7 @@
 
 namespace asn1_proto {
 
-uint8_t ASN1ProtoToDER::GetNumBytes(const size_t value, const size_t base) {
+uint8_t ASN1ProtoToDER::GetVariableIntLen(const uint64_t value, const size_t base) {
   uint8_t base_bits = log2(base);
   for (uint8_t num_bits = (sizeof(value) - 1) * 8; num_bits >= base_bits;
        num_bits -= base_bits) {
@@ -14,7 +14,7 @@ uint8_t ASN1ProtoToDER::GetNumBytes(const size_t value, const size_t base) {
   return 1;
 }
 
-void ASN1ProtoToDER::AppendVariableInt(const size_t value, const size_t pos) {
+void ASN1ProtoToDER::InsertVariableInt(const size_t value, const size_t pos) {
   std::vector<uint8_t> len_vec;
   for (uint8_t shift = GetNumBytes(value, 256); shift != 0; --shift) {
     len_vec.push_back((value >> ((shift - 1) * 8)) & 0xFF);

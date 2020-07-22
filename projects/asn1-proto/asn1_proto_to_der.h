@@ -63,11 +63,11 @@ class ASN1ProtoToDER {
 
   // Converts |value| to a variable-length, big-endian representation and inserts
   // the result into into |encoder_| at |pos|.
-  void AppendVariableInt(const size_t value, const size_t pos);
+  void InsertVariableInt(const size_t value, const size_t pos);
 
   // Returns the number of bytes needed to |base| encode |value| into a
   // variable-length unsigned integer with no leading zeros.
-  uint8_t GetNumBytes(const size_t value, const size_t base);
+  uint8_t GetVariableIntLen(const uint64_t value, const size_t base);
 
   // Prints bits in |encoder_|. Used for testing and validation.
   void PrintEncodedBits();
