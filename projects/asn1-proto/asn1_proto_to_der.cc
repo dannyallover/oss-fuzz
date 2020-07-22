@@ -2,12 +2,12 @@
 
 namespace asn1_proto {
 
-uint8_t ASN1ProtoToDER::GetNumBytes(const size_t num, const size_t base) {
+uint8_t ASN1ProtoToDER::GetNumBytes(const size_t value, const size_t base) {
   uint8_t base_bits = log2(base);
-  for (uint8_t num_bits = sizeof(num) * 8; num_bits > base_bits;
+  for (uint8_t num_bits = (sizeof(value) - 1) * 8; num_bits >= base_bits;
        num_bits -= base_bits) {
-    if ((num >> num_bits)) {
-      return ceil((double)num_bits / base_bits);
+    if ((value >> num_bits)) {
+      return ceil((double)num_bits / base_bits) + 1;
     }
   }
   // Special-case: zero requires one, not zero bytes.
