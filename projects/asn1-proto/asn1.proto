@@ -16,9 +16,9 @@ message Identifier {
 
 message TagNumber {
   optional uint32 high_tag_num = 1;
-  // |low_tag_number| is the default since we know
-  // that most of the existing ASN1 tags numbers are
-  // going to be encoded with one byte.
+  // Most tags will fit within the range of a single byte Identifier
+  // (meaning the tag number is within the range 0..30), so make that the
+  // default.
   required LowTagNumber low_tag_num = 2;
 }
 
@@ -54,7 +54,6 @@ enum LowTagNumber {
   VAL28 = 28;
   VAL29 = 29;
   VAL30 = 30;
-  VAL31 = 31;
 }
 
 // See X.690 (2015), 8.1.2.2.

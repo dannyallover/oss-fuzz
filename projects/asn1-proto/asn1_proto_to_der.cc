@@ -2,6 +2,13 @@
 
 namespace asn1_proto {
 
+// The maximum level of recursion allowed. Values greater than this will just
+// fail.
+static constexpr size_t kRecursionLimit = 200;
+// Signal that the recursion limit has been exceeded by a
+// message or value and to abort further processing.
+static constexpr bool kErrRecursionLimitReached = false;
+
 uint8_t ASN1ProtoToDER::GetVariableIntLen(const uint64_t value,
                                           const size_t base) {
   uint8_t base_bits = log2(base);
@@ -16,11 +23,12 @@ uint8_t ASN1ProtoToDER::GetVariableIntLen(const uint64_t value,
 }
 
 void ASN1ProtoToDER::InsertVariableInt(const size_t value, const size_t pos) {
-  std::vector<uint8_t> len_vec;
+  std::vector<uint8_t> variable_int;
   for (uint8_t shift = GetVariableIntLen(value, 256); shift != 0; --shift) {
-    len_vec.push_back((value >> ((shift - 1) * 8)) & 0xFF);
+    variable_int.push_back((value >> ((shift - 1) * 8)) & 0xFF);
   }
-  encoder_.insert(encoder_.begin() + pos, len_vec.begin(), len_vec.end());
+  encoder_.insert(encoder_.begin() + pos, variable_int.begin(),
+                  variable_int.end());
 }
 
 void ASN1ProtoToDER::EncodeOverrideLength(const std::string raw_len,
@@ -29,11 +37,11 @@ void ASN1ProtoToDER::EncodeOverrideLength(const std::string raw_len,
 }
 
 void ASN1ProtoToDER::EncodeIndefiniteLength(const size_t len_pos) {
-  InsertVariableInt(0x80, len_pos);
+  encoder_.insert(encoder_.begin() + len_pos, 0x80);
   // The PDU's value is from |len_pos| to the end of |encoder_|, so just add an
   // EOC marker to the end.
-  InsertVariableInt(0x00, encoder_.size());
-  InsertVariableInt(0x00, encoder_.size());
+  encoder_.push_back(0x00);
+  encoder_.push_back(0x00);
 }
 
 void ASN1ProtoToDER::EncodeDefiniteLength(const size_t actual_len,
@@ -49,7 +57,7 @@ void ASN1ProtoToDER::EncodeDefiniteLength(const size_t actual_len,
     // Long-form length is encoded as a byte with the high-bit set to indicate
     // the long-form, while the remaining bits indicate how many bytes are used
     // to encode the length.
-    InsertVariableInt((0x80 | len_num_bytes), len_pos);
+    encoder_.insert(encoder_.begin() + len_pos, (0x80 | len_num_bytes));
   }
 }
 
@@ -67,11 +75,13 @@ void ASN1ProtoToDER::EncodeLength(const Length& len,
 
 void ASN1ProtoToDER::EncodeValue(const Value& val) {
   for (const auto& val_ele : val.val_array()) {
-    if (val_ele.has_pdu()) {
-      EncodePDU(val_ele.pdu());
-    } else {
-      encoder_.insert(encoder_.end(), val_ele.val_bits().begin(),
-                      val_ele.val_bits().end());
+    if(!kErrRecursionLimitReached) {
+      if (val_ele.has_pdu()) {
+        EncodePDU(val_ele.pdu());
+      } else {
+        encoder_.insert(encoder_.end(), val_ele.val_bits().begin(),
+                        val_ele.val_bits().end());
+      }
     }
   }
 }
@@ -109,15 +119,17 @@ void ASN1ProtoToDER::EncodeIdentifier(const Identifier& id) {
   // byte; otherwise, use the high-tag-number form (X.690 (2015), 8.1.2).
   if (tag_num >= 31) {
     EncodeHighTagNumberForm(id_class, encoding, tag_num);
+  } else {
+    encoder_.push_back(static_cast<uint8_t>(id_class | encoding | tag_num));
   }
-  InsertVariableInt((id_class | encoding | tag_num), encoder_.size());
 }
 
-size_t ASN1ProtoToDER::EncodePDU(const PDU& pdu) {
+void ASN1ProtoToDER::EncodePDU(const PDU& pdu) {
   ++depth_;
   // Artifically limit the stack depth to avoid stack overflow.
-  if (depth_ > 67000) {
-    return 0;
+  if (depth_ > kRecursionLimit) {
+    kErrRecursionLimitReached = true;
+    return;
   }
   size_t size_before_insertion = encoder_.size();
   EncodeIdentifier(pdu.id());
@@ -126,14 +138,11 @@ size_t ASN1ProtoToDER::EncodePDU(const PDU& pdu) {
   size_t value_size = encoder_.size() - size_before_insertion - id_size;
   EncodeLength(pdu.len(), value_size, size_before_insertion + id_size);
   --depth_;
-  // The size of the PDU is going to be the
-  // size of |encoder_| after the PDU was inserted
-  // subtracted by the size of |encoder_| before
-  // the PDU was inserted.
-  return encoder_.size() - size_before_insertion;
 }
 
 std::vector<uint8_t> ASN1ProtoToDER::ProtoToDER(const PDU& pdu) {
+  encoder_.clear();
+  depth_ = 0;
   EncodePDU(pdu);
   return encoder_;
 }

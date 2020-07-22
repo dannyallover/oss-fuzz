@@ -65,6 +65,7 @@ class ASN1ProtoToDER {
   // variable-length unsigned integer with no leading zeros.
   uint8_t GetVariableIntLen(const uint64_t value, const size_t base);
 
+  // Tracks recursion depth to avoid stack exhaustion.
   size_t depth_;
 };
 
