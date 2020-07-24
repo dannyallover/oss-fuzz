@@ -1,0 +1,60 @@
+syntax = "proto2";
+
+import "asn1_pdu.proto"; // To use a ASN1 PDU.
+import "asn1_primitive_types.proto"; // To use a specific ASN1 type.
+
+package X509_certificate;
+
+message X509Certificate {
+  required TBSCertificate tbs_certificate = 2;
+  required SignatureValue signature_value = 3;
+}
+
+message TBSCertificate {
+  required Version version = 1;
+  required CertificateSerialNumber serial_number = 2;
+  required Validity validity = 5;
+  required Extensions extensions = 10;
+}
+
+message Version {
+  optional asn1_pdu.PDU invalid_version = 1;
+  required VersionNumber version_number = 2;
+}
+
+enum VersionNumber {
+  v1 = 0;
+  v2 = 1;
+  v3 = 2;
+}
+
+message CertificateSerialNumber {
+  optional asn1_pdu.PDU invalid_serial_number = 1;
+  required asn1_primitive_types.Integer valid_serial_number = 2;
+}
+
+message Validity {
+  required NotBefore not_before = 1;
+  required NotAfter not_after = 2;
+}
+
+message NotBefore {
+  optional asn1_pdu.PDU invalid_not_before = 1;
+  required asn1_primitive_types.UTCTime valid_not_before = 2;
+}
+
+message NotAfter {
+  optional asn1_pdu.PDU invalid_not_after = 1;
+  required asn1_primitive_types.UTCTime valid_not_after = 2;
+}
+
+message Extensions {
+  required asn1_pdu.PDU invalid_extensions = 1;
+  // to-do: make invalid_extensions optional and
+  // add required valid_extensions
+}
+
+message SignatureValue {
+  optional asn1_pdu.PDU invalid_signature_value = 1;
+  required asn1_primitive_types.BitString valid_signature_value = 2;
+}

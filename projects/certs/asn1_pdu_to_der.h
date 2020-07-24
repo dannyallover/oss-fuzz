@@ -10,7 +10,7 @@
 
 namespace asn1_pdu {
 
-class ASN1PDUProtoToDER {
+class ASN1PDUToDER {
  public:
   // Encodes |pdu| to DER, returning the encoded bytes of the PDU in
   // |encoder_|.

@@ -6,10 +6,11 @@
 
 namespace asn1_primitive_types {
 
-class ASN1TypesProtoToDER {
+class ASN1PrimitiveTypesToDER {
  public:
   std::vector<uint8_t> EncodeBitString(const BitString& bit_string);
   std::vector<uint8_t> EncodeInteger(const Integer& asn1_int);
+  std::vector<uint8_t> EncodeUTCTime(const UTCTime& utc_time);
 
  private:
   uint8_t GetNumBytes(const size_t num);
