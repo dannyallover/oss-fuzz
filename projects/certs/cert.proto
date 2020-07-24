@@ -1,7 +1,7 @@
 syntax = "proto2";
 
 import "asn1_pdu.proto"; // To use a ASN1 PDU.
-import "asn1_types.proto"; // To use a specific ASN1 type.
+import "asn1_primitive_types.proto"; // To use a specific ASN1 type.
 
 package cert_proto;
 
@@ -11,5 +11,5 @@ message X509Certificate {
 
 message Signature {
   optional asn1_pdu.PDU invalid_signature = 1;
-  required asn1_types.BitString valid_signature = 2;
+  required asn1_primitive_types.BitString valid_signature = 2;
 }

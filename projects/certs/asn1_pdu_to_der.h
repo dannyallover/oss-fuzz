@@ -1,5 +1,5 @@
-#ifndef ASN1_PDU_PROTO_TO_DER_H_
-#define ASN1_PDU_PROTO_TO_DER_H_
+#ifndef ASN1_PDU_TO_DER_H_
+#define ASN1_PDU_TO_DER_H_
 
 #include <iostream>
 #include <sstream>

@@ -1,6 +1,6 @@
 syntax = "proto2";
 
-package asn1_types;
+package asn1_primitive_types;
 
 message Identifier {
   required Class id_class = 2;
@@ -18,15 +18,14 @@ enum Class {
 // See X.690 (2015), 8.1.2.5.
 enum Encoding {
   Primitive = 0;
-  Constructed = 1;
 }
 
 message BitString {
   required Identifier id = 1;
-  required string val = 2;
+  required bytes val = 2;
 }
 
 message Integer {
   required Identifier id = 1;
-  required uint64 val = 2;
+  required bytes val = 2;
 }

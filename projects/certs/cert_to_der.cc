@@ -1,4 +1,4 @@
-#include "cert_proto_converter.h"
+#include "cert_to_der.h"
 
 namespace cert_proto {
 
@@ -30,8 +30,6 @@ void CertProtoConverter::EncodeSignatureValue(
 
 std::vector<uint8_t> CertProtoConverter::EncodeCertificate(
     const X509Certificate& cert) {
-  pdu2der = asn1_pdu::ASN1PDUProtoToDER();
-  types2der = asn1_types::ASN1TypesProtoToDER();
   EncodeSignatureValue(cert.signature());
   return encoder_;
 }

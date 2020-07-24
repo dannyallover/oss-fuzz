@@ -1,5 +1,5 @@
 #include "cert.pb.h"
-#include "cert_proto_converter.h"
+#include "cert_to_der.h"
 #include "libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h"
 
 DEFINE_PROTO_FUZZER(const cert_proto::X509Certificate& cert) {
