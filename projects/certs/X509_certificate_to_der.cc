@@ -31,21 +31,25 @@ void CertToDER::EncodeValidity(const Validity& validity) {
 void CertToDER::EncodeCertificateSerialNumber(
     const CertificateSerialNumber& cert_serial_num) {
   std::vector<uint8_t> der;
+
   if (cert_serial_num.has_invalid_serial_number()) {
     der = pdu_to_der.PDUToDER(cert_serial_num.invalid_serial_number());
   } else {
     der = primitive_types_to_der.EncodeInteger(cert_serial_num.valid_serial_number());
   }
+  
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
 void CertToDER::EncodeVersion(const Version& version) {
   std::vector<uint8_t> der;
+
   if (version.has_invalid_version()) {
     der = pdu_to_der.PDUToDER(version.invalid_version());
   } else {
-    der = {0x02, 0x01, static_cast<uint8_t>(version.version_number())};
+    der = {0x02, 0x01, static_cast<uint8_t>(version.valid_version())};
   }
+
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
@@ -61,13 +65,14 @@ void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
 
 void CertToDER::EncodeSignatureValue(const SignatureValue& signature_value) {
   std::vector<uint8_t> der;
+
   if (signature_value.has_invalid_signature_value()) {
     der = pdu_to_der.PDUToDER(signature_value.invalid_signature_value());
   } else {
     der = primitive_types_to_der.EncodeBitString(
         signature_value.valid_signature_value());
   }
-
+  
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 

@@ -19,7 +19,7 @@ message TBSCertificate {
 
 message Version {
   optional asn1_pdu.PDU invalid_version = 1;
-  required VersionNumber version_number = 2;
+  required VersionNumber valid_version = 2;
 }
 
 enum VersionNumber {
