@@ -6,20 +6,26 @@ import "asn1_primitive_types.proto"; // To use a specific ASN1 type.
 package X509_certificate;
 
 message X509Certificate {
-  required TBSCertificate tbs_certificate = 2;
+  required TBSCertificate tbs_certificate = 1;
+  required SignatureAlgorithm signature_algorithm = 2;
   required SignatureValue signature_value = 3;
 }
 
 message TBSCertificate {
   required Version version = 1;
   required CertificateSerialNumber serial_number = 2;
+  required Signature signature = 3;
+  required Issuer issuer = 4;
   required Validity validity = 5;
+  required Subject subject = 6;
+  required SubjectPublicKeyInfo subject_public_key_info = 7;
+  optional IssuerUniqueId issuer_unique_id = 8;
   required Extensions extensions = 10;
 }
 
 message Version {
-  optional asn1_pdu.PDU invalid_version = 1;
-  required VersionNumber valid_version = 2;
+  optional asn1_pdu.PDU invalid_version_number = 1;
+  required VersionNumber valid_version_number = 2;
 }
 
 enum VersionNumber {
@@ -29,8 +35,28 @@ enum VersionNumber {
 }
 
 message CertificateSerialNumber {
-  optional asn1_pdu.PDU invalid_serial_number = 1;
-  required asn1_primitive_types.Integer valid_serial_number = 2;
+  optional asn1_pdu.PDU invalid_integer = 1;
+  required asn1_primitive_types.Integer valid_integer = 2;
+}
+
+message Signature {
+  required AlgorithmIdentifier algorithm_identifier = 1;
+}
+
+message AlgorithmIdentifier {
+  required asn1_pdu.PDU invalid_algorithm_identifier = 1;
+  // to-do: make invalid_algorithm_identifier optional and
+  // add required valid_algorithm_identifier
+}
+
+message Issuer {
+  required Name name = 1;
+}
+
+message Name {
+  required asn1_pdu.PDU invalid_name = 1;
+  // to-do: make invalid_name optional and
+  // add required valid_name
 }
 
 message Validity {
@@ -39,13 +65,40 @@ message Validity {
 }
 
 message NotBefore {
-  optional asn1_pdu.PDU invalid_not_before = 1;
-  required asn1_primitive_types.UTCTime valid_not_before = 2;
+  required Time time = 2;
 }
 
 message NotAfter {
-  optional asn1_pdu.PDU invalid_not_after = 1;
-  required asn1_primitive_types.UTCTime valid_not_after = 2;
+  required Time time = 2;
+}
+
+message Time {
+  optional asn1_pdu.PDU invalid_time = 1;
+  optional asn1_primitive_types.UTCTime valid_utc_time = 2;
+  // required asn1_primitive_types.GeneralizedTime valid_generalized_time = 3;
+}
+
+message Subject {
+  required Name name = 1;
+}
+
+message SubjectPublicKeyInfo {
+  required AlgorithmIdentifier algorithm_identifier = 1;
+  required SubjectPublicKey subject_public_key = 2;
+}
+
+message SubjectPublicKey {
+  optional asn1_pdu.PDU invalid_bit_string = 1;
+  required asn1_primitive_types.BitString valid_bit_string = 2;
+}
+
+message IssuerUniqueId {
+  required UniqueIdentifier unique_identifier = 1;
+}
+
+message UniqueIdentifier {
+  optional asn1_pdu.PDU invalid_bit_string = 1;
+  required asn1_primitive_types.BitString valid_bit_string = 2;
 }
 
 message Extensions {
@@ -54,7 +107,11 @@ message Extensions {
   // add required valid_extensions
 }
 
+message SignatureAlgorithm {
+  required AlgorithmIdentifier algorithm_identifier = 1;
+}
+
 message SignatureValue {
-  optional asn1_pdu.PDU invalid_signature_value = 1;
-  required asn1_primitive_types.BitString valid_signature_value = 2;
+  optional asn1_pdu.PDU invalid_bit_string = 1;
+  required asn1_primitive_types.BitString valid_bit_string = 2;
 }

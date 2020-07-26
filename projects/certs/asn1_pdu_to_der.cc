@@ -28,21 +28,21 @@ void ASN1PDUToDER::InsertVariableInt(const size_t value, const size_t pos) {
   for (uint8_t shift = GetVariableIntLen(value, 256); shift != 0; --shift) {
     variable_int.push_back((value >> ((shift - 1) * __CHAR_BIT__)) & 0xFF);
   }
-  encoder_.insert(encoder_.begin() + pos, variable_int.begin(),
+  der_.insert(der_.begin() + pos, variable_int.begin(),
                   variable_int.end());
 }
 
 void ASN1PDUToDER::EncodeOverrideLength(const std::string& raw_len,
                                           const size_t len_pos) {
-  encoder_.insert(encoder_.begin() + len_pos, raw_len.begin(), raw_len.end());
+  der_.insert(der_.begin() + len_pos, raw_len.begin(), raw_len.end());
 }
 
 void ASN1PDUToDER::EncodeIndefiniteLength(const size_t len_pos) {
-  encoder_.insert(encoder_.begin() + len_pos, 0x80);
-  // The PDU's value is from |len_pos| to the end of |encoder_|, so just add an
+  der_.insert(der_.begin() + len_pos, 0x80);
+  // The PDU's value is from |len_pos| to the end of |der_|, so just add an
   // EOC marker to the end.
-  encoder_.push_back(0x00);
-  encoder_.push_back(0x00);
+  der_.push_back(0x00);
+  der_.push_back(0x00);
 }
 
 void ASN1PDUToDER::EncodeDefiniteLength(const size_t actual_len,
@@ -58,7 +58,7 @@ void ASN1PDUToDER::EncodeDefiniteLength(const size_t actual_len,
     // the long-form, while the remaining bits indicate how many bytes are used
     // to encode the length.
     size_t len_num_bytes = GetVariableIntLen(actual_len, 256);
-    encoder_.insert(encoder_.begin() + len_pos, (0x80 | len_num_bytes));
+    der_.insert(der_.begin() + len_pos, (0x80 | len_num_bytes));
   }
 }
 
@@ -84,7 +84,7 @@ void ASN1PDUToDER::EncodeValue(const Value& val) {
     if (val_ele.has_pdu()) {
       EncodePDU(val_ele.pdu());
     } else {
-      encoder_.insert(encoder_.end(), val_ele.val_bits().begin(),
+      der_.insert(der_.end(), val_ele.val_bits().begin(),
                       val_ele.val_bits().end());
     }
   }
@@ -106,7 +106,7 @@ void ASN1PDUToDER::EncodeHighTagNumberForm(const uint8_t id_class,
     id_parsed <<= 8;
   }
   id_parsed |= (tag_num & 0x7F);
-  InsertVariableInt(id_parsed, encoder_.size());
+  InsertVariableInt(id_parsed, der_.size());
 }
 
 void ASN1PDUToDER::EncodeIdentifier(const Identifier& id) {
@@ -124,7 +124,7 @@ void ASN1PDUToDER::EncodeIdentifier(const Identifier& id) {
   if (tag_num >= 31) {
     EncodeHighTagNumberForm(id_class, encoding, tag_num);
   } else {
-    encoder_.push_back(static_cast<uint8_t>(id_class | encoding | tag_num));
+    der_.push_back(static_cast<uint8_t>(id_class | encoding | tag_num));
   }
 }
 
@@ -137,23 +137,23 @@ void ASN1PDUToDER::EncodePDU(const PDU& pdu) {
     ++depth_;
   }
   EncodeIdentifier(pdu.id());
-  size_t len_pos = encoder_.size();
+  size_t len_pos = der_.size();
   EncodeValue(pdu.val());
-  EncodeLength(pdu.len(), encoder_.size() - len_pos, len_pos);
+  EncodeLength(pdu.len(), der_.size() - len_pos, len_pos);
   --depth_;
 }
 
 std::vector<uint8_t> ASN1PDUToDER::PDUToDER(const PDU& pdu) {
   // Reset the previous state.
-  encoder_.clear();
+  der_.clear();
   depth_ = 0;
   kErrRecursionLimitReached = false;
 
   EncodePDU(pdu);
   if (kErrRecursionLimitReached) {
-    encoder_.clear();
+    der_.clear();
   }
-  return encoder_;
+  return der_;
 }
 
 }  // namespace asn1_pdu
