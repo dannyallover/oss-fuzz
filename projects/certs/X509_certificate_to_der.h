@@ -8,7 +8,7 @@
 #include <vector>
 #include "X509_certificate.pb.h"
 #include "asn1_pdu_to_der.h"
-#include "asn1_primitive_types_to_der.h"
+#include "asn1_types_to_der.h"
 
 namespace X509_certificate {
 
@@ -21,7 +21,7 @@ class CertToDER {
   size_t depth_;
   std::vector<uint8_t> encoder_;
   asn1_pdu::ASN1PDUToDER pdu_to_der;
-  asn1_primitive_types::ASN1PrimitiveTypesToDER primitive_types_to_der;
+  asn1_types::ASN1TypesToDER types_to_der;
   void EncodeX509Certificate(const X509Certificate& cert);
   void EncodeSignatureValue(const SignatureValue& signature);
   void EncodeSignatureAlgorithm(const SignatureAlgorithm& signature_algorithm);
@@ -40,12 +40,13 @@ class CertToDER {
   void EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id);
   void EncodeExtensions(const Extensions& extensions);
   template<typename T>
-  void EncodeBitString(const T obj_with_bit_string);
+  void EncodeBitString(const T& obj_with_bit_string);
   template <typename T>
-  void EncodeInteger(T obj_with_int);
+  void EncodeInteger(const T& obj_with_int);
   template <typename T>
-  void EncodePDU(T obj_with_pdu);
-  void EncodeAlgorithmIdentifier(const AlgorithmIdentifier& alg_id);
+  void EncodeAlgorithmIdentifier(const T& obj_with_alg_id);
+  template <typename T>
+  void EncodePDU(const T& obj_with_pdu);
 };
 
 }  // namespace X509_certificate

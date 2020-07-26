@@ -1,8 +1,8 @@
-#include "asn1_primitive_types_to_der.h"
+#include "asn1_types_to_der.h"
 
-namespace asn1_primitive_types {
+namespace asn1_types {
 
-uint8_t ASN1PrimitiveTypesToDER::GetNumBytes(const size_t num) {
+uint8_t ASN1TypesToDER::GetNumBytes(const size_t num) {
   for (uint8_t num_bits = sizeof(num) * 8; num_bits > __CHAR_BIT__;
        num_bits -= __CHAR_BIT__) {
     if (num >> num_bits) {
@@ -13,8 +13,8 @@ uint8_t ASN1PrimitiveTypesToDER::GetNumBytes(const size_t num) {
   return 1;
 }
 
-void ASN1PrimitiveTypesToDER::EncodeDefiniteLength(const size_t len,
-                                                   std::vector<uint8_t>& der) {
+void ASN1TypesToDER::EncodeDefiniteLength(const size_t len,
+                                          std::vector<uint8_t>& der) {
   der.push_back(len);
   // X.690 (2015), 8.1.3.3: The long-form is used when the length is
   // larger than 127.
@@ -29,21 +29,22 @@ void ASN1PrimitiveTypesToDER::EncodeDefiniteLength(const size_t len,
   }
 }
 
-void ASN1PrimitiveTypesToDER::EncodeIdentifier(const Identifier& id,
-                                               const uint32_t tag,
-                                               std::vector<uint8_t>& der) {
+void ASN1TypesToDER::EncodeIdentifier(const Class& id_class,
+                                      const bool constructed,
+                                      const uint32_t tag_num,
+                                      std::vector<uint8_t>& der) {
   // The class comprises the the 7th and 8th bit of the identifier (X.690
   // (2015), 8.1.2).
-  uint8_t id_class = static_cast<uint8_t>(id.id_class()) << 6;
+  uint8_t class_bits = static_cast<uint8_t>(id_class) << 6;
   // The encoding, which is the 6th bit, is zero for primitive (X.690
   // (2015), 8.1.2).
-  der.push_back((id_class | tag));
+  der.push_back((class_bits | tag_num));
 }
 
-std::vector<uint8_t> ASN1PrimitiveTypesToDER::EncodeBitString(
+std::vector<uint8_t> ASN1TypesToDER::EncodeBitString(
     const BitString& bit_string) {
   std::vector<uint8_t> der;
-  EncodeIdentifier(bit_string.id(), 0x03, der);
+  EncodeIdentifier(bit_string.id_class(), false, 0x03, der);
   EncodeDefiniteLength(bit_string.val().size() + 1, der);
   // There are no unused bits.
   // This also acts as EOC if val is empty.
@@ -52,19 +53,17 @@ std::vector<uint8_t> ASN1PrimitiveTypesToDER::EncodeBitString(
   return der;
 }
 
-std::vector<uint8_t> ASN1PrimitiveTypesToDER::EncodeInteger(
-    const Integer& asn1_int) {
+std::vector<uint8_t> ASN1TypesToDER::EncodeInteger(const Integer& asn1_int) {
   std::vector<uint8_t> der;
-  EncodeIdentifier(asn1_int.id(), 0x02, der);
+  EncodeIdentifier(asn1_int.id_class(), false, 0x02, der);
   EncodeDefiniteLength(asn1_int.val().size(), der);
   der.insert(der.end(), asn1_int.val().begin(), asn1_int.val().end());
   return der;
 }
 
-std::vector<uint8_t> ASN1PrimitiveTypesToDER::EncodeUTCTime(
-    const UTCTime& utc_time) {
+std::vector<uint8_t> ASN1TypesToDER::EncodeUTCTime(const UTCTime& utc_time) {
   std::vector<uint8_t> der;
-  EncodeIdentifier(utc_time.id(), 0x17, der);
+  EncodeIdentifier(utc_time.id_class(), false, 0x17, der);
   const google::protobuf::Descriptor* desc = utc_time.GetDescriptor();
   const google::protobuf::Reflection* ref = utc_time.GetReflection();
   for (int i = 1; i <= 12; i++) {
@@ -79,10 +78,10 @@ std::vector<uint8_t> ASN1PrimitiveTypesToDER::EncodeUTCTime(
   return der;
 }
 
-std::vector<uint8_t> ASN1PrimitiveTypesToDER::EncodeGeneralizedTime(
+std::vector<uint8_t> ASN1TypesToDER::EncodeGeneralizedTime(
     const GeneralizedTime& generalized_time) {
   std::vector<uint8_t> der;
-  EncodeIdentifier(generalized_time.id(), 0x18, der);
+  EncodeIdentifier(generalized_time.id_class(), false, 0x18, der);
   const google::protobuf::Descriptor* desc = generalized_time.GetDescriptor();
   const google::protobuf::Reflection* ref = generalized_time.GetReflection();
   for (int i = 1; i <= 14; i++) {
@@ -97,4 +96,18 @@ std::vector<uint8_t> ASN1PrimitiveTypesToDER::EncodeGeneralizedTime(
   return der;
 }
 
-}  // namespace asn1_primitive_types
+std::vector<uint8_t> ASN1TypesToDER::EncodeAlgorithmIdentifier(
+    const AlgorithmIdentifier& algorithm_identifier) {
+  std::vector<uint8_t> der;
+  EncodeIdentifier(algorithm_identifier.id_class(), true, 0x10, der);
+  size_t len = algorithm_identifier.object_identifier().size() +
+               algorithm_identifier.parameters().size();
+  der.push_back(len);
+  der.insert(der.end(), algorithm_identifier.object_identifier().begin(),
+             algorithm_identifier.object_identifier().end());
+  der.insert(der.end(), algorithm_identifier.parameters().begin(),
+             algorithm_identifier.parameters().end());
+  return der;
+}
+
+}  // namespace asn1_types

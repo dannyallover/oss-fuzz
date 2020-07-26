@@ -1,10 +1,6 @@
 syntax = "proto2";
 
-package asn1_primitive_types;
-
-message Identifier {
-  required Class id_class = 2;
-}
+package asn1_types;
 
 // See X.690 (2015), 8.1.2.2.
 enum Class {
@@ -15,18 +11,18 @@ enum Class {
 }
 
 message BitString {
-  required Identifier id = 1;
+  required Class id_class = 1;
   required bytes val = 2;
 }
 
 message Integer {
-  required Identifier id = 1;
+  required Class id_class = 1;
   required bytes val = 2;
 }
 
 // For DER UCTTIme is always primitive
 message UTCTime {
-  required Identifier id = 1;
+  required Class id_class = 1;
   required TimeValue year_tens_digit = 2;
   required TimeValue year_ones_digit = 3;
   required TimeValue month_tens_digit = 4;
@@ -43,7 +39,7 @@ message UTCTime {
 }
 
 message GeneralizedTime {
-  required Identifier id = 1;
+  required Class id_class = 1;
   required TimeValue year_thousands_digit = 2;
   required TimeValue year_hundreds_digit = 3;
   required TimeValue year_tens_digit = 4;
@@ -72,4 +68,10 @@ enum TimeValue {
   VAL7 = 7;
   VAL8 = 8;
   VAL9 = 9;
+}
+
+message AlgorithmIdentifier {
+  required Class id_class = 1;
+  required string object_identifier = 2;
+  optional string parameters = 3;
 }

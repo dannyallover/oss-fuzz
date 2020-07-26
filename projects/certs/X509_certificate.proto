@@ -1,7 +1,7 @@
 syntax = "proto2";
 
 import "asn1_pdu.proto"; // To use a ASN1 PDU.
-import "asn1_primitive_types.proto"; // To use a specific ASN1 type.
+import "asn1_types.proto"; // To use a specific ASN1 type.
 
 package X509_certificate;
 
@@ -36,17 +36,12 @@ enum VersionNumber {
 
 message CertificateSerialNumber {
   optional asn1_pdu.PDU pdu = 1;
-  required asn1_primitive_types.Integer integer = 2;
+  required asn1_types.Integer integer = 2;
 }
 
 message Signature {
-  required AlgorithmIdentifier algorithm_identifier = 1;
-}
-
-message AlgorithmIdentifier {
-  required asn1_pdu.PDU pdu = 1;
-  // to-do: make pdu optional and
-  // add required algorithm_identifier
+  optional asn1_pdu.PDU pdu = 1;
+  required asn1_types.AlgorithmIdentifier algorithm_identifier = 2;
 }
 
 message Issuer {
@@ -65,17 +60,17 @@ message Validity {
 }
 
 message NotBefore {
-  required Time time = 2;
+  required Time time = 1;
 }
 
 message NotAfter {
-  required Time time = 2;
+  required Time time = 1;
 }
 
 message Time {
   optional asn1_pdu.PDU pdu = 1;
-  optional asn1_primitive_types.UTCTime utc_time = 2;
-  required asn1_primitive_types.GeneralizedTime generalized_time = 3;
+  optional asn1_types.UTCTime utc_time = 2;
+  required asn1_types.GeneralizedTime generalized_time = 3;
 }
 
 message Subject {
@@ -83,13 +78,14 @@ message Subject {
 }
 
 message SubjectPublicKeyInfo {
-  required AlgorithmIdentifier algorithm_identifier = 1;
-  required SubjectPublicKey subject_public_key = 2;
+  optional asn1_pdu.PDU pdu = 1;
+  required asn1_types.AlgorithmIdentifier algorithm_identifier = 2;
+  required SubjectPublicKey subject_public_key = 3;
 }
 
 message SubjectPublicKey {
   optional asn1_pdu.PDU pdu = 1;
-  required asn1_primitive_types.BitString bit_string = 2;
+  required asn1_types.BitString bit_string = 2;
 }
 
 message IssuerUniqueId {
@@ -98,7 +94,7 @@ message IssuerUniqueId {
 
 message UniqueIdentifier {
   optional asn1_pdu.PDU pdu = 1;
-  required asn1_primitive_types.BitString bit_string = 2;
+  required asn1_types.BitString bit_string = 2;
 }
 
 message Extensions {
@@ -108,10 +104,11 @@ message Extensions {
 }
 
 message SignatureAlgorithm {
-  required AlgorithmIdentifier algorithm_identifier = 1;
+  optional asn1_pdu.PDU pdu = 1;
+  required asn1_types.AlgorithmIdentifier algorithm_identifier = 2;
 }
 
 message SignatureValue {
   optional asn1_pdu.PDU pdu = 1;
-  required asn1_primitive_types.BitString bit_string = 2;
+  required asn1_types.BitString bit_string = 2;
 }
