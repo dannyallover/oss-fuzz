@@ -43,6 +43,8 @@ class CertToDER {
   void EncodeBitString(const T obj_with_bit_string);
   template <typename T>
   void EncodeInteger(T obj_with_int);
+  template <typename T>
+  void EncodePDU(T obj_with_pdu);
   void EncodeAlgorithmIdentifier(const AlgorithmIdentifier& alg_id);
 };
 

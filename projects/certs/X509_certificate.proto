@@ -24,8 +24,8 @@ message TBSCertificate {
 }
 
 message Version {
-  optional asn1_pdu.PDU invalid_version_number = 1;
-  required VersionNumber valid_version_number = 2;
+  optional asn1_pdu.PDU pdu = 1;
+  required VersionNumber version_number = 2;
 }
 
 enum VersionNumber {
@@ -35,8 +35,8 @@ enum VersionNumber {
 }
 
 message CertificateSerialNumber {
-  optional asn1_pdu.PDU invalid_integer = 1;
-  required asn1_primitive_types.Integer valid_integer = 2;
+  optional asn1_pdu.PDU pdu = 1;
+  required asn1_primitive_types.Integer integer = 2;
 }
 
 message Signature {
@@ -44,9 +44,9 @@ message Signature {
 }
 
 message AlgorithmIdentifier {
-  required asn1_pdu.PDU invalid_algorithm_identifier = 1;
-  // to-do: make invalid_algorithm_identifier optional and
-  // add required valid_algorithm_identifier
+  required asn1_pdu.PDU pdu = 1;
+  // to-do: make pdu optional and
+  // add required algorithm_identifier
 }
 
 message Issuer {
@@ -54,9 +54,9 @@ message Issuer {
 }
 
 message Name {
-  required asn1_pdu.PDU invalid_name = 1;
-  // to-do: make invalid_name optional and
-  // add required valid_name
+  required asn1_pdu.PDU pdu = 1;
+  // to-do: make pdu optional and
+  // add required name
 }
 
 message Validity {
@@ -73,8 +73,8 @@ message NotAfter {
 }
 
 message Time {
-  optional asn1_pdu.PDU invalid_time = 1;
-  optional asn1_primitive_types.UTCTime valid_utc_time = 2;
+  optional asn1_pdu.PDU pdu = 1;
+  optional asn1_primitive_types.UTCTime utc_time = 2;
   // required asn1_primitive_types.GeneralizedTime valid_generalized_time = 3;
 }
 
@@ -88,8 +88,8 @@ message SubjectPublicKeyInfo {
 }
 
 message SubjectPublicKey {
-  optional asn1_pdu.PDU invalid_bit_string = 1;
-  required asn1_primitive_types.BitString valid_bit_string = 2;
+  optional asn1_pdu.PDU pdu = 1;
+  required asn1_primitive_types.BitString bit_string = 2;
 }
 
 message IssuerUniqueId {
@@ -97,12 +97,12 @@ message IssuerUniqueId {
 }
 
 message UniqueIdentifier {
-  optional asn1_pdu.PDU invalid_bit_string = 1;
-  required asn1_primitive_types.BitString valid_bit_string = 2;
+  optional asn1_pdu.PDU pdu = 1;
+  required asn1_primitive_types.BitString bit_string = 2;
 }
 
 message Extensions {
-  required asn1_pdu.PDU invalid_extensions = 1;
+  required asn1_pdu.PDU pdu = 1;
   // to-do: make invalid_extensions optional and
   // add required valid_extensions
 }
@@ -112,6 +112,6 @@ message SignatureAlgorithm {
 }
 
 message SignatureValue {
-  optional asn1_pdu.PDU invalid_bit_string = 1;
-  required asn1_primitive_types.BitString valid_bit_string = 2;
+  optional asn1_pdu.PDU pdu = 1;
+  required asn1_primitive_types.BitString bit_string = 2;
 }

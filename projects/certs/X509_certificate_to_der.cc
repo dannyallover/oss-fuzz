@@ -5,36 +5,34 @@ namespace X509_certificate {
 template <typename T>
 void CertToDER::EncodeBitString(const T obj_with_bit_string) {
   std::vector<uint8_t> der;
-  if (obj_with_bit_string.has_invalid_bit_string()) {
-    der = pdu_to_der.PDUToDER(obj_with_bit_string.invalid_bit_string());
+  if (obj_with_bit_string.has_pdu()) {
+    der = pdu_to_der.PDUToDER(obj_with_bit_string.pdu());
   } else {
     der = primitive_types_to_der.EncodeBitString(
-        obj_with_bit_string.valid_bit_string());
+        obj_with_bit_string.bit_string());
   }
-  encoder_.insert(encoder_.end(), der.begin(), der.end());
-}
-
-// this will change later
-void CertToDER::EncodeAlgorithmIdentifier(const AlgorithmIdentifier& alg_id) {
-  std::vector<uint8_t> der =
-      pdu_to_der.PDUToDER(alg_id.invalid_algorithm_identifier());
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
 template <typename T>
 void CertToDER::EncodeInteger(T obj_with_int) {
   std::vector<uint8_t> der;
-  if (obj_with_int.has_invalid_integer()) {
-    der = pdu_to_der.PDUToDER(obj_with_int.invalid_integer());
+  if (obj_with_int.has_pdu()) {
+    der = pdu_to_der.PDUToDER(obj_with_int.pdu());
   } else {
-    der = primitive_types_to_der.EncodeInteger(obj_with_int.valid_integer());
+    der = primitive_types_to_der.EncodeInteger(obj_with_int.integer());
   }
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
+// this will change later
+void CertToDER::EncodeAlgorithmIdentifier(const AlgorithmIdentifier& alg_id) {
+  std::vector<uint8_t> der = pdu_to_der.PDUToDER(alg_id.pdu());
+  encoder_.insert(encoder_.end(), der.begin(), der.end());
+}
+
 void CertToDER::EncodeExtensions(const Extensions& extensions) {
-  std::vector<uint8_t> der =
-      pdu_to_der.PDUToDER(extensions.invalid_extensions());
+  std::vector<uint8_t> der = pdu_to_der.PDUToDER(extensions.pdu());
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
@@ -53,16 +51,16 @@ void CertToDER::EncodeSubjectPublicKeyInfo(
 }
 
 void CertToDER::EncodeSubject(const Subject& subject) {
-  std::vector<uint8_t> der = pdu_to_der.PDUToDER(subject.name().invalid_name());
+  std::vector<uint8_t> der = pdu_to_der.PDUToDER(subject.name().pdu());
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
 void CertToDER::EncodeTime(const Time& time) {
   std::vector<uint8_t> der;
-  if (time.has_invalid_time()) {
-    der = pdu_to_der.PDUToDER(time.invalid_time());
-  } else if (time.has_valid_utc_time()) {
-    der = primitive_types_to_der.EncodeUTCTime(time.valid_utc_time());
+  if (time.has_pdu()) {
+    der = pdu_to_der.PDUToDER(time.pdu());
+  } else if (time.has_utc_time()) {
+    der = primitive_types_to_der.EncodeUTCTime(time.utc_time());
   }
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
@@ -73,7 +71,7 @@ void CertToDER::EncodeValidity(const Validity& validity) {
 }
 
 void CertToDER::EncodeIssuer(const Issuer& issuer) {
-  std::vector<uint8_t> der = pdu_to_der.PDUToDER(issuer.name().invalid_name());
+  std::vector<uint8_t> der = pdu_to_der.PDUToDER(issuer.name().pdu());
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
@@ -88,10 +86,10 @@ void CertToDER::EncodeCertificateSerialNumber(
 
 void CertToDER::EncodeVersion(const Version& version) {
   std::vector<uint8_t> der;
-  if (version.has_invalid_version_number()) {
-    der = pdu_to_der.PDUToDER(version.invalid_version_number());
+  if (version.has_pdu()) {
+    der = pdu_to_der.PDUToDER(version.pdu());
   } else {
-    der = {0x02, 0x01, static_cast<uint8_t>(version.valid_version_number())};
+    der = {0x02, 0x01, static_cast<uint8_t>(version.version_number())};
   }
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
