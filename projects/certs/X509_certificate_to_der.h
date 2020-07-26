@@ -39,12 +39,10 @@ class CertToDER {
   void EncodeSubjectPublicKey(const SubjectPublicKey& subject_public_key);
   void EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id);
   void EncodeExtensions(const Extensions& extensions);
-  template<typename T>
-  void EncodeBitString(const T& obj_with_bit_string);
-  template <typename T>
-  void EncodeInteger(const T& obj_with_int);
-  template <typename T>
-  void EncodeAlgorithmIdentifier(const T& obj_with_alg_id);
+  void EncodeBitString(const asn1_types::BitString& bit_string);
+  void EncodeInteger(const asn1_types::Integer& integer);
+  void EncodeAlgorithmIdentifier(
+      const asn1_types::AlgorithmIdentifier& algorithm_identifier);
   void EncodePDU(const asn1_pdu::PDU& pdu);
 };
 

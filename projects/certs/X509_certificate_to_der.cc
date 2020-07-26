@@ -2,32 +2,20 @@
 
 namespace X509_certificate {
 
-template <typename T>
-void CertToDER::EncodeBitString(const T& obj_with_bit_string) {
-  if (obj_with_bit_string.has_pdu()) {
-    return EncodePDU(obj_with_bit_string.pdu());
-  }
+void CertToDER::EncodeBitString(const asn1_types::BitString& bit_string) {
+  std::vector<uint8_t> der = types_to_der.EncodeBitString(bit_string);
+  encoder_.insert(encoder_.end(), der.begin(), der.end());
+}
+
+void CertToDER::EncodeInteger(const asn1_types::Integer& integer) {
+  std::vector<uint8_t> der = types_to_der.EncodeInteger(integer);
+  encoder_.insert(encoder_.end(), der.begin(), der.end());
+}
+
+void CertToDER::EncodeAlgorithmIdentifier(
+    const asn1_types::AlgorithmIdentifier& algorithm_identifier) {
   std::vector<uint8_t> der =
-      types_to_der.EncodeBitString(obj_with_bit_string.bit_string());
-  encoder_.insert(encoder_.end(), der.begin(), der.end());
-}
-
-template <typename T>
-void CertToDER::EncodeInteger(const T& obj_with_int) {
-  if (obj_with_int.has_pdu()) {
-    return EncodePDU(obj_with_int.pdu());
-  }
-  std::vector<uint8_t> der = types_to_der.EncodeInteger(obj_with_int.integer());
-  encoder_.insert(encoder_.end(), der.begin(), der.end());
-}
-
-template <typename T>
-void CertToDER::EncodeAlgorithmIdentifier(const T& obj_with_alg_id) {
-  if (obj_with_alg_id.has_pdu()) {
-    return EncodePDU(obj_with_alg_id.pdu());
-  }
-  std::vector<uint8_t> der = types_to_der.EncodeAlgorithmIdentifier(
-      obj_with_alg_id.algorithm_identifier());
+      types_to_der.EncodeAlgorithmIdentifier(algorithm_identifier);
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
@@ -41,19 +29,25 @@ void CertToDER::EncodeExtensions(const Extensions& extensions) {
 }
 
 void CertToDER::EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id) {
-  EncodeBitString(issuer_unique_id.unique_identifier());
+  if (issuer_unique_id.unique_identifier().has_pdu()) {
+    return EncodePDU(issuer_unique_id.unique_identifier().pdu());
+  }
+  EncodeBitString(issuer_unique_id.unique_identifier().bit_string());
 }
 
 void CertToDER::EncodeSubjectPublicKey(
     const SubjectPublicKey& subject_public_key) {
-  EncodeBitString(subject_public_key);
+  if (subject_public_key.has_pdu()) {
+    return EncodePDU(subject_public_key.pdu());
+  }
+  EncodeBitString(subject_public_key.bit_string());
 }
 
 void CertToDER::EncodeSubjectPublicKeyInfo(
     const SubjectPublicKeyInfo& subject_public_key_info) {
   encoder_.push_back(0x30);
   size_t len_pos = encoder_.size();
-  EncodeAlgorithmIdentifier(subject_public_key_info);
+  EncodeAlgorithmIdentifier(subject_public_key_info.algorithm_identifier());
   EncodeSubjectPublicKey(subject_public_key_info.subject_public_key());
   encoder_.insert(encoder_.begin() + len_pos, encoder_.size() - len_pos);
 }
@@ -89,12 +83,15 @@ void CertToDER::EncodeIssuer(const Issuer& issuer) {
 }
 
 void CertToDER::EncodeSignature(const Signature& signature) {
-  EncodeAlgorithmIdentifier(signature);
+  EncodeAlgorithmIdentifier(signature.algorithm_identifier());
 }
 
 void CertToDER::EncodeCertificateSerialNumber(
     const CertificateSerialNumber& cert_serial_num) {
-  EncodeInteger(cert_serial_num);
+  if (cert_serial_num.has_pdu()) {
+    return EncodePDU(cert_serial_num.pdu());
+  }
+  EncodeInteger(cert_serial_num.integer());
 }
 
 void CertToDER::EncodeVersion(const Version& version) {
@@ -125,11 +122,17 @@ void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
 
 void CertToDER::EncodeSignatureAlgorithm(
     const SignatureAlgorithm& signature_algorithm) {
-  EncodeAlgorithmIdentifier(signature_algorithm);
+  if (signature_algorithm.has_pdu()) {
+    return EncodePDU(signature_algorithm.pdu());
+  }
+  EncodeAlgorithmIdentifier(signature_algorithm.algorithm_identifier());
 }
 
 void CertToDER::EncodeSignatureValue(const SignatureValue& signature_value) {
-  EncodeBitString(signature_value);
+  if (signature_value.has_pdu()) {
+    return EncodePDU(signature_value.pdu());
+  }
+  EncodeBitString(signature_value.bit_string());
 }
 
 void CertToDER::EncodeX509Certificate(const X509Certificate& X509_certificate) {
