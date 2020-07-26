@@ -41,6 +41,9 @@ class CertToDER {
   void EncodeExtensions(const Extensions& extensions);
   template<typename T>
   void EncodeBitString(const T obj_with_bit_string);
+  template <typename T>
+  void EncodeInteger(T obj_with_int);
+  void EncodeAlgorithmIdentifier(const AlgorithmIdentifier& alg_id);
 };
 
 }  // namespace X509_certificate

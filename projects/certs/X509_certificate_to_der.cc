@@ -2,7 +2,7 @@
 
 namespace X509_certificate {
 
-template<typename T>
+template <typename T>
 void CertToDER::EncodeBitString(const T obj_with_bit_string) {
   std::vector<uint8_t> der;
   if (obj_with_bit_string.has_invalid_bit_string()) {
@@ -14,6 +14,24 @@ void CertToDER::EncodeBitString(const T obj_with_bit_string) {
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
+// this will change later
+void CertToDER::EncodeAlgorithmIdentifier(const AlgorithmIdentifier& alg_id) {
+  std::vector<uint8_t> der =
+      pdu_to_der.PDUToDER(alg_id.invalid_algorithm_identifier());
+  encoder_.insert(encoder_.end(), der.begin(), der.end());
+}
+
+template <typename T>
+void CertToDER::EncodeInteger(T obj_with_int) {
+  std::vector<uint8_t> der;
+  if (obj_with_int.has_invalid_integer()) {
+    der = pdu_to_der.PDUToDER(obj_with_int.invalid_integer());
+  } else {
+    der = primitive_types_to_der.EncodeInteger(obj_with_int.valid_integer());
+  }
+  encoder_.insert(encoder_.end(), der.begin(), der.end());
+}
+
 void CertToDER::EncodeExtensions(const Extensions& extensions) {
   std::vector<uint8_t> der =
       pdu_to_der.PDUToDER(extensions.invalid_extensions());
@@ -21,20 +39,16 @@ void CertToDER::EncodeExtensions(const Extensions& extensions) {
 }
 
 void CertToDER::EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id) {
-  // do something
+  EncodeBitString(issuer_unique_id.unique_identifier());
 }
 
 void CertToDER::EncodeSubjectPublicKey(
     const SubjectPublicKey& subject_public_key) {
-      EncodeBitString(subject_public_key);
+  EncodeBitString(subject_public_key);
 }
 
 void CertToDER::EncodeSubjectPublicKeyInfo(
     const SubjectPublicKeyInfo& subject_public_key_info) {
-  std::vector<uint8_t> der =
-      pdu_to_der.PDUToDER(subject_public_key_info.algorithm_identifier()
-                              .invalid_algorithm_identifier());
-  encoder_.insert(encoder_.end(), der.begin(), der.end());
   EncodeSubjectPublicKey(subject_public_key_info.subject_public_key());
 }
 
@@ -64,20 +78,12 @@ void CertToDER::EncodeIssuer(const Issuer& issuer) {
 }
 
 void CertToDER::EncodeSignature(const Signature& signature) {
-  std::vector<uint8_t> der = pdu_to_der.PDUToDER(
-      signature.algorithm_identifier().invalid_algorithm_identifier());
-  encoder_.insert(encoder_.end(), der.begin(), der.end());
+  EncodeAlgorithmIdentifier(signature.algorithm_identifier());
 }
 
 void CertToDER::EncodeCertificateSerialNumber(
     const CertificateSerialNumber& cert_serial_num) {
-  std::vector<uint8_t> der;
-  if (cert_serial_num.has_invalid_integer()) {
-    der = pdu_to_der.PDUToDER(cert_serial_num.invalid_integer());
-  } else {
-    der = primitive_types_to_der.EncodeInteger(cert_serial_num.valid_integer());
-  }
-  encoder_.insert(encoder_.end(), der.begin(), der.end());
+  EncodeInteger(cert_serial_num);
 }
 
 void CertToDER::EncodeVersion(const Version& version) {
@@ -100,7 +106,7 @@ void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
   EncodeValidity(tbs_certificate.validity());
   EncodeSubject(tbs_certificate.subject());
   EncodeSubjectPublicKeyInfo(tbs_certificate.subject_public_key_info());
-  if(tbs_certificate.has_issuer_unique_id()) {
+  if (tbs_certificate.has_issuer_unique_id()) {
     EncodeIssuerUniqueId(tbs_certificate.issuer_unique_id());
   }
   EncodeExtensions(tbs_certificate.extensions());
@@ -109,10 +115,7 @@ void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
 
 void CertToDER::EncodeSignatureAlgorithm(
     const SignatureAlgorithm& signature_algorithm) {
-  std::vector<uint8_t> der =
-      pdu_to_der.PDUToDER(signature_algorithm.algorithm_identifier()
-                              .invalid_algorithm_identifier());
-  encoder_.insert(encoder_.end(), der.begin(), der.end());
+  EncodeAlgorithmIdentifier(signature_algorithm.algorithm_identifier());
 }
 
 void CertToDER::EncodeSignatureValue(const SignatureValue& signature_value) {
