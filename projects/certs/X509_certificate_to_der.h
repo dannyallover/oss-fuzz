@@ -34,6 +34,7 @@ class CertToDER {
   void EncodeValidity(const Validity& validity);
   void EncodeTime(const Time& time);
   void EncodeSubject(const Subject& subject);
+  void EncodeName(const Name& name);
   void EncodeSubjectPublicKeyInfo(
       const SubjectPublicKeyInfo& subject_public_key_info);
   void EncodeSubjectPublicKey(const SubjectPublicKey& subject_public_key);
@@ -44,6 +45,8 @@ class CertToDER {
   void EncodeAlgorithmIdentifier(
       const asn1_types::AlgorithmIdentifier& algorithm_identifier);
   void EncodePDU(const asn1_pdu::PDU& pdu);
+  template <typename T>
+  bool UseInvalidField(const T field);
 };
 
 }  // namespace X509_certificate

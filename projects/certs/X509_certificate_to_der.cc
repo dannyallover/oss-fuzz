@@ -24,12 +24,17 @@ void CertToDER::EncodePDU(const asn1_pdu::PDU& pdu) {
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
+template <typename T>
+bool CertToDER::UseInvalidField(const T field) {
+  return field.has_pdu();
+}
+
 void CertToDER::EncodeExtensions(const Extensions& extensions) {
   EncodePDU(extensions.pdu());
 }
 
 void CertToDER::EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id) {
-  if (issuer_unique_id.unique_identifier().has_pdu()) {
+  if (UseInvalidField(issuer_unique_id.unique_identifier())) {
     return EncodePDU(issuer_unique_id.unique_identifier().pdu());
   }
   EncodeBitString(issuer_unique_id.unique_identifier().bit_string());
@@ -37,7 +42,7 @@ void CertToDER::EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id) {
 
 void CertToDER::EncodeSubjectPublicKey(
     const SubjectPublicKey& subject_public_key) {
-  if (subject_public_key.has_pdu()) {
+  if (UseInvalidField(subject_public_key)) {
     return EncodePDU(subject_public_key.pdu());
   }
   EncodeBitString(subject_public_key.bit_string());
@@ -52,12 +57,16 @@ void CertToDER::EncodeSubjectPublicKeyInfo(
   encoder_.insert(encoder_.begin() + len_pos, encoder_.size() - len_pos);
 }
 
+void CertToDER::EncodeName(const Name& name) {
+  EncodePDU(name.pdu());
+}
+
 void CertToDER::EncodeSubject(const Subject& subject) {
-  EncodePDU(subject.name().pdu());
+  EncodeName(subject.name());
 }
 
 void CertToDER::EncodeTime(const Time& time) {
-  if (time.has_pdu()) {
+  if (UseInvalidField(time)) {
     return EncodePDU(time.pdu());
   }
 
@@ -79,7 +88,7 @@ void CertToDER::EncodeValidity(const Validity& validity) {
 }
 
 void CertToDER::EncodeIssuer(const Issuer& issuer) {
-  EncodePDU(issuer.name().pdu());
+  EncodeName(issuer.name());
 }
 
 void CertToDER::EncodeSignature(const Signature& signature) {
@@ -88,14 +97,14 @@ void CertToDER::EncodeSignature(const Signature& signature) {
 
 void CertToDER::EncodeCertificateSerialNumber(
     const CertificateSerialNumber& cert_serial_num) {
-  if (cert_serial_num.has_pdu()) {
+  if (UseInvalidField(cert_serial_num)) {
     return EncodePDU(cert_serial_num.pdu());
   }
   EncodeInteger(cert_serial_num.integer());
 }
 
 void CertToDER::EncodeVersion(const Version& version) {
-  if (version.has_pdu()) {
+  if (UseInvalidField(version)) {
     return EncodePDU(version.pdu());
   }
   std::vector<uint8_t> der = {0x02, 0x01,
@@ -122,14 +131,14 @@ void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
 
 void CertToDER::EncodeSignatureAlgorithm(
     const SignatureAlgorithm& signature_algorithm) {
-  if (signature_algorithm.has_pdu()) {
+  if (UseInvalidField(signature_algorithm)) {
     return EncodePDU(signature_algorithm.pdu());
   }
   EncodeAlgorithmIdentifier(signature_algorithm.algorithm_identifier());
 }
 
 void CertToDER::EncodeSignatureValue(const SignatureValue& signature_value) {
-  if (signature_value.has_pdu()) {
+  if (UseInvalidField(signature_value)) {
     return EncodePDU(signature_value.pdu());
   }
   EncodeBitString(signature_value.bit_string());
