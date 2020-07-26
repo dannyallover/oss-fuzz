@@ -75,7 +75,7 @@ message NotAfter {
 message Time {
   optional asn1_pdu.PDU pdu = 1;
   optional asn1_primitive_types.UTCTime utc_time = 2;
-  // required asn1_primitive_types.GeneralizedTime valid_generalized_time = 3;
+  required asn1_primitive_types.GeneralizedTime generalized_time = 3;
 }
 
 message Subject {

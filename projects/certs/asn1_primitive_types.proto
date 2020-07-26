@@ -24,6 +24,7 @@ message Integer {
   required bytes val = 2;
 }
 
+// For DER UCTTIme is always primitive
 message UTCTime {
   required Identifier id = 1;
   required TimeValue year_tens_digit = 2;
@@ -39,6 +40,25 @@ message UTCTime {
   required TimeValue second_tens_digit = 12;
   required TimeValue second_ones_digit = 13;
   required bool zulu = 14;
+}
+
+message GeneralizedTime {
+  required Identifier id = 1;
+  required TimeValue year_thousands_digit = 2;
+  required TimeValue year_hundreds_digit = 3;
+  required TimeValue year_tens_digit = 4;
+  required TimeValue year_ones_digit = 5;
+  required TimeValue month_tens_digit = 6;
+  required TimeValue month_ones_digit = 7;
+  required TimeValue day_tens_digit = 8;
+  required TimeValue day_ones_digit = 9;
+  required TimeValue hour_tens_digit = 10;
+  required TimeValue hour_ones_digit = 11;
+  required TimeValue minute_tens_digit = 12;
+  required TimeValue minute_ones_digit = 13;
+  required TimeValue second_tens_digit = 14;
+  required TimeValue second_ones_digit = 15;
+  required bool zulu = 16;
 }
 
 enum TimeValue {

@@ -12,6 +12,7 @@ class ASN1PrimitiveTypesToDER {
   std::vector<uint8_t> EncodeBitString(const BitString& bit_string);
   std::vector<uint8_t> EncodeInteger(const Integer& asn1_int);
   std::vector<uint8_t> EncodeUTCTime(const UTCTime& utc_time);
+  std::vector<uint8_t> EncodeGeneralizedTime(const GeneralizedTime& generalized_time);
 
  private:
   asn1_pdu::ASN1PDUToDER pdu_to_der;

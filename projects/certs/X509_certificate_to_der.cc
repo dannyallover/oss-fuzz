@@ -25,6 +25,12 @@ void CertToDER::EncodeInteger(T obj_with_int) {
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
+template <typename T>
+void CertToDER::EncodePDU(T obj_with_pdu) {
+  std::vector<uint8_t> der = pdu_to_der.PDUToDER(obj_with_pdu.pdu());
+  encoder_.insert(encoder_.end(), der.begin(), der.end());
+}
+
 // this will change later
 void CertToDER::EncodeAlgorithmIdentifier(const AlgorithmIdentifier& alg_id) {
   std::vector<uint8_t> der = pdu_to_der.PDUToDER(alg_id.pdu());
@@ -32,8 +38,7 @@ void CertToDER::EncodeAlgorithmIdentifier(const AlgorithmIdentifier& alg_id) {
 }
 
 void CertToDER::EncodeExtensions(const Extensions& extensions) {
-  std::vector<uint8_t> der = pdu_to_der.PDUToDER(extensions.pdu());
-  encoder_.insert(encoder_.end(), der.begin(), der.end());
+  EncodePDU(extensions);
 }
 
 void CertToDER::EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id) {
@@ -51,8 +56,7 @@ void CertToDER::EncodeSubjectPublicKeyInfo(
 }
 
 void CertToDER::EncodeSubject(const Subject& subject) {
-  std::vector<uint8_t> der = pdu_to_der.PDUToDER(subject.name().pdu());
-  encoder_.insert(encoder_.end(), der.begin(), der.end());
+  EncodePDU(subject.name());
 }
 
 void CertToDER::EncodeTime(const Time& time) {
@@ -61,18 +65,22 @@ void CertToDER::EncodeTime(const Time& time) {
     der = pdu_to_der.PDUToDER(time.pdu());
   } else if (time.has_utc_time()) {
     der = primitive_types_to_der.EncodeUTCTime(time.utc_time());
+  } else {
+    der = primitive_types_to_der.EncodeGeneralizedTime(time.generalized_time());
   }
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
 void CertToDER::EncodeValidity(const Validity& validity) {
+  encoder_.push_back(0x30);
+  size_t len_pos = encoder_.size();
   EncodeTime(validity.not_before().time());
   EncodeTime(validity.not_after().time());
+  encoder_.insert(encoder_.begin() + len_pos, encoder_.size() - len_pos);
 }
 
 void CertToDER::EncodeIssuer(const Issuer& issuer) {
-  std::vector<uint8_t> der = pdu_to_der.PDUToDER(issuer.name().pdu());
-  encoder_.insert(encoder_.end(), der.begin(), der.end());
+  EncodePDU(issuer.name());
 }
 
 void CertToDER::EncodeSignature(const Signature& signature) {

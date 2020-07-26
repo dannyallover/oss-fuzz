@@ -13,9 +13,8 @@ uint8_t ASN1PrimitiveTypesToDER::GetNumBytes(const size_t num) {
   return 1;
 }
 
-void ASN1PrimitiveTypesToDER::EncodeDefiniteLength(
-    const size_t len,
-    std::vector<uint8_t>& der) {
+void ASN1PrimitiveTypesToDER::EncodeDefiniteLength(const size_t len,
+                                                   std::vector<uint8_t>& der) {
   der.push_back(len);
   // X.690 (2015), 8.1.3.3: The long-form is used when the length is
   // larger than 127.
@@ -49,8 +48,7 @@ std::vector<uint8_t> ASN1PrimitiveTypesToDER::EncodeBitString(
   // There are no unused bits.
   // This also acts as EOC if val is empty.
   der.push_back(0x00);
-  der.insert(der.end(), bit_string.val().begin(),
-                 bit_string.val().end());
+  der.insert(der.end(), bit_string.val().begin(), bit_string.val().end());
   return der;
 }
 
@@ -67,22 +65,34 @@ std::vector<uint8_t> ASN1PrimitiveTypesToDER::EncodeUTCTime(
     const UTCTime& utc_time) {
   std::vector<uint8_t> der;
   EncodeIdentifier(utc_time.id(), 0x17, der);
-  uint8_t len = utc_time.zulu() ? 13 : 12;
-  EncodeDefiniteLength(len, der);
-  der.push_back(0x30 + utc_time.year_tens_digit());
-  der.push_back(0x30 + utc_time.year_ones_digit());
-  der.push_back(0x30 + utc_time.month_tens_digit());
-  der.push_back(0x30 + utc_time.month_ones_digit());
-  der.push_back(0x30 + utc_time.day_tens_digit());
-  der.push_back(0x30 + utc_time.day_ones_digit());
-  der.push_back(0x30 + utc_time.hour_tens_digit());
-  der.push_back(0x30 + utc_time.hour_ones_digit());
-  der.push_back(0x30 + utc_time.minute_tens_digit());
-  der.push_back(0x30 + utc_time.minute_ones_digit());
-  der.push_back(0x30 + utc_time.second_tens_digit());
-  der.push_back(0x30 + utc_time.second_ones_digit());
+  const google::protobuf::Descriptor* desc = utc_time.GetDescriptor();
+  const google::protobuf::Reflection* ref = utc_time.GetReflection();
+  for (int i = 1; i <= 12; i++) {
+    der.push_back(0x30 + ref->GetEnumValue(utc_time, desc->field(i)));
+  }
   if (utc_time.zulu()) {
     der.push_back(0x5a);
+    der.insert(der.begin() + 1, 13);
+  } else {
+    der.insert(der.begin() + 1, 12);
+  }
+  return der;
+}
+
+std::vector<uint8_t> ASN1PrimitiveTypesToDER::EncodeGeneralizedTime(
+    const GeneralizedTime& generalized_time) {
+  std::vector<uint8_t> der;
+  EncodeIdentifier(generalized_time.id(), 0x18, der);
+  const google::protobuf::Descriptor* desc = generalized_time.GetDescriptor();
+  const google::protobuf::Reflection* ref = generalized_time.GetReflection();
+  for (int i = 1; i <= 14; i++) {
+    der.push_back(0x30 + ref->GetEnumValue(generalized_time, desc->field(i)));
+  }
+  if (generalized_time.zulu()) {
+    der.push_back(0x5a);
+    der.insert(der.begin() + 1, 15);
+  } else {
+    der.insert(der.begin() + 1, 14);
   }
   return der;
 }
