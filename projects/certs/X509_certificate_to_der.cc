@@ -149,7 +149,7 @@ void CertToDER::EncodeSignatureValue(const SignatureValue& signature_value) {
 }
 
 void CertToDER::EncodeX509Certificate(const X509Certificate& X509_certificate) {
-  encoder_.push_back(0x30);
+  EncodeSequenceIdentifier(X509_certificate.sequence_class());
   size_t len_pos = encoder_.size();
   EncodeTBSCertificate(X509_certificate.tbs_certificate());
   EncodeSignatureValue(X509_certificate.signature_value());

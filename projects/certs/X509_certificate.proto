@@ -6,9 +6,10 @@ import "asn1_types.proto"; // To use a specific ASN1 type.
 package X509_certificate;
 
 message X509Certificate {
-  required TBSCertificate tbs_certificate = 1;
-  required SignatureAlgorithm signature_algorithm = 2;
-  required SignatureValue signature_value = 3;
+  required asn1_types.Class sequence_class = 1;
+  required TBSCertificate tbs_certificate = 2;
+  required SignatureAlgorithm signature_algorithm = 3;
+  required SignatureValue signature_value = 4;
 }
 
 message TBSCertificate {
