@@ -53,11 +53,11 @@ std::vector<uint8_t> ASN1TypesToDER::EncodeBitString(
   return der;
 }
 
-std::vector<uint8_t> ASN1TypesToDER::EncodeInteger(const Integer& asn1_int) {
+std::vector<uint8_t> ASN1TypesToDER::EncodeInteger(const Integer& integer) {
   std::vector<uint8_t> der;
-  EncodeIdentifier(asn1_int.id_class(), false, 0x02, der);
-  EncodeDefiniteLength(asn1_int.val().size(), der);
-  der.insert(der.end(), asn1_int.val().begin(), asn1_int.val().end());
+  EncodeIdentifier(integer.id_class(), false, 0x02, der);
+  EncodeDefiniteLength(integer.val().size(), der);
+  der.insert(der.end(), integer.val().begin(), integer.val().end());
   return der;
 }
 

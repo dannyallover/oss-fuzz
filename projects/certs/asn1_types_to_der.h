@@ -10,7 +10,7 @@ namespace asn1_types {
 class ASN1TypesToDER {
  public:
   std::vector<uint8_t> EncodeBitString(const BitString& bit_string);
-  std::vector<uint8_t> EncodeInteger(const Integer& asn1_int);
+  std::vector<uint8_t> EncodeInteger(const Integer& integer);
   std::vector<uint8_t> EncodeUTCTime(const UTCTime& utc_time);
   std::vector<uint8_t> EncodeGeneralizedTime(
       const GeneralizedTime& generalized_time);
