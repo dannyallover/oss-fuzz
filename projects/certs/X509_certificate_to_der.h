@@ -47,6 +47,7 @@ class CertToDER {
   void EncodePDU(const asn1_pdu::PDU& pdu);
   template <typename T>
   bool UseInvalidField(const T field);
+  void EncodeSequenceIdentifier(const asn1_types::Class& sequence_class);
 };
 
 }  // namespace X509_certificate

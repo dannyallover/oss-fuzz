@@ -12,15 +12,16 @@ message X509Certificate {
 }
 
 message TBSCertificate {
-  required Version version = 1;
-  required CertificateSerialNumber serial_number = 2;
-  required Signature signature = 3;
-  required Issuer issuer = 4;
-  required Validity validity = 5;
-  required Subject subject = 6;
-  required SubjectPublicKeyInfo subject_public_key_info = 7;
-  optional IssuerUniqueId issuer_unique_id = 8;
-  required Extensions extensions = 10;
+  required asn1_types.Class sequence_class = 2;
+  required Version version = 3;
+  required CertificateSerialNumber serial_number = 4;
+  required Signature signature = 5;
+  required Issuer issuer = 6;
+  required Validity validity = 7;
+  required Subject subject = 9;
+  required SubjectPublicKeyInfo subject_public_key_info = 10;
+  optional IssuerUniqueId issuer_unique_id = 11;
+  required Extensions extensions = 12;
 }
 
 message Version {
@@ -55,8 +56,9 @@ message Name {
 }
 
 message Validity {
-  required NotBefore not_before = 1;
-  required NotAfter not_after = 2;
+  required asn1_types.Class sequence_class = 1;
+  required NotBefore not_before = 2;
+  required NotAfter not_after = 3;
 }
 
 message NotBefore {
@@ -78,9 +80,10 @@ message Subject {
 }
 
 message SubjectPublicKeyInfo {
-  optional asn1_pdu.PDU pdu = 1;
-  required asn1_types.AlgorithmIdentifier algorithm_identifier = 2;
-  required SubjectPublicKey subject_public_key = 3;
+  required asn1_types.Class sequence_class = 1;
+  optional asn1_pdu.PDU pdu = 2;
+  required asn1_types.AlgorithmIdentifier algorithm_identifier = 3;
+  required SubjectPublicKey subject_public_key = 4;
 }
 
 message SubjectPublicKey {

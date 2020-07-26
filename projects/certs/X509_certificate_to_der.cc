@@ -24,6 +24,10 @@ void CertToDER::EncodePDU(const asn1_pdu::PDU& pdu) {
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
+void CertToDER::EncodeSequenceIdentifier(const asn1_types::Class& sequence_class) {
+  encoder_.push_back((sequence_class << 7) | (1 << 6) | 0x10);
+}
+
 template <typename T>
 bool CertToDER::UseInvalidField(const T field) {
   return field.has_pdu();
@@ -50,7 +54,7 @@ void CertToDER::EncodeSubjectPublicKey(
 
 void CertToDER::EncodeSubjectPublicKeyInfo(
     const SubjectPublicKeyInfo& subject_public_key_info) {
-  encoder_.push_back(0x30);
+  EncodeSequenceIdentifier(subject_public_key_info.sequence_class());
   size_t len_pos = encoder_.size();
   EncodeAlgorithmIdentifier(subject_public_key_info.algorithm_identifier());
   EncodeSubjectPublicKey(subject_public_key_info.subject_public_key());
@@ -80,7 +84,7 @@ void CertToDER::EncodeTime(const Time& time) {
 }
 
 void CertToDER::EncodeValidity(const Validity& validity) {
-  encoder_.push_back(0x30);
+  EncodeSequenceIdentifier(validity.sequence_class());
   size_t len_pos = encoder_.size();
   EncodeTime(validity.not_before().time());
   EncodeTime(validity.not_after().time());
@@ -113,7 +117,7 @@ void CertToDER::EncodeVersion(const Version& version) {
 }
 
 void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
-  encoder_.push_back(0x30);
+  EncodeSequenceIdentifier(tbs_certificate.sequence_class());
   size_t len_pos = encoder_.size();
   EncodeVersion(tbs_certificate.version());
   EncodeCertificateSerialNumber(tbs_certificate.serial_number());
