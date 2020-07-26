@@ -5,7 +5,7 @@ namespace X509_certificate {
 template <typename T>
 void CertToDER::EncodeBitString(const T& obj_with_bit_string) {
   if (obj_with_bit_string.has_pdu()) {
-    return EncodePDU(obj_with_bit_string);
+    return EncodePDU(obj_with_bit_string.pdu());
   }
   std::vector<uint8_t> der =
       types_to_der.EncodeBitString(obj_with_bit_string.bit_string());
@@ -15,7 +15,7 @@ void CertToDER::EncodeBitString(const T& obj_with_bit_string) {
 template <typename T>
 void CertToDER::EncodeInteger(const T& obj_with_int) {
   if (obj_with_int.has_pdu()) {
-    return EncodePDU(obj_with_int);
+    return EncodePDU(obj_with_int.pdu());
   }
   std::vector<uint8_t> der = types_to_der.EncodeInteger(obj_with_int.integer());
   encoder_.insert(encoder_.end(), der.begin(), der.end());
@@ -24,21 +24,20 @@ void CertToDER::EncodeInteger(const T& obj_with_int) {
 template <typename T>
 void CertToDER::EncodeAlgorithmIdentifier(const T& obj_with_alg_id) {
   if (obj_with_alg_id.has_pdu()) {
-    return EncodePDU(obj_with_alg_id);
+    return EncodePDU(obj_with_alg_id.pdu());
   }
   std::vector<uint8_t> der = types_to_der.EncodeAlgorithmIdentifier(
       obj_with_alg_id.algorithm_identifier());
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
-template <typename T>
-void CertToDER::EncodePDU(const T& obj_with_pdu) {
-  std::vector<uint8_t> der = pdu_to_der.PDUToDER(obj_with_pdu.pdu());
+void CertToDER::EncodePDU(const asn1_pdu::PDU& pdu) {
+  std::vector<uint8_t> der = pdu_to_der.PDUToDER(pdu);
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
 void CertToDER::EncodeExtensions(const Extensions& extensions) {
-  EncodePDU(extensions);
+  EncodePDU(extensions.pdu());
 }
 
 void CertToDER::EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id) {
@@ -52,16 +51,20 @@ void CertToDER::EncodeSubjectPublicKey(
 
 void CertToDER::EncodeSubjectPublicKeyInfo(
     const SubjectPublicKeyInfo& subject_public_key_info) {
+  encoder_.push_back(0x30);
+  size_t len_pos = encoder_.size();
+  EncodeAlgorithmIdentifier(subject_public_key_info);
   EncodeSubjectPublicKey(subject_public_key_info.subject_public_key());
+  encoder_.insert(encoder_.begin() + len_pos, encoder_.size() - len_pos);
 }
 
 void CertToDER::EncodeSubject(const Subject& subject) {
-  EncodePDU(subject.name());
+  EncodePDU(subject.name().pdu());
 }
 
 void CertToDER::EncodeTime(const Time& time) {
   if (time.has_pdu()) {
-    return EncodePDU(time);
+    return EncodePDU(time.pdu());
   }
 
   std::vector<uint8_t> der;
@@ -82,7 +85,7 @@ void CertToDER::EncodeValidity(const Validity& validity) {
 }
 
 void CertToDER::EncodeIssuer(const Issuer& issuer) {
-  EncodePDU(issuer.name());
+  EncodePDU(issuer.name().pdu());
 }
 
 void CertToDER::EncodeSignature(const Signature& signature) {
@@ -96,7 +99,7 @@ void CertToDER::EncodeCertificateSerialNumber(
 
 void CertToDER::EncodeVersion(const Version& version) {
   if (version.has_pdu()) {
-    return EncodePDU(version);
+    return EncodePDU(version.pdu());
   }
   std::vector<uint8_t> der = {0x02, 0x01,
                               static_cast<uint8_t>(version.version_number())};

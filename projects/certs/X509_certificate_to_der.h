@@ -45,8 +45,7 @@ class CertToDER {
   void EncodeInteger(const T& obj_with_int);
   template <typename T>
   void EncodeAlgorithmIdentifier(const T& obj_with_alg_id);
-  template <typename T>
-  void EncodePDU(const T& obj_with_pdu);
+  void EncodePDU(const asn1_pdu::PDU& pdu);
 };
 
 }  // namespace X509_certificate
