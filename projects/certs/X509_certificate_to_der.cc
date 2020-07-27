@@ -186,7 +186,7 @@ void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
   if (tbs_certificate.has_extensions()) {
     EncodeExtensions(tbs_certificate.extensions());
   }
-
+  
   der_.insert(der_.begin() + len_pos, der_.size() - len_pos);
 }
 
@@ -195,7 +195,6 @@ void CertToDER::EncodeSignatureAlgorithm(
   if (UseInvalidField(signature_algorithm)) {
     return EncodePDU(signature_algorithm.pdu());
   }
-
   EncodeAlgorithmIdentifier(signature_algorithm.algorithm_identifier());
 }
 
@@ -203,7 +202,6 @@ void CertToDER::EncodeSignatureValue(const SignatureValue& signature_value) {
   if (UseInvalidField(signature_value)) {
     return EncodePDU(signature_value.pdu());
   }
-
   EncodeBitString(signature_value.bit_string());
 }
 
