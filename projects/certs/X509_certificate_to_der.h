@@ -39,6 +39,7 @@ class CertToDER {
       const SubjectPublicKeyInfo& subject_public_key_info);
   void EncodeSubjectPublicKey(const SubjectPublicKey& subject_public_key);
   void EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id);
+  void EncodeSubjectUniqueId(const SubjectUniqueId& subject_unique_id);
   void EncodeExtensions(const Extensions& extensions);
   void EncodeBitString(const asn1_types::BitString& bit_string);
   void EncodeInteger(const asn1_types::Integer& integer);

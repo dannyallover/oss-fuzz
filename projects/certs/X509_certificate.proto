@@ -13,16 +13,17 @@ message X509Certificate {
 }
 
 message TBSCertificate {
-  required asn1_types.Class sequence_class = 2;
-  required Version version = 3;
-  required CertificateSerialNumber serial_number = 4;
-  required Signature signature = 5;
-  required Issuer issuer = 6;
-  required Validity validity = 7;
-  required Subject subject = 9;
-  required SubjectPublicKeyInfo subject_public_key_info = 10;
-  optional IssuerUniqueId issuer_unique_id = 11;
-  required Extensions extensions = 12;
+  required asn1_types.Class sequence_class = 1;
+  required Version version = 2;
+  required CertificateSerialNumber serial_number = 3;
+  required Signature signature = 4;
+  required Issuer issuer = 5;
+  required Validity validity = 6;
+  required Subject subject = 7;
+  required SubjectPublicKeyInfo subject_public_key_info = 8;
+  optional IssuerUniqueId issuer_unique_id = 9;
+  optional SubjectUniqueId subject_unique_id = 10;
+  optional Extensions extensions = 11;
 }
 
 message Version {
@@ -93,6 +94,10 @@ message SubjectPublicKey {
 }
 
 message IssuerUniqueId {
+  required UniqueIdentifier unique_identifier = 1;
+}
+
+message SubjectUniqueId {
   required UniqueIdentifier unique_identifier = 1;
 }
 

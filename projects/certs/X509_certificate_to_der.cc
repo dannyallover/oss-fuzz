@@ -44,6 +44,13 @@ void CertToDER::EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id) {
   EncodeBitString(issuer_unique_id.unique_identifier().bit_string());
 }
 
+void CertToDER::EncodeSubjectUniqueId(const SubjectUniqueId& subject_unique_id) {
+  if (UseInvalidField(subject_unique_id.unique_identifier())) {
+    return EncodePDU(subject_unique_id.unique_identifier().pdu());
+  }
+  EncodeBitString(subject_unique_id.unique_identifier().bit_string());
+}
+
 void CertToDER::EncodeSubjectPublicKey(
     const SubjectPublicKey& subject_public_key) {
   if (UseInvalidField(subject_public_key)) {
@@ -111,6 +118,7 @@ void CertToDER::EncodeVersion(const Version& version) {
   if (UseInvalidField(version)) {
     return EncodePDU(version.pdu());
   }
+  // comment on v2 v3 stuff
   std::vector<uint8_t> der = {0x02, 0x01,
                               static_cast<uint8_t>(version.version_number())};
   encoder_.insert(encoder_.end(), der.begin(), der.end());
@@ -129,7 +137,12 @@ void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
   if (tbs_certificate.has_issuer_unique_id()) {
     EncodeIssuerUniqueId(tbs_certificate.issuer_unique_id());
   }
-  EncodeExtensions(tbs_certificate.extensions());
+  if(tbs_certificate.has_subject_unique_id()) {
+    EncodeSubjectUniqueId(tbs_certificate.subject_unique_id());
+  }
+  if(tbs_certificate.has_extensions()) {
+    EncodeExtensions(tbs_certificate.extensions());
+  }
   encoder_.insert(encoder_.begin() + len_pos, encoder_.size() - len_pos);
 }
 
