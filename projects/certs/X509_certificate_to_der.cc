@@ -80,7 +80,6 @@ void CertToDER::EncodeTime(const Time& time) {
   if (UseInvalidField(time)) {
     return EncodePDU(time.pdu());
   }
-
   std::vector<uint8_t> der;
   if (time.has_utc_time()) {
     der = types_to_der.EncodeUTCTime(time.utc_time());
