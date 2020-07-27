@@ -69,7 +69,7 @@ message Issuer {
 message Name {
   // If |pdu| is present, encode |Name| as an arbitraty pdu.
   required asn1_pdu.PDU pdu = 1;
-  // to-do: make |pdu| optional and
+  // TODO(dhalawi@gmail.com): make |pdu| optional and
   // add 'required name' to encode a
   // valid |Name| field.
 }
@@ -145,7 +145,7 @@ message UniqueIdentifier {
 message Extensions {
   // If |pdu| is present, encode |Extensions| as an arbitraty pdu.
   required asn1_pdu.PDU pdu = 1;
-  // to-do: make |pdu| optional and
+  // TODO(dhalawi@gmail.com): make |pdu| optional and
   // add 'required extensions' to encode a
   // valid |Extensions| field.
 }
