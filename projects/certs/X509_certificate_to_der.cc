@@ -50,12 +50,12 @@ void CertToDER::EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id) {
     return EncodePDU(issuer_unique_id.unique_identifier().pdu());
   }
   // |issuer_unqiue_id| has class Application (RFC 5280, 4.1 & 4.1.2.8).
-  // Preserve the size before insertion in order to later backtrack
-  // and explicitly set class to Application.
-  size_t size_before_insertion = der_.size();
+  // The size before insertion will be the position of the identifier.
+  // Preserve to later backtrack and explicitly set class to Application.
+  size_t pos_of_identifier = der_.size();
   EncodeBitString(issuer_unique_id.unique_identifier().bit_string());
   // X.690 (2015), 8.1.2.2: Class Application has value 1.
-  der[size_before_insertion] = (der[size_before_insertion] & 0x3F) | (1 << 6));
+  der_[pos_of_identifier] = ((der_[pos_of_identifier] & 0x3F) | (1 << 6));
 }
 
 void CertToDER::EncodeSubjectUniqueId(
@@ -64,12 +64,12 @@ void CertToDER::EncodeSubjectUniqueId(
     return EncodePDU(subject_unique_id.unique_identifier().pdu());
   }
   // |subject_unqiue_id| has class ContextSpecific (RFC 5280, 4.1 & 4.1.2.8).
-  // Preserve the size before insertion in order to later backtrack
-  // and explicitly set class to ContextSpecific.
-  size_t size_before_insertion = der_.size();
+  // The size before insertion will be the position of the identifier.
+  // Preserve to later backtrack and explicitly set class to ContextSpecific.
+  size_t pos_of_identifier = der_.size();
   EncodeBitString(subject_unique_id.unique_identifier().bit_string());
   // X.690 (2015), 8.1.2.2: Class ContextSpecific has value 2.
-  der[size_before_insertion] = (der[size_before_insertion] & 0x3F) | (2 << 6));
+  der_[pos_of_identifier] = ((der_[pos_of_identifier] & 0x3F) | (2 << 6));
 }
 
 void CertToDER::EncodeSubjectPublicKey(
@@ -186,7 +186,7 @@ void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
   if (tbs_certificate.has_extensions()) {
     EncodeExtensions(tbs_certificate.extensions());
   }
-  
+
   der_.insert(der_.begin() + len_pos, der_.size() - len_pos);
 }
 

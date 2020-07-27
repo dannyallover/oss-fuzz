@@ -30,38 +30,22 @@ class CertToDER {
   // Encode(FIELD) DER encodes the field found in X509 Certificates
   // and writes the results to |der_|.
   void EncodeX509Certificate(const X509Certificate& cert);
-
   void EncodeSignatureValue(const SignatureValue& signature);
-
   void EncodeSignatureAlgorithm(const SignatureAlgorithm& signature_algorithm);
-
   void EncodeTBSCertificate(const TBSCertificate& tbs_certificate);
-
   void EncodeVersion(const Version& version);
-
   void EncodeSerialNumber(const SerialNumber& serial_num);
-
   void EncodeSignature(const Signature& signature);
-
   void EncodeIssuer(const Issuer& issuer);
-
   void EncodeValidity(const Validity& validity);
-
   void EncodeTime(const Time& time);
-
   void EncodeSubject(const Subject& subject);
-
   void EncodeName(const Name& name);
-
   void EncodeSubjectPublicKeyInfo(
       const SubjectPublicKeyInfo& subject_public_key_info);
-
   void EncodeSubjectPublicKey(const SubjectPublicKey& subject_public_key);
-
   void EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id);
-
   void EncodeSubjectUniqueId(const SubjectUniqueId& subject_unique_id);
-
   void EncodeExtensions(const Extensions& extensions);
 
   // Encodes |bit_string| through |types_to_der|'s API |EncodeBitString|

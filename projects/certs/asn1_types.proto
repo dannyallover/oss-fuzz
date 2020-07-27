@@ -10,17 +10,19 @@ enum Class {
   Private = 3;
 }
 
+// comment here
 message BitString {
   required Class id_class = 1;
   required bytes val = 2;
 }
 
+// comment here
 message Integer {
   required Class id_class = 1;
   required bytes val = 2;
 }
 
-// For DER UCTTIme is always primitive
+// comment here
 message UTCTime {
   required Class id_class = 1;
   required TimeValue year_tens_digit = 2;
@@ -38,8 +40,10 @@ message UTCTime {
   required bool zulu = 14;
 }
 
+// comment here
 message GeneralizedTime {
   required Class id_class = 1;
+  // comment here
   required TimeValue year_thousands_digit = 2;
   required TimeValue year_hundreds_digit = 3;
   required TimeValue year_tens_digit = 4;
@@ -57,6 +61,7 @@ message GeneralizedTime {
   required bool zulu = 16;
 }
 
+// comment here
 enum TimeValue {
   VAL0 = 0;
   VAL1 = 1;
@@ -70,8 +75,10 @@ enum TimeValue {
   VAL9 = 9;
 }
 
+// comment here
 message AlgorithmIdentifier {
   required Class id_class = 1;
+  // comment here
   required string object_identifier = 2;
   optional string parameters = 3;
 }

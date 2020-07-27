@@ -44,7 +44,9 @@ void ASN1TypesToDER::EncodeIdentifier(const Class& id_class,
 std::vector<uint8_t> ASN1TypesToDER::EncodeBitString(
     const BitString& bit_string) {
   std::vector<uint8_t> der;
+  // comment here
   EncodeIdentifier(bit_string.id_class(), false, 0x03, der);
+  // comment here
   EncodeDefiniteLength(bit_string.val().size() + 1, der);
   // There are no unused bits.
   // This also acts as EOC if val is empty.
@@ -55,6 +57,7 @@ std::vector<uint8_t> ASN1TypesToDER::EncodeBitString(
 
 std::vector<uint8_t> ASN1TypesToDER::EncodeInteger(const Integer& integer) {
   std::vector<uint8_t> der;
+  // comment here
   EncodeIdentifier(integer.id_class(), false, 0x02, der);
   EncodeDefiniteLength(integer.val().size(), der);
   der.insert(der.end(), integer.val().begin(), integer.val().end());
@@ -63,12 +66,15 @@ std::vector<uint8_t> ASN1TypesToDER::EncodeInteger(const Integer& integer) {
 
 std::vector<uint8_t> ASN1TypesToDER::EncodeUTCTime(const UTCTime& utc_time) {
   std::vector<uint8_t> der;
+  // comment here
   EncodeIdentifier(utc_time.id_class(), false, 0x17, der);
   const google::protobuf::Descriptor* desc = utc_time.GetDescriptor();
   const google::protobuf::Reflection* ref = utc_time.GetReflection();
   for (int i = 1; i <= 12; i++) {
+    // comment here
     der.push_back(0x30 + ref->GetEnumValue(utc_time, desc->field(i)));
   }
+  // comment here
   if (utc_time.zulu()) {
     der.push_back(0x5a);
     der.insert(der.begin() + 1, 13);
@@ -85,8 +91,10 @@ std::vector<uint8_t> ASN1TypesToDER::EncodeGeneralizedTime(
   const google::protobuf::Descriptor* desc = generalized_time.GetDescriptor();
   const google::protobuf::Reflection* ref = generalized_time.GetReflection();
   for (int i = 1; i <= 14; i++) {
+    // comment here
     der.push_back(0x30 + ref->GetEnumValue(generalized_time, desc->field(i)));
   }
+  // comment here
   if (generalized_time.zulu()) {
     der.push_back(0x5a);
     der.insert(der.begin() + 1, 15);
@@ -99,9 +107,11 @@ std::vector<uint8_t> ASN1TypesToDER::EncodeGeneralizedTime(
 std::vector<uint8_t> ASN1TypesToDER::EncodeAlgorithmIdentifier(
     const AlgorithmIdentifier& algorithm_identifier) {
   std::vector<uint8_t> der;
+  // comment here
   EncodeIdentifier(algorithm_identifier.id_class(), true, 0x10, der);
   size_t len = algorithm_identifier.object_identifier().size() +
                algorithm_identifier.parameters().size();
+  // change this to encode definite length
   der.push_back(len);
   der.insert(der.end(), algorithm_identifier.object_identifier().begin(),
              algorithm_identifier.object_identifier().end());
