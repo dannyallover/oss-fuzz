@@ -157,7 +157,7 @@ message SignatureAlgorithm {
   required asn1_types.AlgorithmIdentifier algorithm_identifier = 2;
 }
 
-See RFC 5280, 4.1 & 4.1.1.3.
+// See RFC 5280, 4.1 & 4.1.1.3.
 message SignatureValue {
   // If |pdu| is present, encode |SignatureValue| as an arbitraty pdu.
   optional asn1_pdu.PDU pdu = 1;
