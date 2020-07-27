@@ -87,8 +87,8 @@ class CertToDER {
   template <typename T>
   bool UseInvalidField(const T field);
 
-  // X509 Certificates and its counterparts encapsulate
-  // a sequence of fields (RFC 5280, 4.1.1).
+  // Sequences are found in  X509 Certificates to encapsulate
+  // a series of fields (RFC 5280, 4.1.1).
   // Encodes the tag of a sequence and sets the class to |sequence_class|.
   void EncodeSequenceIdentifier(const asn1_types::Class& sequence_class);
 };
