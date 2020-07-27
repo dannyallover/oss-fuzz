@@ -27,7 +27,7 @@ class CertToDER {
   // Used to encode the ASN1 types that appear in X509 Certificates.
   asn1_types::ASN1TypesToDER types_to_der;
 
-  // Encode(FIELD) properly encodes the field found in X509 Certificates
+  // Encode(FIELD) DER encodes the field found in X509 Certificates
   // and writes the results to |der_|.
   void EncodeX509Certificate(const X509Certificate& cert);
 
