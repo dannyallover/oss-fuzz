@@ -49,7 +49,6 @@ void CertToDER::EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id) {
   if (UseInvalidField(issuer_unique_id.unique_identifier())) {
     return EncodePDU(issuer_unique_id.unique_identifier().pdu());
   }
-
   // |issuer_unqiue_id| has class Application (RFC 5280, 4.1 & 4.1.2.8).
   // Preserve the size before insertion in order to later backtrack
   // and explicitly set class to Application.
@@ -64,7 +63,6 @@ void CertToDER::EncodeSubjectUniqueId(
   if (UseInvalidField(subject_unique_id.unique_identifier())) {
     return EncodePDU(subject_unique_id.unique_identifier().pdu());
   }
-
   // |subject_unqiue_id| has class ContextSpecific (RFC 5280, 4.1 & 4.1.2.8).
   // Preserve the size before insertion in order to later backtrack
   // and explicitly set class to ContextSpecific.
