@@ -10,19 +10,20 @@ enum Class {
   Private = 3;
 }
 
-// comment here
+// See X.690 (2015), 8.6.
 message BitString {
   required Class id_class = 1;
   required bytes val = 2;
 }
 
-// comment here
+
+// See X.690 (2015), 8.3.
 message Integer {
   required Class id_class = 1;
   required bytes val = 2;
 }
 
-// comment here
+// See X.690 (2015), 11.8.
 message UTCTime {
   required Class id_class = 1;
   required TimeValue year_tens_digit = 2;
@@ -37,13 +38,15 @@ message UTCTime {
   required TimeValue minute_ones_digit = 11;
   required TimeValue second_tens_digit = 12;
   required TimeValue second_ones_digit = 13;
+  // See X.690 (2015), 11.8.1: Encoding terminates with "Z".
   required bool zulu = 14;
 }
 
-// comment here
+// See X.690 (2015), 11.7.
 message GeneralizedTime {
   required Class id_class = 1;
-  // comment here
+  // See X.690 (2015), 11.7.5: GeneralizedTime also includes the
+  // thousands digit and hundreds digit of the year.
   required TimeValue year_thousands_digit = 2;
   required TimeValue year_hundreds_digit = 3;
   required TimeValue year_tens_digit = 4;
@@ -58,10 +61,11 @@ message GeneralizedTime {
   required TimeValue minute_ones_digit = 13;
   required TimeValue second_tens_digit = 14;
   required TimeValue second_ones_digit = 15;
+  // See X.690 (2015), 11.7.1: Encoding terminates with "Z".
   required bool zulu = 16;
 }
 
-// comment here
+// Each digit in the time is a value between 0 through 9.
 enum TimeValue {
   VAL0 = 0;
   VAL1 = 1;
@@ -75,10 +79,11 @@ enum TimeValue {
   VAL9 = 9;
 }
 
-// comment here
+// Represent AlgorithmIdentifier found in RFC 5280, 4.1.
 message AlgorithmIdentifier {
   required Class id_class = 1;
-  // comment here
+  // TODO(dhalawi@google.com): provide
+  // more semantic information
   required string object_identifier = 2;
   optional string parameters = 3;
 }
