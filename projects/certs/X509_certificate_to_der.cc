@@ -35,10 +35,13 @@ void CertToDER::EncodeSequenceIdentifier(
   // The encoding of a sequence value shall be constructed (X690 (2015), 8.9.1).
   // The class comprises the 7th and 8th bit of the identifier (X.690
   // (2015), 8.1.2).
-  der_.push_back((sequence_class << 7) | (1 << 6) | 0x10);
+  der_.push_back((sequence_class << 6) | (1 << 5) | 0x10);
 }
 
 void CertToDER::EncodeExtensions(const Extensions& extensions) {
+  // |extensions| has class Private (RFC 5280, 4.1 & 4.1.2.8).
+  // Currently do not generate valid extensions. Therefore,
+  // need not force the class to generate interesting inputs.
   EncodePDU(extensions.pdu());
 }
 
@@ -46,7 +49,14 @@ void CertToDER::EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id) {
   if (UseInvalidField(issuer_unique_id.unique_identifier())) {
     return EncodePDU(issuer_unique_id.unique_identifier().pdu());
   }
+
+  // |issuer_unqiue_id| has class Application (RFC 5280, 4.1 & 4.1.2.8).
+  // Preserve the size before insertion in order to later backtrack
+  // and explicitly set class to Application.
+  size_t size_before_insertion = der_.size();
   EncodeBitString(issuer_unique_id.unique_identifier().bit_string());
+  // X.690 (2015), 8.1.2.2: Class Application has value 1.
+  der[size_before_insertion] = (der[size_before_insertion] & 0x3F) | (1 << 6));
 }
 
 void CertToDER::EncodeSubjectUniqueId(
@@ -54,7 +64,14 @@ void CertToDER::EncodeSubjectUniqueId(
   if (UseInvalidField(subject_unique_id.unique_identifier())) {
     return EncodePDU(subject_unique_id.unique_identifier().pdu());
   }
+
+  // |subject_unqiue_id| has class ContextSpecific (RFC 5280, 4.1 & 4.1.2.8).
+  // Preserve the size before insertion in order to later backtrack
+  // and explicitly set class to ContextSpecific.
+  size_t size_before_insertion = der_.size();
   EncodeBitString(subject_unique_id.unique_identifier().bit_string());
+  // X.690 (2015), 8.1.2.2: Class ContextSpecific has value 2.
+  der[size_before_insertion] = (der[size_before_insertion] & 0x3F) | (2 << 6));
 }
 
 void CertToDER::EncodeSubjectPublicKey(
@@ -138,8 +155,8 @@ void CertToDER::EncodeVersion(const Version& version) {
   }
   // |version| is an integer, so encoded with tag_number 2 (RFC 5280, 4.1
   // & 4.1.2.1).
-  // |version| takes on values 0, 1 and 2, so only require length of 1
-  // to encode it.
+  // Takes on values 0, 1 and 2, so only require length of 1 to encode it.
+  // |version| encoded with universal class (RFC 5280, 4.1 & 4.1.2.1).
   std::vector<uint8_t> der = {0x02, 0x01,
                               static_cast<uint8_t>(version.version_number())};
   der_.insert(der_.end(), der.begin(), der.end());
