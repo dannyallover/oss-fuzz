@@ -77,7 +77,7 @@ class CertToDER {
   void EncodeAlgorithmIdentifier(
       const asn1_types::AlgorithmIdentifier& algorithm_identifier);
 
-  // Encodes |pdu| through |pdu_to_der|'s API EncodePDU
+  // Encodes |pdu| through |pdu_to_der|'s API |EncodePDU|
   // and writes the results to |der_|.
   void EncodePDU(const asn1_pdu::PDU& pdu);
 
@@ -89,7 +89,7 @@ class CertToDER {
 
   // X509 Certificates and its counterparts encapsulate
   // a sequence of fields (RFC 5280, 4.1.1).
-  // Encodes the tag of a sequence with setting the class to |sequence_class|.
+  // Encodes the tag of a sequence and sets the class to |sequence_class|.
   void EncodeSequenceIdentifier(const asn1_types::Class& sequence_class);
 };
 

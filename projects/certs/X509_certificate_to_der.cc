@@ -75,7 +75,7 @@ void CertToDER::EncodeSubjectPublicKeyInfo(
   size_t len_pos = der_.size();
   EncodeAlgorithmIdentifier(subject_public_key_info.algorithm_identifier());
   EncodeSubjectPublicKey(subject_public_key_info.subject_public_key());
-  // The current size of the |der_| subtracted by the |len_pos|
+  // The current size of |der_| subtracted by |len_pos|
   // equates the the size of the value of |subject_public_key_info|.
   der_.insert(der_.begin() + len_pos, der_.size() - len_pos);
 }
@@ -112,7 +112,7 @@ void CertToDER::EncodeValidity(const Validity& validity) {
   size_t len_pos = der_.size();
   EncodeTime(validity.not_before().time());
   EncodeTime(validity.not_after().time());
-  // The current size of the |der_| subtracted by the |len_pos|
+  // The current size of |der_| subtracted by |len_pos|
   // equates the the size of the value of |validity|.
   der_.insert(der_.begin() + len_pos, der_.size() - len_pos);
 }
@@ -201,7 +201,7 @@ void CertToDER::EncodeX509Certificate(const X509Certificate& X509_certificate) {
   size_t len_pos = der_.size();
   EncodeTBSCertificate(X509_certificate.tbs_certificate());
   EncodeSignatureValue(X509_certificate.signature_value());
-  // The current size of the |der_| subtracted by the |len_pos|
+  // The current size of |der_| subtracted by |len_pos|
   // equates the the size of the value of |X509_certificate|.
   der_.insert(der_.begin() + len_pos, der_.size() - len_pos);
 }
