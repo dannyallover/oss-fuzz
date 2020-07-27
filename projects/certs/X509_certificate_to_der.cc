@@ -29,7 +29,12 @@ bool CertToDER::UseInvalidField(const T field) {
   return field.has_pdu();
 }
 
-void CertToDER::EncodeSequenceIdentifier(const asn1_types::Class& sequence_class) {
+void CertToDER::EncodeSequenceIdentifier(
+    const asn1_types::Class& sequence_class) {
+  // Sequence is encoded with tag number 16 (X690 (2015), 8.9.1).
+  // The encoding of a sequence value shall be constructed (X690 (2015), 8.9.1).
+  // The class comprises the 7th and 8th bit of the identifier (X.690
+  // (2015), 8.1.2).
   der_.push_back((sequence_class << 7) | (1 << 6) | 0x10);
 }
 
@@ -44,7 +49,8 @@ void CertToDER::EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id) {
   EncodeBitString(issuer_unique_id.unique_identifier().bit_string());
 }
 
-void CertToDER::EncodeSubjectUniqueId(const SubjectUniqueId& subject_unique_id) {
+void CertToDER::EncodeSubjectUniqueId(
+    const SubjectUniqueId& subject_unique_id) {
   if (UseInvalidField(subject_unique_id.unique_identifier())) {
     return EncodePDU(subject_unique_id.unique_identifier().pdu());
   }
@@ -61,10 +67,16 @@ void CertToDER::EncodeSubjectPublicKey(
 
 void CertToDER::EncodeSubjectPublicKeyInfo(
     const SubjectPublicKeyInfo& subject_public_key_info) {
+  // The fields of |subject_public_key_info| are wrapped around a sequence (RFC
+  // 5280, 4.1 & 4.1.2.5).
   EncodeSequenceIdentifier(subject_public_key_info.sequence_class());
+  // Save the current size in |len_pos| to place sequence length there
+  // after the value is encoded.
   size_t len_pos = der_.size();
   EncodeAlgorithmIdentifier(subject_public_key_info.algorithm_identifier());
   EncodeSubjectPublicKey(subject_public_key_info.subject_public_key());
+  // The current size of the |der_| subtracted by the |len_pos|
+  // equates the the size of the value of |subject_public_key_info|.
   der_.insert(der_.begin() + len_pos, der_.size() - len_pos);
 }
 
@@ -81,6 +93,8 @@ void CertToDER::EncodeTime(const Time& time) {
     return EncodePDU(time.pdu());
   }
   std::vector<uint8_t> der;
+  // The |Time| field either has an UTCTime or a GeneralizedTime (RFC 5280, 4.1
+  // & 4.1.2.5).
   if (time.has_utc_time()) {
     der = types_to_der.EncodeUTCTime(time.utc_time());
   } else {
@@ -90,10 +104,16 @@ void CertToDER::EncodeTime(const Time& time) {
 }
 
 void CertToDER::EncodeValidity(const Validity& validity) {
+  // The fields of |Validity| are wrapped around a sequence (RFC
+  // 5280, 4.1 & 4.1.2.5).
   EncodeSequenceIdentifier(validity.sequence_class());
+  // Save the current size in |len_pos| to place sequence length there
+  // after the value is encoded.
   size_t len_pos = der_.size();
   EncodeTime(validity.not_before().time());
   EncodeTime(validity.not_after().time());
+  // The current size of the |der_| subtracted by the |len_pos|
+  // equates the the size of the value of |validity|.
   der_.insert(der_.begin() + len_pos, der_.size() - len_pos);
 }
 
@@ -105,8 +125,7 @@ void CertToDER::EncodeSignature(const Signature& signature) {
   EncodeAlgorithmIdentifier(signature.algorithm_identifier());
 }
 
-void CertToDER::EncodeSerialNumber(
-    const SerialNumber& serial_num) {
+void CertToDER::EncodeSerialNumber(const SerialNumber& serial_num) {
   if (UseInvalidField(serial_num)) {
     return EncodePDU(serial_num.pdu());
   }
@@ -117,15 +136,21 @@ void CertToDER::EncodeVersion(const Version& version) {
   if (UseInvalidField(version)) {
     return EncodePDU(version.pdu());
   }
-  // comment on v2 v3 stuff
+  // |version| is an integer, so encoded with tag_number 2 (RFC 5280, 4.1
+  // & 4.1.2.1).
+  // |version| takes on values 0, 1 and 2, so only require length of 1
+  // to encode it.
   std::vector<uint8_t> der = {0x02, 0x01,
                               static_cast<uint8_t>(version.version_number())};
   der_.insert(der_.end(), der.begin(), der.end());
 }
 
 void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
+  // The fields of |tbs_certificate| are wrapped around a sequence (RFC
+  // 5280, 4.1 & 4.1.2.5).
   EncodeSequenceIdentifier(tbs_certificate.sequence_class());
   size_t len_pos = der_.size();
+
   EncodeVersion(tbs_certificate.version());
   EncodeSerialNumber(tbs_certificate.serial_number());
   EncodeSignature(tbs_certificate.signature());
@@ -133,15 +158,20 @@ void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
   EncodeValidity(tbs_certificate.validity());
   EncodeSubject(tbs_certificate.subject());
   EncodeSubjectPublicKeyInfo(tbs_certificate.subject_public_key_info());
+  // RFC 5280, 4.1: |issuer_unique_id| and |subject_unique_id|
+  // are only set for v2 and v3 and |extensions| only set for v3.
+  // However, set |issuer_unique_id|, |subject_unique_id|, and |extensions|
+  // independently of the version number for interesting inputs.
   if (tbs_certificate.has_issuer_unique_id()) {
     EncodeIssuerUniqueId(tbs_certificate.issuer_unique_id());
   }
-  if(tbs_certificate.has_subject_unique_id()) {
+  if (tbs_certificate.has_subject_unique_id()) {
     EncodeSubjectUniqueId(tbs_certificate.subject_unique_id());
   }
-  if(tbs_certificate.has_extensions()) {
+  if (tbs_certificate.has_extensions()) {
     EncodeExtensions(tbs_certificate.extensions());
   }
+
   der_.insert(der_.begin() + len_pos, der_.size() - len_pos);
 }
 
@@ -150,6 +180,7 @@ void CertToDER::EncodeSignatureAlgorithm(
   if (UseInvalidField(signature_algorithm)) {
     return EncodePDU(signature_algorithm.pdu());
   }
+
   EncodeAlgorithmIdentifier(signature_algorithm.algorithm_identifier());
 }
 
@@ -157,14 +188,21 @@ void CertToDER::EncodeSignatureValue(const SignatureValue& signature_value) {
   if (UseInvalidField(signature_value)) {
     return EncodePDU(signature_value.pdu());
   }
+
   EncodeBitString(signature_value.bit_string());
 }
 
 void CertToDER::EncodeX509Certificate(const X509Certificate& X509_certificate) {
+  // The fields of |X509_certificate| are wrapped around a sequence (RFC
+  // 5280, 4.1 & 4.1.2.5).
   EncodeSequenceIdentifier(X509_certificate.sequence_class());
+  // Save the current size in |len_pos| to place sequence length there
+  // after the value is encoded.
   size_t len_pos = der_.size();
   EncodeTBSCertificate(X509_certificate.tbs_certificate());
   EncodeSignatureValue(X509_certificate.signature_value());
+  // The current size of the |der_| subtracted by the |len_pos|
+  // equates the the size of the value of |X509_certificate|.
   der_.insert(der_.begin() + len_pos, der_.size() - len_pos);
 }
 
