@@ -40,8 +40,8 @@ void CertToDER::EncodeSequenceIdentifier(
 
 void CertToDER::EncodeExtensions(const Extensions& extensions) {
   // |extensions| has class Private (RFC 5280, 4.1 & 4.1.2.8).
-  // Currently do not generate valid extensions. Therefore,
-  // need not force the class to generate interesting inputs.
+  // The pdu does not generate valid extensions. Therefore,
+  // need not force the class.
   EncodePDU(extensions.pdu());
 }
 
