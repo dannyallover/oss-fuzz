@@ -7,7 +7,7 @@ package X509_certificate;
 
 // See RFC 5280, 4.1 & 4.1.1.
 message X509Certificate {
-  // |X509CertificateRFC| is a sequence, so provide a
+  // |X509Certificate| is a sequence, so provide a
   // class for the sequence identifier (RFC 5280, 4.1 & 4.1.1).
   required asn1_types.Class sequence_class = 1;
   required TBSCertificate tbs_certificate = 2;
