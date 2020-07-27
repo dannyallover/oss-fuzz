@@ -27,8 +27,7 @@ class CertToDER {
   void EncodeSignatureAlgorithm(const SignatureAlgorithm& signature_algorithm);
   void EncodeTBSCertificate(const TBSCertificate& tbs_certificate);
   void EncodeVersion(const Version& version);
-  void EncodeCertificateSerialNumber(
-      const CertificateSerialNumber& cert_serial_num);
+  void EncodeSerialNumber(const SerialNumber& serial_num);
   void EncodeSignature(const Signature& signature);
   void EncodeIssuer(const Issuer& issuer);
   void EncodeValidity(const Validity& validity);

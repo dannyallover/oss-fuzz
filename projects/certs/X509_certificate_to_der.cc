@@ -24,13 +24,13 @@ void CertToDER::EncodePDU(const asn1_pdu::PDU& pdu) {
   encoder_.insert(encoder_.end(), der.begin(), der.end());
 }
 
-void CertToDER::EncodeSequenceIdentifier(const asn1_types::Class& sequence_class) {
-  encoder_.push_back((sequence_class << 7) | (1 << 6) | 0x10);
-}
-
 template <typename T>
 bool CertToDER::UseInvalidField(const T field) {
   return field.has_pdu();
+}
+
+void CertToDER::EncodeSequenceIdentifier(const asn1_types::Class& sequence_class) {
+  encoder_.push_back((sequence_class << 7) | (1 << 6) | 0x10);
 }
 
 void CertToDER::EncodeExtensions(const Extensions& extensions) {
@@ -106,12 +106,12 @@ void CertToDER::EncodeSignature(const Signature& signature) {
   EncodeAlgorithmIdentifier(signature.algorithm_identifier());
 }
 
-void CertToDER::EncodeCertificateSerialNumber(
-    const CertificateSerialNumber& cert_serial_num) {
-  if (UseInvalidField(cert_serial_num)) {
-    return EncodePDU(cert_serial_num.pdu());
+void CertToDER::EncodeSerialNumber(
+    const SerialNumber& serial_num) {
+  if (UseInvalidField(serial_num)) {
+    return EncodePDU(serial_num.pdu());
   }
-  EncodeInteger(cert_serial_num.integer());
+  EncodeInteger(serial_num.integer());
 }
 
 void CertToDER::EncodeVersion(const Version& version) {
@@ -128,7 +128,7 @@ void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
   EncodeSequenceIdentifier(tbs_certificate.sequence_class());
   size_t len_pos = encoder_.size();
   EncodeVersion(tbs_certificate.version());
-  EncodeCertificateSerialNumber(tbs_certificate.serial_number());
+  EncodeSerialNumber(tbs_certificate.serial_number());
   EncodeSignature(tbs_certificate.signature());
   EncodeIssuer(tbs_certificate.issuer());
   EncodeValidity(tbs_certificate.validity());

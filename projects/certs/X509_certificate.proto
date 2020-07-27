@@ -15,7 +15,7 @@ message X509Certificate {
 message TBSCertificate {
   required asn1_types.Class sequence_class = 1;
   required Version version = 2;
-  required CertificateSerialNumber serial_number = 3;
+  required SerialNumber serial_number = 3;
   required Signature signature = 4;
   required Issuer issuer = 5;
   required Validity validity = 6;
@@ -37,7 +37,7 @@ enum VersionNumber {
   v3 = 2;
 }
 
-message CertificateSerialNumber {
+message SerialNumber {
   optional asn1_pdu.PDU pdu = 1;
   required asn1_types.Integer integer = 2;
 }
