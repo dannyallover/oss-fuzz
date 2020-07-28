@@ -107,8 +107,9 @@ std::vector<uint8_t> ASN1TypesToDER::EncodeGeneralizedTime(
 std::vector<uint8_t> ASN1TypesToDER::EncodeAlgorithmIdentifier(
     const AlgorithmIdentifier& algorithm_identifier) {
   std::vector<uint8_t> der;
-  // AlgorithmIdentifier is a sequence (RFC 5280, 4.1.1.2) which is constructed
-  // (X.690 (2015), 8.9.1).
+  // AlgorithmIdentifier is a sequence (RFC 5280, 4.1.1.2).
+  // Sequence is universal, constructed, and encoded with tag number 16 (X.208,
+  // Table 1).
   EncodeIdentifier(true, 0x10, der);
   size_t len = algorithm_identifier.object_identifier().size() +
                algorithm_identifier.parameters().size();
