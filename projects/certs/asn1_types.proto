@@ -75,11 +75,3 @@ enum TimeValue {
   VAL8 = 8;
   VAL9 = 9;
 }
-
-// Represent AlgorithmIdentifier found in RFC 5280, 4.1.
-message AlgorithmIdentifier {
-  // TODO(dhalawi@google.com): provide
-  // more semantic information
-  required string object_identifier = 2;
-  optional string parameters = 3;
-}

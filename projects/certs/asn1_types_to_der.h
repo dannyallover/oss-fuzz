@@ -14,8 +14,6 @@ class ASN1TypesToDER {
   std::vector<uint8_t> EncodeUTCTime(const UTCTime& utc_time);
   std::vector<uint8_t> EncodeGeneralizedTime(
       const GeneralizedTime& generalized_time);
-  std::vector<uint8_t> EncodeAlgorithmIdentifier(
-      const AlgorithmIdentifier& algorithm_identifier);
 
  private:
   uint8_t GetVariableIntLen(size_t value);

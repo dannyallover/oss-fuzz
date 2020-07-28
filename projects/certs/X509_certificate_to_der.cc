@@ -1,6 +1,6 @@
 #include "X509_certificate_to_der.h"
 
-namespace X509_certificate {
+namespace x509_certificate {
 
 void CertToDER::EncodeBitString(const asn1_types::BitString& bit_string) {
   std::vector<uint8_t> der = types_to_der.EncodeBitString(bit_string);
@@ -13,10 +13,18 @@ void CertToDER::EncodeInteger(const asn1_types::Integer& integer) {
 }
 
 void CertToDER::EncodeAlgorithmIdentifier(
-    const asn1_types::AlgorithmIdentifier& algorithm_identifier) {
-  std::vector<uint8_t> der =
-      types_to_der.EncodeAlgorithmIdentifier(algorithm_identifier);
-  der_.insert(der_.end(), der.begin(), der.end());
+    const AlgorithmIdentifier& algorithm_identifier) {
+  // AlgorithmIdentifier is a sequence (RFC 5280, 4.1.1.2).
+  // Sequence is universal, constructed, and encoded with tag number 16 (X.208,
+  // Table 1).
+  der_.push_back(0x30);
+  size_t len = algorithm_identifier.object_identifier().size() +
+               algorithm_identifier.parameters().size();
+  // EncodeDefiniteLength(len, der);
+  der_.insert(der_.end(), algorithm_identifier.object_identifier().begin(),
+             algorithm_identifier.object_identifier().end());
+  der_.insert(der_.end(), algorithm_identifier.parameters().begin(),
+             algorithm_identifier.parameters().end());
 }
 
 void CertToDER::EncodePDU(const asn1_pdu::PDU& pdu) {

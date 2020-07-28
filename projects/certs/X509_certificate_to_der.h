@@ -8,7 +8,7 @@
 #include "asn1_pdu_to_der.h"
 #include "asn1_types_to_der.h"
 
-namespace X509_certificate {
+namespace x509_certificate {
 
 class CertToDER {
  public:
@@ -56,10 +56,9 @@ class CertToDER {
   // and writes the results to |der_|.
   void EncodeInteger(const asn1_types::Integer& integer);
 
-  // Encodes |algorithm_identifier| through |types_to_der|'s API
-  // |EncodeAlgorithmIdentifier| and writes the results to |der_|.
+  // Encodes |algorithm_identifier| and writes the results to |der_|.
   void EncodeAlgorithmIdentifier(
-      const asn1_types::AlgorithmIdentifier& algorithm_identifier);
+      const AlgorithmIdentifier& algorithm_identifier);
 
   // Encodes |pdu| through |pdu_to_der|'s API |EncodePDU|
   // and writes the results to |der_|.

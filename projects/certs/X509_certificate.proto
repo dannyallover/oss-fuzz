@@ -1,9 +1,9 @@
 syntax = "proto2";
 
-import "asn1_pdu.proto"; // To use a ASN1 PDU.
-import "asn1_types.proto"; // To use a specific ASN1 type.
+import "asn1_pdu.proto";
+import "asn1_types.proto";
 
-package X509_certificate;
+package x509_certificate;
 
 // See RFC 5280, 4.1 & 4.1.1.
 message X509Certificate {
@@ -51,7 +51,7 @@ message SerialNumber {
 message Signature {
   // If |pdu| is present, encode |Signature| as an arbitraty pdu.
   optional asn1_pdu.PDU pdu = 1;
-  required asn1_types.AlgorithmIdentifier algorithm_identifier = 2;
+  required AlgorithmIdentifier algorithm_identifier = 2;
 }
 
 // See RFC 5280, 4.1 & 4.1.2.4.
@@ -101,7 +101,7 @@ message Subject {
 message SubjectPublicKeyInfo {
   // If |pdu| is present, encode |SubjectPublicKeyInfo| as an arbitraty pdu.
   optional asn1_pdu.PDU pdu = 1;
-  required asn1_types.AlgorithmIdentifier algorithm_identifier = 2;
+  required AlgorithmIdentifier algorithm_identifier = 2;
   required SubjectPublicKey subject_public_key = 3;
 }
 
@@ -142,7 +142,7 @@ message Extensions {
 message SignatureAlgorithm {
   // If |pdu| is present, encode |SignatureAlgorithm| as an arbitraty pdu.
   optional asn1_pdu.PDU pdu = 1;
-  required asn1_types.AlgorithmIdentifier algorithm_identifier = 2;
+  required AlgorithmIdentifier algorithm_identifier = 2;
 }
 
 // See RFC 5280, 4.1 & 4.1.1.3.
@@ -150,4 +150,12 @@ message SignatureValue {
   // If |pdu| is present, encode |SignatureValue| as an arbitraty pdu.
   optional asn1_pdu.PDU pdu = 1;
   required asn1_types.BitString bit_string = 2;
+}
+
+// See RFC 5280, 4.1.1.2.
+message AlgorithmIdentifier {
+  // TODO(dhalawi@google.com): provide
+  // more semantic information
+  required string object_identifier = 2;
+  optional string parameters = 3;
 }
