@@ -146,10 +146,11 @@ void CertToDER::EncodeVersion(const Version& version) {
   if (UseInvalidField(version)) {
     return EncodePDU(version.pdu());
   }
-  // |version| is an integer, so encoded with tag_number 2 (RFC 5280, 4.1
+  // |version| is an integer, so encoded as universal tag number 2 (RFC
+  // 5280, 4.1 & 4.1.2.1) & (X.208, Table 1).
+  // Takes on values 0, 1 and 2, so only require length of
+  // 1 to encode it. |version| encoded with universal class (RFC 5280, 4.1
   // & 4.1.2.1).
-  // Takes on values 0, 1 and 2, so only require length of 1 to encode it.
-  // |version| encoded with universal class (RFC 5280, 4.1 & 4.1.2.1).
   std::vector<uint8_t> der = {0x02, 0x01,
                               static_cast<uint8_t>(version.version_number())};
   der_.insert(der_.end(), der.begin(), der.end());
