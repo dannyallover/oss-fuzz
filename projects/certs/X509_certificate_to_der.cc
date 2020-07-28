@@ -29,15 +29,6 @@ bool CertToDER::UseInvalidField(const T field) {
   return field.has_pdu();
 }
 
-void CertToDER::EncodeSequenceIdentifier(
-    const asn1_types::Class& sequence_class) {
-  // Sequence is encoded with tag number 16 (X690 (2015), 8.9.1).
-  // The encoding of a sequence value shall be constructed (X690 (2015), 8.9.1).
-  // The class comprises the 7th and 8th bit of the identifier (X.690
-  // (2015), 8.1.2).
-  der_.push_back((sequence_class << 6) | (1 << 5) | 0x10);
-}
-
 void CertToDER::EncodeExtensions(const Extensions& extensions) {
   // |extensions| has class Private (RFC 5280, 4.1 & 4.1.2.8).
   // The pdu does not generate valid extensions. Therefore,
@@ -84,7 +75,9 @@ void CertToDER::EncodeSubjectPublicKeyInfo(
     const SubjectPublicKeyInfo& subject_public_key_info) {
   // The fields of |subject_public_key_info| are wrapped around a sequence (RFC
   // 5280, 4.1 & 4.1.2.5).
-  EncodeSequenceIdentifier(subject_public_key_info.sequence_class());
+  // Sequence is universal, constructed, and encoded with tag number 16 (X.208,
+  // Table 1).
+  der_.push_back((1 << 5) | 0x10);
   // Save the current size in |len_pos| to place sequence length there
   // after the value is encoded.
   size_t len_pos = der_.size();
@@ -121,7 +114,9 @@ void CertToDER::EncodeTime(const Time& time) {
 void CertToDER::EncodeValidity(const Validity& validity) {
   // The fields of |Validity| are wrapped around a sequence (RFC
   // 5280, 4.1 & 4.1.2.5).
-  EncodeSequenceIdentifier(validity.sequence_class());
+  // Sequence is universal, constructed, and encoded with tag number 16 (X.208,
+  // Table 1).
+  der_.push_back((1 << 5) | 0x10);
   // Save the current size in |len_pos| to place sequence length there
   // after the value is encoded.
   size_t len_pos = der_.size();
@@ -163,7 +158,9 @@ void CertToDER::EncodeVersion(const Version& version) {
 void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
   // The fields of |tbs_certificate| are wrapped around a sequence (RFC
   // 5280, 4.1 & 4.1.2.5).
-  EncodeSequenceIdentifier(tbs_certificate.sequence_class());
+  // Sequence is universal, constructed, and encoded with tag number 16 (X.208,
+  // Table 1).
+  der_.push_back((1 << 5) | 0x10);
   size_t len_pos = der_.size();
 
   EncodeVersion(tbs_certificate.version());
@@ -208,7 +205,9 @@ void CertToDER::EncodeSignatureValue(const SignatureValue& signature_value) {
 void CertToDER::EncodeX509Certificate(const X509Certificate& X509_certificate) {
   // The fields of |X509_certificate| are wrapped around a sequence (RFC
   // 5280, 4.1 & 4.1.2.5).
-  EncodeSequenceIdentifier(X509_certificate.sequence_class());
+  // Sequence is universal, constructed, and encoded with tag number 16 (X.208,
+  // Table 1).
+  der_.push_back((1 << 5) | 0x10);
   // Save the current size in |len_pos| to place sequence length there
   // after the value is encoded.
   size_t len_pos = der_.size();

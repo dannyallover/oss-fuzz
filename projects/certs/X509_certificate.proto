@@ -7,29 +7,23 @@ package X509_certificate;
 
 // See RFC 5280, 4.1 & 4.1.1.
 message X509Certificate {
-  // |X509Certificate| is a sequence, so provide a
-  // class for the sequence tag (RFC 5280, 4.1 & 4.1.1).
-  required asn1_types.Class sequence_class = 1;
-  required TBSCertificate tbs_certificate = 2;
-  required SignatureAlgorithm signature_algorithm = 3;
-  required SignatureValue signature_value = 4;
+  required TBSCertificate tbs_certificate = 1;
+  required SignatureAlgorithm signature_algorithm = 2;
+  required SignatureValue signature_value = 3;
 }
 
 // See RFC 5280, 4.1 & 4.1.2.
 message TBSCertificate {
-  // |TBSCertificate| is a sequence, so provide a
-  // class for the sequence tag (RFC 5280, 4.1 & 4.1.2).
-  required asn1_types.Class sequence_class = 1;
-  required Version version = 2;
-  required SerialNumber serial_number = 3;
-  required Signature signature = 4;
-  required Issuer issuer = 5;
-  required Validity validity = 6;
-  required Subject subject = 7;
-  required SubjectPublicKeyInfo subject_public_key_info = 8;
-  optional IssuerUniqueId issuer_unique_id = 9;
-  optional SubjectUniqueId subject_unique_id = 10;
-  optional Extensions extensions = 11;
+  required Version version = 1;
+  required SerialNumber serial_number = 2;
+  required Signature signature = 3;
+  required Issuer issuer = 4;
+  required Validity validity = 5;
+  required Subject subject = 6;
+  required SubjectPublicKeyInfo subject_public_key_info = 7;
+  optional IssuerUniqueId issuer_unique_id = 8;
+  optional SubjectUniqueId subject_unique_id = 9;
+  optional Extensions extensions = 10;
 }
 
 // See RFC 5280, 4.1 & 4.1.2.1.
@@ -76,11 +70,8 @@ message Name {
 
 // See RFC 5280, 4.1 & 4.1.2.5.
 message Validity {
-  // |Validity| is a sequence, so provide a
-  // class for the sequence tag (RFC 5280, 4.1 & 4.1.2.5).
-  required asn1_types.Class sequence_class = 1;
-  required NotBefore not_before = 2;
-  required NotAfter not_after = 3;
+  required NotBefore not_before = 1;
+  required NotAfter not_after = 2;
 }
 
 // See RFC 5280, 4.1 & 4.1.2.5.
@@ -108,13 +99,10 @@ message Subject {
 
 // See RFC 5280, 4.1 & 4.1.2.7.
 message SubjectPublicKeyInfo {
-  // |SubjectPublicKeyInfo| is a sequence, so provide a
-  // class for the sequence tag (RFC 5280, 4.1 & 4.1.2.7).
-  required asn1_types.Class sequence_class = 1;
   // If |pdu| is present, encode |SubjectPublicKeyInfo| as an arbitraty pdu.
-  optional asn1_pdu.PDU pdu = 2;
-  required asn1_types.AlgorithmIdentifier algorithm_identifier = 3;
-  required SubjectPublicKey subject_public_key = 4;
+  optional asn1_pdu.PDU pdu = 1;
+  required asn1_types.AlgorithmIdentifier algorithm_identifier = 2;
+  required SubjectPublicKey subject_public_key = 3;
 }
 
 // See RFC 5280, 4.1 & 4.1.2.7.

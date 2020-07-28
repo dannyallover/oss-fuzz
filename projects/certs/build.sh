@@ -15,8 +15,11 @@
 #
 ################################################################################
 
+# Move asn1-pdu proto and converter to asn1-pdu directory
+cp -R $SRC/fuzzing/proto/asn1-pdu/* $SRC
+
 # Compile cert proto.
-rm -rf genfiles && mkdir genfiles && LPM/external.protobuf/bin/protoc X509_certificate.proto asn1_pdu.proto asn1_types.proto --cpp_out=genfiles --proto_path=$SRC
+rm -rf genfiles && mkdir genfiles && LPM/external.protobuf/bin/protoc X509_certificate.proto asn1_pdu.proto asn1_types.proto --cpp_out=genfiles --proto_path=$SRC/
 
 # Compile LPM fuzzer.
 $CXX $CXXFLAGS -I genfiles -I . -I libprotobuf-mutator/ -I LPM/external.protobuf/include -I include $LIB_FUZZING_ENGINE \
