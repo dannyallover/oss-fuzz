@@ -85,7 +85,7 @@ void CertToDER::EncodeSubjectPublicKeyInfo(
   // 5280, 4.1 & 4.1.2.5).
   // Sequence is universal, constructed, and encoded with tag number 16 (X.208,
   // Table 1).
-  der_.push_back((1 << 5) | 0x10);
+  der_.push_back(0x30);
   // Save the current size in |len_pos| to place sequence length there
   // after the value is encoded.
   size_t len_pos = der_.size();
@@ -124,7 +124,7 @@ void CertToDER::EncodeValidity(const Validity& validity) {
   // 5280, 4.1 & 4.1.2.5).
   // Sequence is universal, constructed, and encoded with tag number 16 (X.208,
   // Table 1).
-  der_.push_back((1 << 5) | 0x10);
+  der_.push_back(0x30);
   // Save the current size in |len_pos| to place sequence length there
   // after the value is encoded.
   size_t len_pos = der_.size();
@@ -169,7 +169,7 @@ void CertToDER::EncodeTBSCertificate(const TBSCertificate& tbs_certificate) {
   // 5280, 4.1 & 4.1.2.5).
   // Sequence is universal, constructed, and encoded with tag number 16 (X.208,
   // Table 1).
-  der_.push_back((1 << 5) | 0x10);
+  der_.push_back(0x30);
   size_t len_pos = der_.size();
 
   EncodeVersion(tbs_certificate.version());
@@ -216,7 +216,7 @@ void CertToDER::EncodeX509Certificate(const X509Certificate& X509_certificate) {
   // 5280, 4.1 & 4.1.2.5).
   // Sequence is universal, constructed, and encoded with tag number 16 (X.208,
   // Table 1).
-  der_.push_back((1 << 5) | 0x10);
+  der_.push_back(0x30);
   // Save the current size in |len_pos| to place sequence length there
   // after the value is encoded.
   size_t len_pos = der_.size();
