@@ -1,4 +1,4 @@
-// This proto represents the unviersal types
+// This proto represents the Universal types
 // found in X509 Certifiactes.
 syntax = "proto2";
 

@@ -64,7 +64,7 @@ std::vector<uint8_t> ASN1TypesToDER::EncodeInteger(const Integer& integer) {
 
 std::vector<uint8_t> ASN1TypesToDER::EncodeUTCTime(const UTCTime& utc_time) {
   std::vector<uint8_t> der;
-  // UTCTime has tag number 3 (X.208, Table 1).
+  // UTCTime has tag number 23 (X.208, Table 1).
   EncodeIdentifier(false, 0x17, der);
   const google::protobuf::Descriptor* desc = utc_time.GetDescriptor();
   const google::protobuf::Reflection* ref = utc_time.GetReflection();
@@ -85,7 +85,7 @@ std::vector<uint8_t> ASN1TypesToDER::EncodeUTCTime(const UTCTime& utc_time) {
 std::vector<uint8_t> ASN1TypesToDER::EncodeGeneralizedTime(
     const GeneralizedTime& generalized_time) {
   std::vector<uint8_t> der;
-  // GeneralizedTime has tag number 3 (X.208, Table 1).
+  // GeneralizedTime has tag number 24 (X.208, Table 1).
   EncodeIdentifier(false, 0x18, der);
   const google::protobuf::Descriptor* desc = generalized_time.GetDescriptor();
   const google::protobuf::Reflection* ref = generalized_time.GetReflection();
