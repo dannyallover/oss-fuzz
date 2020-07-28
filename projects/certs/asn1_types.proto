@@ -1,31 +1,29 @@
+// This proto represents the unviersal types
+// found in X509 Certifiactes.
 syntax = "proto2";
 
 package asn1_types;
 
-// See X.690 (2015), 8.1.2.2.
-enum Class {
-  Universal = 0;
-  Application = 1;
-  ContextSpecific = 2;
-  Private = 3;
+// See X.690 (2015), 8.1.2.5.
+enum Encoding {
+  Primitive = 0;
+  Constructed = 1;
 }
 
 // See X.690 (2015), 8.6.
 message BitString {
-  required Class id_class = 1;
+  // BitString is either constructed or primitive (X.690 (2015), 8.6.1).
+  required Encoding encoding = 1;
   required bytes val = 2;
 }
 
-
 // See X.690 (2015), 8.3.
 message Integer {
-  required Class id_class = 1;
   required bytes val = 2;
 }
 
 // See X.690 (2015), 11.8.
 message UTCTime {
-  required Class id_class = 1;
   required TimeValue year_tens_digit = 2;
   required TimeValue year_ones_digit = 3;
   required TimeValue month_tens_digit = 4;
@@ -44,7 +42,6 @@ message UTCTime {
 
 // See X.690 (2015), 11.7.
 message GeneralizedTime {
-  required Class id_class = 1;
   // See X.690 (2015), 11.7.5: GeneralizedTime also includes the
   // thousands digit and hundreds digit of the year.
   required TimeValue year_thousands_digit = 2;
@@ -81,7 +78,6 @@ enum TimeValue {
 
 // Represent AlgorithmIdentifier found in RFC 5280, 4.1.
 message AlgorithmIdentifier {
-  required Class id_class = 1;
   // TODO(dhalawi@google.com): provide
   // more semantic information
   required string object_identifier = 2;
