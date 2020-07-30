@@ -27,50 +27,24 @@ class CertToDER {
   // Used to encode the ASN1 types that appear in X509 Certificates.
   asn1_types::ASN1TypesToDER types_to_der;
 
+  template <typename T>
+  void Encode(const T& t);
+
   // Encode(FIELD) DER encodes the field found in X509 Certificates
   // and writes the results to |der_|.
-  void EncodeX509Certificate(const X509Certificate& cert);
-  void EncodeSignatureValue(const SignatureValue& signature);
-  void EncodeSignatureAlgorithm(const SignatureAlgorithm& signature_algorithm);
-  void EncodeTBSCertificate(const TBSCertificate& tbs_certificate);
-  void EncodeVersion(const Version& version);
-  void EncodeSerialNumber(const SerialNumber& serial_num);
-  void EncodeSignature(const Signature& signature);
-  void EncodeIssuer(const Issuer& issuer);
-  void EncodeValidity(const Validity& validity);
-  void EncodeTime(const Time& time);
-  void EncodeSubject(const Subject& subject);
-  void EncodeName(const Name& name);
-  void EncodeSubjectPublicKeyInfo(
-      const SubjectPublicKeyInfo& subject_public_key_info);
-  void EncodeSubjectPublicKey(const SubjectPublicKey& subject_public_key);
-  void EncodeIssuerUniqueId(const IssuerUniqueId& issuer_unique_id);
-  void EncodeSubjectUniqueId(const SubjectUniqueId& subject_unique_id);
-  void EncodeExtensions(const Extensions& extensions);
-
-  // Encodes |bit_string| through |types_to_der|'s API |EncodeBitString|
-  // and writes the results to |der_|.
-  void EncodeBitString(const asn1_types::BitString& bit_string);
-
-  // Encodes |integer| through |types_to_der|'s API |EncodeInteger|
-  // and writes the results to |der_|.
-  void EncodeInteger(const asn1_types::Integer& integer);
-
-  // Encodes |algorithm_identifier| and writes the results to |der_|.
-  void EncodeAlgorithmIdentifier(
-      const AlgorithmIdentifier& algorithm_identifier);
-
-  // Encodes |pdu| through |pdu_to_der|'s API |EncodePDU|
-  // and writes the results to |der_|.
-  void EncodePDU(const asn1_pdu::PDU& pdu);
-
-  // X509 Certificate fields have a pdu which is used to
-  // encode arbitrary TLV's for that field.
-  // Checks if |field| contains pdu to encode.
-  template <typename T>
-  bool UseInvalidField(const T field);
+  void Encode(const asn1_pdu::PDU& pdu);
+  void Encode(const TBSCertificateValue& tbs_certificate);
+  void Encode(const SubjectPublicKeyInfoValue& subject_public_key_info);
+  void Encode(const ValidityValue& validity);
+  void Encode(const TimeChoice& val);
+  void Encode(const asn1_types::GeneralizedTime& generalized_time);
+  void Encode(const asn1_types::UTCTime& utc_time);
+  void Encode(const VersionNumber& version);
+  void Encode(const asn1_types::Integer& integer);
+  void Encode(const AlgorithmIdentifier& algorithm_identifier);
+  void Encode(const asn1_types::BitString& bit_string);
 };
 
-}  // namespace X509_certificate
+}  // namespace x509_certificate
 
 #endif
