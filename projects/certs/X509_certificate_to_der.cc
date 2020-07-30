@@ -2,6 +2,33 @@
 
 namespace x509_certificate {
 
+void CertToDER::Encode(const asn1_universal_types::GeneralizedTime& generalized_time) {
+  std::vector<uint8_t> der_generalized_time =
+      u_types_to_der.EncodeGeneralizedTime(generalized_time);
+  der_.insert(der_.end(), der_generalized_time.begin(),
+              der_generalized_time.end());
+}
+
+void CertToDER::Encode(const asn1_universal_types::UTCTime& utc_time) {
+  std::vector<uint8_t> der_utc_time = u_types_to_der.EncodeUTCTime(utc_time);
+  der_.insert(der_.end(), der_utc_time.begin(), der_utc_time.end());
+}
+
+void CertToDER::Encode(const asn1_universal_types::BitString& bit_string) {
+  std::vector<uint8_t> der_bit_str = u_types_to_der.EncodeBitString(bit_string);
+  der_.insert(der_.end(), der_bit_str.begin(), der_bit_str.end());
+}
+
+void CertToDER::Encode(const asn1_universal_types::Integer& integer) {
+  std::vector<uint8_t> der_int = u_types_to_der.EncodeInteger(integer);
+  der_.insert(der_.end(), der_int.begin(), der_int.end());
+}
+
+void CertToDER::Encode(const asn1_pdu::PDU& pdu) {
+  std::vector<uint8_t> der_pdu = pdu_to_der.PDUToDER(pdu);
+  der_.insert(der_.end(), der_pdu.begin(), der_pdu.end());
+}
+
 void CertToDER::Encode(const AlgorithmIdentifier& algorithm_identifier) {
   // Save the current size in |tag_len_pos| to place sequence tag and length
   // after the value is encoded.
@@ -20,34 +47,21 @@ void CertToDER::Encode(const AlgorithmIdentifier& algorithm_identifier) {
   EncodeTagAndLength(0x30, der_.size() - tag_len_pos, tag_len_pos, der_);
 }
 
-void CertToDER::Encode(const asn1_universal_types::BitString& bit_string) {
-  std::vector<uint8_t> der_bit_str = u_types_to_der.EncodeBitString(bit_string);
-  der_.insert(der_.end(), der_bit_str.begin(), der_bit_str.end());
-}
+void CertToDER::Encode(
+    const SubjectPublicKeyInfoValue& subject_public_key_info) {
+  // Save the current size in |tag_len_pos| to place sequence tag and length
+  // after the value is encoded.
+  size_t tag_len_pos = der_.size();
 
-void CertToDER::Encode(const asn1_universal_types::Integer& integer) {
-  std::vector<uint8_t> der_int = u_types_to_der.EncodeInteger(integer);
-  der_.insert(der_.end(), der_int.begin(), der_int.end());
-}
+  Encode(subject_public_key_info.algorithm_identifier());
+  Encode(subject_public_key_info.subject_public_key());
 
-void CertToDER::Encode(const VersionNumber& version) {
-  // |version| is Context-specific with tag number 0 (RFC 5280, 4.1 & 4.1.2.1).
-  // Takes on values 0, 1 and 2, so only require length of 1 to
-  // encode it (RFC 5280, 4.1 & 4.1.2.1).
-  std::vector<uint8_t> der_ver_num = {0x80, 0x01, static_cast<uint8_t>(version)};
-  der_.insert(der_.end(), der_ver_num.begin(), der_ver_num.end());
-}
-
-void CertToDER::Encode(const asn1_universal_types::UTCTime& utc_time) {
-  std::vector<uint8_t> der_utc_time = u_types_to_der.EncodeUTCTime(utc_time);
-  der_.insert(der_.end(), der_utc_time.begin(), der_utc_time.end());
-}
-
-void CertToDER::Encode(const asn1_universal_types::GeneralizedTime& generalized_time) {
-  std::vector<uint8_t> der_generalized_time =
-      u_types_to_der.EncodeGeneralizedTime(generalized_time);
-  der_.insert(der_.end(), der_generalized_time.begin(),
-              der_generalized_time.end());
+  // The fields of |subject_public_key_info| are wrapped around a sequence (RFC
+  // 5280, 4.1 & 4.1.2.5).
+  // Sequence is constructed and has tag number 16 (X.208, Table 1).
+  // The current size of |der_| subtracted by |tag_len_pos|
+  // equates to the size of the value of |subject_public_key_info|.
+  EncodeTagAndLength(0x30, der_.size() - tag_len_pos, tag_len_pos, der_);
 }
 
 void CertToDER::Encode(const TimeChoice& val) {
@@ -75,21 +89,12 @@ void CertToDER::Encode(const ValidityValue& validity) {
   EncodeTagAndLength(0x30, der_.size() - tag_len_pos, tag_len_pos, der_);
 }
 
-void CertToDER::Encode(
-    const SubjectPublicKeyInfoValue& subject_public_key_info) {
-  // Save the current size in |tag_len_pos| to place sequence tag and length
-  // after the value is encoded.
-  size_t tag_len_pos = der_.size();
-
-  Encode(subject_public_key_info.algorithm_identifier());
-  Encode(subject_public_key_info.subject_public_key());
-
-  // The fields of |subject_public_key_info| are wrapped around a sequence (RFC
-  // 5280, 4.1 & 4.1.2.5).
-  // Sequence is constructed and has tag number 16 (X.208, Table 1).
-  // The current size of |der_| subtracted by |tag_len_pos|
-  // equates to the size of the value of |subject_public_key_info|.
-  EncodeTagAndLength(0x30, der_.size() - tag_len_pos, tag_len_pos, der_);
+void CertToDER::Encode(const VersionNumber& version) {
+  // |version| is Context-specific with tag number 0 (RFC 5280, 4.1 & 4.1.2.1).
+  // Takes on values 0, 1 and 2, so only require length of 1 to
+  // encode it (RFC 5280, 4.1 & 4.1.2.1).
+  std::vector<uint8_t> der_ver_num = {0x80, 0x01, static_cast<uint8_t>(version)};
+  der_.insert(der_.end(), der_ver_num.begin(), der_ver_num.end());
 }
 
 void CertToDER::Encode(const TBSCertificateValue& tbs_certificate) {
@@ -139,12 +144,6 @@ void CertToDER::Encode(const TBSCertificateValue& tbs_certificate) {
   // The current size of |der_| subtracted by |tag_len_pos|
   // equates to the size of the value of |tbs_certificate|.
   EncodeTagAndLength(0x30, der_.size() - tag_len_pos, tag_len_pos, der_);
-}
-
-void CertToDER::Encode(const asn1_pdu::PDU& pdu) {
-  // Used to encode PDU's for fields that contain them.
-  std::vector<uint8_t> der_pdu = pdu_to_der.PDUToDER(pdu);
-  der_.insert(der_.end(), der_pdu.begin(), der_pdu.end());
 }
 
 template <typename T>

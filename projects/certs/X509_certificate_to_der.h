@@ -12,13 +12,12 @@ namespace x509_certificate {
 
 class CertToDER {
  public:
-  // Encodes |X509_certificate| to DER, returning the encoded bytes of the PDU
-  // in |der_|.
+  // Encodes |X509_certificate| to DER, returning the encoded bytes in |der_|.
   std::vector<uint8_t> X509CertificateToDER(
       const X509Certificate& X509_certificate);
 
  private:
-  // Contains encoded X509 Certificate.
+  // Contains DER encoded X509 Certificate.
   std::vector<uint8_t> der_;
 
   // Used to encode PDU's for fields that contain them.
@@ -32,17 +31,17 @@ class CertToDER {
 
   // Encode(FIELD) DER encodes the field found in X509 Certificates
   // and writes the results to |der_|.
-  void Encode(const asn1_pdu::PDU& pdu);
   void Encode(const TBSCertificateValue& tbs_certificate);
-  void Encode(const SubjectPublicKeyInfoValue& subject_public_key_info);
+  void Encode(const VersionNumber& version);
   void Encode(const ValidityValue& validity);
   void Encode(const TimeChoice& val);
-  void Encode(const asn1_universal_types::GeneralizedTime& generalized_time);
-  void Encode(const asn1_universal_types::UTCTime& utc_time);
-  void Encode(const VersionNumber& version);
-  void Encode(const asn1_universal_types::Integer& integer);
+  void Encode(const SubjectPublicKeyInfoValue& subject_public_key_info);
   void Encode(const AlgorithmIdentifier& algorithm_identifier);
+  void Encode(const asn1_pdu::PDU& pdu);
+  void Encode(const asn1_universal_types::Integer& integer);
   void Encode(const asn1_universal_types::BitString& bit_string);
+  void Encode(const asn1_universal_types::UTCTime& utc_time);
+  void Encode(const asn1_universal_types::GeneralizedTime& generalized_time);
 };
 
 }  // namespace x509_certificate
