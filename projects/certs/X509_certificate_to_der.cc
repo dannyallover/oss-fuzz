@@ -31,7 +31,7 @@ void CertToDER::Encode(const asn1_universal_types::Integer& integer) {
 }
 
 void CertToDER::Encode(const VersionNumber& version) {
-  // |version| is Context-specific with tag_number 0 (RFC 5280, 4.1 & 4.1.2.1).
+  // |version| is Context-specific with tag number 0 (RFC 5280, 4.1 & 4.1.2.1).
   // Takes on values 0, 1 and 2, so only require length of 1 to
   // encode it (RFC 5280, 4.1 & 4.1.2.1).
   std::vector<uint8_t> der_ver_num = {0x80, 0x01, static_cast<uint8_t>(version)};
@@ -114,21 +114,21 @@ void CertToDER::Encode(const TBSCertificateValue& tbs_certificate) {
   if (tbs_certificate.has_issuer_unique_id()) {
     pos_of_tag = der_.size();
     Encode(tbs_certificate.issuer_unique_id().unique_identifier());
-    // |issuer_unqiue_id| is Context-specific with tag_number 1 (RFC 5280, 4.1
+    // |issuer_unqiue_id| is Context-specific with tag number 1 (RFC 5280, 4.1
     // & 4.1.2.8).
     der_[pos_of_tag] = 0x81;
   }
   if (tbs_certificate.has_subject_unique_id()) {
     pos_of_tag = der_.size();
     Encode(tbs_certificate.subject_unique_id().unique_identifier());
-    // |subject_unqiue_id| is Context-specific with tag_number 2 (RFC 5280, 4.1
+    // |subject_unqiue_id| is Context-specific with tag number 2 (RFC 5280, 4.1
     // & 4.1.2.8).
     der_[pos_of_tag] = 0x82;
   }
   if (tbs_certificate.has_extensions()) {
     pos_of_tag = der_.size();
     Encode(tbs_certificate.extensions());
-    // |extensions| is Context-specific with tag_number 3 (RFC 5280, 4.1
+    // |extensions| is Context-specific with tag number 3 (RFC 5280, 4.1
     // & 4.1.2.8).
     der_[pos_of_tag] = 0x83;
   }
