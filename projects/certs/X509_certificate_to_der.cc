@@ -20,13 +20,13 @@ void CertToDER::Encode(const AlgorithmIdentifier& algorithm_identifier) {
   EncodeTagAndLength(0x30, der_.size() - tag_len_pos, tag_len_pos, der_);
 }
 
-void CertToDER::Encode(const asn1_types::BitString& bit_string) {
-  std::vector<uint8_t> der_bit_str = types_to_der.EncodeBitString(bit_string);
+void CertToDER::Encode(const asn1_universal_types::BitString& bit_string) {
+  std::vector<uint8_t> der_bit_str = u_types_to_der.EncodeBitString(bit_string);
   der_.insert(der_.end(), der_bit_str.begin(), der_bit_str.end());
 }
 
-void CertToDER::Encode(const asn1_types::Integer& integer) {
-  std::vector<uint8_t> der_int = types_to_der.EncodeInteger(integer);
+void CertToDER::Encode(const asn1_universal_types::Integer& integer) {
+  std::vector<uint8_t> der_int = u_types_to_der.EncodeInteger(integer);
   der_.insert(der_.end(), der_int.begin(), der_int.end());
 }
 
@@ -38,14 +38,14 @@ void CertToDER::Encode(const VersionNumber& version) {
   der_.insert(der_.end(), der_ver_num.begin(), der_ver_num.end());
 }
 
-void CertToDER::Encode(const asn1_types::UTCTime& utc_time) {
-  std::vector<uint8_t> der_utc_time = types_to_der.EncodeUTCTime(utc_time);
+void CertToDER::Encode(const asn1_universal_types::UTCTime& utc_time) {
+  std::vector<uint8_t> der_utc_time = u_types_to_der.EncodeUTCTime(utc_time);
   der_.insert(der_.end(), der_utc_time.begin(), der_utc_time.end());
 }
 
-void CertToDER::Encode(const asn1_types::GeneralizedTime& generalized_time) {
+void CertToDER::Encode(const asn1_universal_types::GeneralizedTime& generalized_time) {
   std::vector<uint8_t> der_generalized_time =
-      types_to_der.EncodeGeneralizedTime(generalized_time);
+      u_types_to_der.EncodeGeneralizedTime(generalized_time);
   der_.insert(der_.end(), der_generalized_time.begin(),
               der_generalized_time.end());
 }

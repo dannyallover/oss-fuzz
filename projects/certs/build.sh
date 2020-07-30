@@ -17,16 +17,18 @@
 
 # Move asn1-pdu proto and converter to asn1-pdu directory
 cp -R $SRC/fuzzing/proto/asn1/asn1-pdu/* $SRC
-cp -R $SRC/fuzzing/proto/asn1/asn1-types/* $SRC
+cp -R $SRC/fuzzing/proto/asn1/asn1-universal-types/* $SRC
 cp -R $SRC/fuzzing/proto/asn1/common/* $SRC
 
+ls $SRC
+
 # Compile cert proto.
-rm -rf genfiles && mkdir genfiles && LPM/external.protobuf/bin/protoc X509_certificate.proto asn1_pdu.proto asn1_types.proto --cpp_out=genfiles --proto_path=$SRC/
+rm -rf genfiles && mkdir genfiles && LPM/external.protobuf/bin/protoc asn1_pdu.proto asn1_universal_types.proto X509_certificate.proto --cpp_out=genfiles --proto_path=$SRC/
 
 # Compile LPM fuzzer.
 $CXX $CXXFLAGS -I genfiles -I . -I libprotobuf-mutator/ -I LPM/external.protobuf/include -I include $LIB_FUZZING_ENGINE \
-    $SRC/fuzz.cc genfiles/X509_certificate.pb.cc genfiles/asn1_pdu.pb.cc genfiles/asn1_types.pb.cc \
-    $SRC/X509_certificate_to_der.cc $SRC/asn1_pdu_to_der.cc $SRC/asn1_types_to_der.cc $SRC/common.cc \
+    $SRC/fuzz.cc genfiles/X509_certificate.pb.cc genfiles/asn1_pdu.pb.cc genfiles/asn1_universal_types.pb.cc \
+    $SRC/X509_certificate_to_der.cc $SRC/asn1_pdu_to_der.cc $SRC/asn1_universal_types_to_der.cc $SRC/common.cc \
     LPM/src/libfuzzer/libprotobuf-mutator-libfuzzer.a \
     LPM/src/libprotobuf-mutator.a \
     LPM/external.protobuf/lib/libprotobuf.a \

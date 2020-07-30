@@ -6,7 +6,7 @@
 
 #include "X509_certificate.pb.h"
 #include "asn1_pdu_to_der.h"
-#include "asn1_types_to_der.h"
+#include "asn1_universal_types_to_der.h"
 
 namespace x509_certificate {
 
@@ -25,7 +25,7 @@ class CertToDER {
   asn1_pdu::ASN1PDUToDER pdu_to_der;
 
   // Used to encode the ASN1 types that appear in X509 Certificates.
-  asn1_types::ASN1TypesToDER types_to_der;
+  asn1_universal_types::ASN1UniversalTypesToDER u_types_to_der;
 
   template <typename T>
   void Encode(const T& t);
@@ -37,12 +37,12 @@ class CertToDER {
   void Encode(const SubjectPublicKeyInfoValue& subject_public_key_info);
   void Encode(const ValidityValue& validity);
   void Encode(const TimeChoice& val);
-  void Encode(const asn1_types::GeneralizedTime& generalized_time);
-  void Encode(const asn1_types::UTCTime& utc_time);
+  void Encode(const asn1_universal_types::GeneralizedTime& generalized_time);
+  void Encode(const asn1_universal_types::UTCTime& utc_time);
   void Encode(const VersionNumber& version);
-  void Encode(const asn1_types::Integer& integer);
+  void Encode(const asn1_universal_types::Integer& integer);
   void Encode(const AlgorithmIdentifier& algorithm_identifier);
-  void Encode(const asn1_types::BitString& bit_string);
+  void Encode(const asn1_universal_types::BitString& bit_string);
 };
 
 }  // namespace x509_certificate
