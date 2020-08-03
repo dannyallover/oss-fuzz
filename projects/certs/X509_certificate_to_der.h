@@ -10,39 +10,37 @@
 
 namespace x509_certificate {
 
-class CertToDER {
- public:
-  // Encodes |X509_certificate| to DER, returning the encoded bytes in |der_|.
-  std::vector<uint8_t> X509CertificateToDER(
-      const X509Certificate& X509_certificate);
+// Encodes |X509_certificate| to DER, returning the encoded bytes in |der_|.
+std::vector<uint8_t> X509CertificateToDER(
+    const X509Certificate& X509_certificate);
 
- private:
-  // Contains DER encoded X509 Certificate.
-  std::vector<uint8_t> der_;
+template <typename T>
+void Encode(const T& t, std::vector<uint8_t>& der);
 
-  // Used to encode PDU's for fields that contain them.
-  asn1_pdu::ASN1PDUToDER pdu_to_der;
-
-  // Used to encode the ASN1 types that appear in X509 Certificates.
-  asn1_universal_types::ASN1UniversalTypesToDER u_types_to_der;
-
-  template <typename T>
-  void Encode(const T& t);
-
-  // Encode(FIELD) DER encodes the field found in X509 Certificates
-  // and writes the results to |der_|.
-  void Encode(const TBSCertificateValue& tbs_certificate);
-  void Encode(const VersionNumber& version);
-  void Encode(const ValidityValue& validity);
-  void Encode(const TimeChoice& val);
-  void Encode(const SubjectPublicKeyInfoValue& subject_public_key_info);
-  void Encode(const AlgorithmIdentifier& algorithm_identifier);
-  void Encode(const asn1_pdu::PDU& pdu);
-  void Encode(const asn1_universal_types::Integer& integer);
-  void Encode(const asn1_universal_types::BitString& bit_string);
-  void Encode(const asn1_universal_types::UTCTime& utc_time);
-  void Encode(const asn1_universal_types::GeneralizedTime& generalized_time);
-};
+// Encode(FIELD) DER encodes the field found in X509 Certificates
+// and writes the results to |der_|.
+template <>
+void Encode<TBSCertificateSequence>(
+    const TBSCertificateSequence& tbs_certificate,
+    std::vector<uint8_t>& der);
+template <>
+void Encode<VersionNumber>(const VersionNumber& version,
+                           std::vector<uint8_t>& der);
+template <>
+void Encode<ValiditySequence>(const ValiditySequence& validity,
+                              std::vector<uint8_t>& der);
+template <>
+void Encode<TimeChoice>(const TimeChoice& val, std::vector<uint8_t>& der);
+template <>
+void Encode<SubjectPublicKeyInfoSequence>(
+    const SubjectPublicKeyInfoSequence& subject_public_key_info,
+    std::vector<uint8_t>& der);
+template <>
+void Encode<AlgorithmIdentifier>(
+    const AlgorithmIdentifier& algorithm_identifier,
+    std::vector<uint8_t>& der);
+template <>
+void Encode<asn1_pdu::PDU>(const asn1_pdu::PDU& pdu, std::vector<uint8_t>& der);
 
 }  // namespace x509_certificate
 

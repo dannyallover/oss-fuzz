@@ -15,10 +15,10 @@ message X509Certificate {
 // See RFC 5280, 4.1 & 4.1.2.
 message TBSCertificate {
   optional asn1_pdu.PDU pdu = 1;
-  required TBSCertificateValue value = 2;
+  required TBSCertificateSequence value = 2;
 }
 
-message TBSCertificateValue {
+message TBSCertificateSequence {
   required Version version = 1;
   required SerialNumber serial_number = 2;
   required SignatureAlgorithm signature_algorithm = 3;
@@ -38,7 +38,7 @@ message Version {
   required VersionNumber value = 2;
 }
 
-// X509 Certificates support three versions (RFC 5280, 4.1 & 4.1.2.1).
+// X.509 Certificates define three versions (RFC 5280, 4.1 & 4.1.2.1).
 enum VersionNumber {
   v1 = 0;
   v2 = 1;
@@ -60,10 +60,10 @@ message Issuer {
 // See RFC 5280, 4.1 & 4.1.2.5.
 message Validity {
   optional asn1_pdu.PDU pdu = 1;
-  required ValidityValue value = 2;
+  required ValiditySequence value = 2;
 }
 
-message ValidityValue {
+message ValiditySequence {
   required NotBefore not_before = 2;
   required NotAfter not_after = 3;
 }
@@ -110,10 +110,10 @@ message Name {
 message SubjectPublicKeyInfo {
   // If |pdu| is present, encode |SubjectPublicKeyInfo| as an arbitraty pdu.
   optional asn1_pdu.PDU pdu = 1;
-  required SubjectPublicKeyInfoValue value = 2;
+  required SubjectPublicKeyInfoSequence value = 2;
 }
 
-message SubjectPublicKeyInfoValue {
+message SubjectPublicKeyInfoSequence {
   required AlgorithmIdentifier algorithm_identifier = 2;
   required SubjectPublicKey subject_public_key = 3;
 }

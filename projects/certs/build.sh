@@ -20,8 +20,6 @@ cp -R $SRC/fuzzing/proto/asn1/asn1-pdu/* $SRC
 cp -R $SRC/fuzzing/proto/asn1/asn1-universal-types/* $SRC
 cp -R $SRC/fuzzing/proto/asn1/common/* $SRC
 
-ls $SRC
-
 # Compile cert proto.
 rm -rf genfiles && mkdir genfiles && LPM/external.protobuf/bin/protoc asn1_pdu.proto asn1_universal_types.proto X509_certificate.proto --cpp_out=genfiles --proto_path=$SRC/
 

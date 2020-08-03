@@ -3,8 +3,7 @@
 #include "libprotobuf-mutator/src/libfuzzer/libfuzzer_macro.h"
 
 DEFINE_PROTO_FUZZER(const x509_certificate::X509Certificate& cert) {
-  x509_certificate::CertToDER converter;
-  std::vector<uint8_t> der = converter.X509CertificateToDER(cert);
+  std::vector<uint8_t> der = X509CertificateToDER(cert);
   // The pointer to the vector and size will used in future fuzz targets.
   const uint8_t* buf = der.data();
   size_t len = der.size();
