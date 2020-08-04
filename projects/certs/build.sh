@@ -17,7 +17,7 @@
 
 # Move asn1-pdu proto and converter to asn1-pdu directory
 cp -R $SRC/fuzzing/proto/asn1/asn1-pdu/* $SRC
-cp -R $SRC/fuzzing/proto/asn1/asn1-universal-types/* $SRC
+# cp -R $SRC/fuzzing/proto/asn1/asn1-universal-types/* $SRC
 cp -R $SRC/fuzzing/proto/asn1/common/* $SRC
 
 # Compile cert proto.

@@ -71,22 +71,16 @@ message ValiditySequence {
 // See RFC 5280, 4.1 & 4.1.2.5.
 message NotBefore {
   optional asn1_pdu.PDU pdu = 1;
-  required Time time = 2;
+  required TimeChoice value = 2;
 }
 
 // See RFC 5280, 4.1 & 4.1.2.5.
 message NotAfter {
   optional asn1_pdu.PDU pdu = 1;
-  required Time time = 2;
-}
-
-// See RFC 5280, 4.1 & 4.1.2.5.
-message Time {
-  // If |pdu| is present, encode |Time| as an arbitraty pdu.
-  optional asn1_pdu.PDU pdu = 1;
   required TimeChoice value = 2;
 }
 
+// See RFC 5280, 4.1 & 4.1.2.5.
 message TimeChoice {
   optional asn1_universal_types.UTCTime utc_time = 1;
   required asn1_universal_types.GeneralizedTime generalized_time = 2;

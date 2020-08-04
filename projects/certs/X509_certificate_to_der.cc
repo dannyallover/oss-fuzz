@@ -68,8 +68,8 @@ void Encode<ValiditySequence>(const ValiditySequence& validity,
   // after the value is encoded.
   size_t tag_len_pos = der.size();
 
-  Encode(validity.not_before().time(), der);
-  Encode(validity.not_after().time(), der);
+  Encode(validity.not_before().value(), der);
+  Encode(validity.not_after().value(), der);
 
   // The fields of |Validity| are wrapped around a sequence (RFC
   // 5280, 4.1 & 4.1.2.5).
