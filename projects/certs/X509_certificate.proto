@@ -57,6 +57,15 @@ message Issuer {
   required Name name = 1;
 }
 
+// See RFC 5280, 4.1.2.4.
+message Name {
+  // If |pdu| is present, encode |Name| as an arbitraty pdu.
+  optional asn1_pdu.PDU pdu = 1;
+  required asn1_pdu.PDU value = 2;
+  // TODO(dhalawi@gmail.com): switch the required
+  // field to encompass a valid |Name| value.
+}
+
 // See RFC 5280, 4.1 & 4.1.2.5.
 message Validity {
   optional asn1_pdu.PDU pdu = 1;
@@ -91,15 +100,6 @@ message Subject {
   required Name name = 1;
 }
 
-// See RFC 5280, 4.1.2.4.
-message Name {
-  // If |pdu| is present, encode |Name| as an arbitraty pdu.
-  optional asn1_pdu.PDU pdu = 1;
-  required asn1_pdu.PDU value = 2;
-  // TODO(dhalawi@gmail.com): switch the required
-  // field to encompass a valid |Name| value.
-}
-
 // See RFC 5280, 4.1 & 4.1.2.7.
 message SubjectPublicKeyInfo {
   // If |pdu| is present, encode |SubjectPublicKeyInfo| as an arbitraty pdu.
@@ -108,7 +108,7 @@ message SubjectPublicKeyInfo {
 }
 
 message SubjectPublicKeyInfoSequence {
-  required AlgorithmIdentifier algorithm_identifier = 2;
+  required AlgorithmIdentifierSequence algorithm_identifier = 2;
   required SubjectPublicKey subject_public_key = 3;
 }
 
@@ -149,15 +149,15 @@ message Extensions {
 message SignatureAlgorithm {
   // If |pdu| is present, encode |SignatureAlgorithm| as an arbitraty pdu.
   optional asn1_pdu.PDU pdu = 1;
-  required AlgorithmIdentifier value = 2;
+  required AlgorithmIdentifierSequence value = 2;
 }
 
 // See RFC 5280, 4.1.1.2.
-message AlgorithmIdentifier {
+message AlgorithmIdentifierSequence {
   // TODO(dhalawi@google.com): provide
   // more semantic information
-  required string object_identifier = 2;
-  optional string parameters = 3;
+  required string object_identifier = 1;
+  optional string parameters = 2;
 }
 
 // See RFC 5280, 4.1 & 4.1.1.3.

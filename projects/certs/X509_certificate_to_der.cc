@@ -3,13 +3,13 @@
 namespace x509_certificate {
 
 DECLARE_ENCODE_FUNCTION(asn1_pdu::PDU, pdu) {
-  // Used to encode PDU's for fields that contain them.
+  // Used to encode PDU for fields that contain them.
   asn1_pdu::ASN1PDUToDER pdu_to_der;
   std::vector<uint8_t> derpdu = pdu_to_der.PDUToDER(pdu);
   der.insert(der.end(), derpdu.begin(), derpdu.end());
 }
 
-DECLARE_ENCODE_FUNCTION(AlgorithmIdentifier, algorithm_identifier) {
+DECLARE_ENCODE_FUNCTION(AlgorithmIdentifierSequence, algorithm_identifier) {
   // Save the current size in |tag_len_pos| to place sequence tag and length
   // after the value is encoded.
   size_t tag_len_pos = der.size();
@@ -72,7 +72,8 @@ DECLARE_ENCODE_FUNCTION(VersionNumber, version_num) {
   // |version| is Context-specific with tag number 0 (RFC 5280, 4.1 & 4.1.2.1).
   // Takes on values 0, 1 and 2, so only require length of 1 to
   // encode it (RFC 5280, 4.1 & 4.1.2.1).
-  std::vector<uint8_t> derver_num = {0x80, 0x01, static_cast<uint8_t>(version_num)};
+  std::vector<uint8_t> derver_num = {0x80, 0x01,
+                                     static_cast<uint8_t>(version_num)};
   der.insert(der.end(), derver_num.begin(), derver_num.end());
 }
 

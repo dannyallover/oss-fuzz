@@ -18,7 +18,7 @@
 FROM gcr.io/oss-fuzz-base/base-builder
 RUN apt-get update -y && apt-get install -y curl wget \
     binutils cmake ninja-build liblzma-dev libz-dev pkg-config autoconf libtool
-# Use ASN.1 pdu and universal types protobufs and converters from the google/fuzzing repo.
+# Use asn1-pdu & asn1-unvirsal-types proto and converter from the google/fuzzing repo.
 RUN git clone --depth 1 https://github.com/dannyallover/fuzzing
 RUN git clone --depth 1 https://github.com/google/libprotobuf-mutator.git
 RUN (mkdir LPM && cd LPM && cmake ../libprotobuf-mutator -GNinja -DLIB_PROTO_MUTATOR_DOWNLOAD_PROTOBUF=ON -DLIB_PROTO_MUTATOR_TESTING=OFF -DCMAKE_BUILD_TYPE=Release && ninja)
