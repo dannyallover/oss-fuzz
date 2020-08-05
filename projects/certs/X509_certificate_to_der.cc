@@ -2,19 +2,14 @@
 
 namespace x509_certificate {
 
-template <>
-void Encode<asn1_pdu::PDU>(const asn1_pdu::PDU& pdu,
-                           std::vector<uint8_t>& der) {
+DECLARE_ENCODE_FUNCTION(asn1_pdu::PDU, pdu) {
   // Used to encode PDU's for fields that contain them.
   asn1_pdu::ASN1PDUToDER pdu_to_der;
   std::vector<uint8_t> derpdu = pdu_to_der.PDUToDER(pdu);
   der.insert(der.end(), derpdu.begin(), derpdu.end());
 }
 
-template <>
-void Encode<AlgorithmIdentifier>(
-    const AlgorithmIdentifier& algorithm_identifier,
-    std::vector<uint8_t>& der) {
+DECLARE_ENCODE_FUNCTION(AlgorithmIdentifier, algorithm_identifier) {
   // Save the current size in |tag_len_pos| to place sequence tag and length
   // after the value is encoded.
   size_t tag_len_pos = der.size();
@@ -32,10 +27,7 @@ void Encode<AlgorithmIdentifier>(
   EncodeTagAndLength(0x30, der.size() - tag_len_pos, tag_len_pos, der);
 }
 
-template <>
-void Encode<SubjectPublicKeyInfoSequence>(
-    const SubjectPublicKeyInfoSequence& subject_public_key_info,
-    std::vector<uint8_t>& der) {
+DECLARE_ENCODE_FUNCTION(SubjectPublicKeyInfoSequence, subject_public_key_info) {
   // Save the current size in |tag_len_pos| to place sequence tag and length
   // after the value is encoded.
   size_t tag_len_pos = der.size();
@@ -51,19 +43,16 @@ void Encode<SubjectPublicKeyInfoSequence>(
   EncodeTagAndLength(0x30, der.size() - tag_len_pos, tag_len_pos, der);
 }
 
-template <>
-void Encode<TimeChoice>(const TimeChoice& val, std::vector<uint8_t>& der) {
+DECLARE_ENCODE_FUNCTION(TimeChoice, time_choice) {
   // The |Time| field either has an UTCTime or a GeneralizedTime (RFC 5280, 4.1
   // & 4.1.2.5).
-  if (val.has_utc_time()) {
-    return Encode(val.utc_time(), der);
+  if (time_choice.has_utc_time()) {
+    return Encode(time_choice.utc_time(), der);
   }
-  return Encode(val.generalized_time(), der);
+  return Encode(time_choice.generalized_time(), der);
 }
 
-template <>
-void Encode<ValiditySequence>(const ValiditySequence& validity,
-                              std::vector<uint8_t>& der) {
+DECLARE_ENCODE_FUNCTION(ValiditySequence, validity) {
   // Save the current size in |tag_len_pos| to place sequence tag and length
   // after the value is encoded.
   size_t tag_len_pos = der.size();
@@ -79,20 +68,15 @@ void Encode<ValiditySequence>(const ValiditySequence& validity,
   EncodeTagAndLength(0x30, der.size() - tag_len_pos, tag_len_pos, der);
 }
 
-template <>
-void Encode<VersionNumber>(const VersionNumber& version,
-                           std::vector<uint8_t>& der) {
+DECLARE_ENCODE_FUNCTION(VersionNumber, version_num) {
   // |version| is Context-specific with tag number 0 (RFC 5280, 4.1 & 4.1.2.1).
   // Takes on values 0, 1 and 2, so only require length of 1 to
   // encode it (RFC 5280, 4.1 & 4.1.2.1).
-  std::vector<uint8_t> derver_num = {0x80, 0x01, static_cast<uint8_t>(version)};
+  std::vector<uint8_t> derver_num = {0x80, 0x01, static_cast<uint8_t>(version_num)};
   der.insert(der.end(), derver_num.begin(), derver_num.end());
 }
 
-template <>
-void Encode<TBSCertificateSequence>(
-    const TBSCertificateSequence& tbs_certificate,
-    std::vector<uint8_t>& der) {
+DECLARE_ENCODE_FUNCTION(TBSCertificateSequence, tbs_certificate) {
   // Save the current size in |tag_len_pos| to place sequence tag and length
   // after the value is encoded.
   size_t tag_len_pos = der.size();
@@ -139,15 +123,6 @@ void Encode<TBSCertificateSequence>(
   // The current size of |der| subtracted by |tag_len_pos|
   // equates to the size of the value of |tbs_certificate|.
   EncodeTagAndLength(0x30, der.size() - tag_len_pos, tag_len_pos, der);
-}
-
-template <typename T>
-void Encode(const T& t, std::vector<uint8_t>& der) {
-  if (t.has_pdu()) {
-    Encode(t.pdu(), der);
-    return;
-  }
-  Encode(t.value(), der);
 }
 
 std::vector<uint8_t> X509CertificateToDER(

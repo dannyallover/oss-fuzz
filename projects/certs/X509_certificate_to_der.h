@@ -15,32 +15,27 @@ std::vector<uint8_t> X509CertificateToDER(
     const X509Certificate& X509_certificate);
 
 template <typename T>
-void Encode(const T& t, std::vector<uint8_t>& der);
+void Encode(const T& t, std::vector<uint8_t>& der) {
+  if (t.has_pdu()) {
+    Encode(t.pdu(), der);
+    return;
+  }
+  Encode(t.value(), der);
+}
 
-// Encode(FIELD) DER encodes the field found in X509 Certificates
-// and writes the results to |der_|.
-template <>
-void Encode<TBSCertificateSequence>(
-    const TBSCertificateSequence& tbs_certificate,
-    std::vector<uint8_t>& der);
-template <>
-void Encode<VersionNumber>(const VersionNumber& version,
-                           std::vector<uint8_t>& der);
-template <>
-void Encode<ValiditySequence>(const ValiditySequence& validity,
-                              std::vector<uint8_t>& der);
-template <>
-void Encode<TimeChoice>(const TimeChoice& val, std::vector<uint8_t>& der);
-template <>
-void Encode<SubjectPublicKeyInfoSequence>(
-    const SubjectPublicKeyInfoSequence& subject_public_key_info,
-    std::vector<uint8_t>& der);
-template <>
-void Encode<AlgorithmIdentifier>(
-    const AlgorithmIdentifier& algorithm_identifier,
-    std::vector<uint8_t>& der);
-template <>
-void Encode<asn1_pdu::PDU>(const asn1_pdu::PDU& pdu, std::vector<uint8_t>& der);
+// Encodes the field found in X509 Certificates and writes the results to
+// |der_|.
+#define DECLARE_ENCODE_FUNCTION(TYPE, TYPE_NAME) \
+  template <>                                    \
+  void Encode<TYPE>(const TYPE& TYPE_NAME, std::vector<uint8_t>& der)
+
+DECLARE_ENCODE_FUNCTION(TBSCertificateSequence, tbs_certificate);
+DECLARE_ENCODE_FUNCTION(VersionNumber, version);
+DECLARE_ENCODE_FUNCTION(ValiditySequence, validity);
+DECLARE_ENCODE_FUNCTION(TimeChoice, val);
+DECLARE_ENCODE_FUNCTION(SubjectPublicKeyInfoSequence, subject_public_key_info);
+DECLARE_ENCODE_FUNCTION(AlgorithmIdentifier, algorithm_identifier);
+DECLARE_ENCODE_FUNCTION(asn1_pdu::PDU, pdu);
 
 }  // namespace x509_certificate
 
