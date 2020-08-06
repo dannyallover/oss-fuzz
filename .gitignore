@@ -2,3 +2,5 @@
 *.pyc
 /build/
 *~
+projects/certs/Dockerfile
+projects/certs/build.sh
