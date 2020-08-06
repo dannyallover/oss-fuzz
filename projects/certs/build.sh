@@ -16,10 +16,7 @@
 ################################################################################
 
 # Move asn1-pdu & asn1-unvirsal-types proto and converter to SRC
-cp -R $SRC/fuzzing/proto/asn1/asn1-pdu/* $SRC
-cp -R $SRC/fuzzing/proto/asn1/asn1-universal-types/* $SRC
-# Move common file to SRC which the converters depend on
-cp -R $SRC/fuzzing/proto/asn1/common/* $SRC
+cp -R $SRC/fuzzing/proto/asn1-pdu/* $SRC
 
 # Compile cert proto.
 rm -rf genfiles && mkdir genfiles && LPM/external.protobuf/bin/protoc asn1_pdu.proto asn1_universal_types.proto X509_certificate.proto --cpp_out=genfiles --proto_path=$SRC/

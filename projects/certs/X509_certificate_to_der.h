@@ -27,17 +27,17 @@ void Encode(const T& t, std::vector<uint8_t>& der) {
 
 // Encodes the |TYPE| found in X509 Certificates and writes the results to
 // |der|.
-#define DECLARE_ENCODE_FUNCTION(TYPE, TYPE_NAME) \
+#define DECLARE_ENCODE_FUNCTION(TYPE) \
   template <>                                    \
-  void Encode<TYPE>(const TYPE& TYPE_NAME, std::vector<uint8_t>& der)
+  void Encode<TYPE>(const TYPE& val, std::vector<uint8_t>& der)
 
-DECLARE_ENCODE_FUNCTION(TBSCertificateSequence, tbs_certificate);
-DECLARE_ENCODE_FUNCTION(VersionNumber, version);
-DECLARE_ENCODE_FUNCTION(ValiditySequence, validity);
-DECLARE_ENCODE_FUNCTION(TimeChoice, val);
-DECLARE_ENCODE_FUNCTION(SubjectPublicKeyInfoSequence, subject_public_key_info);
-DECLARE_ENCODE_FUNCTION(AlgorithmIdentifierSequence, algorithm_identifier);
-DECLARE_ENCODE_FUNCTION(asn1_pdu::PDU, pdu);
+DECLARE_ENCODE_FUNCTION(TBSCertificateSequence);
+DECLARE_ENCODE_FUNCTION(VersionNumber);
+DECLARE_ENCODE_FUNCTION(ValiditySequence);
+DECLARE_ENCODE_FUNCTION(TimeChoice);
+DECLARE_ENCODE_FUNCTION(SubjectPublicKeyInfoSequence);
+DECLARE_ENCODE_FUNCTION(AlgorithmIdentifierSequence);
+DECLARE_ENCODE_FUNCTION(asn1_pdu::PDU);
 
 }  // namespace x509_certificate
 
