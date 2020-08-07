@@ -1,12 +1,12 @@
 #ifndef CERT_PROTO_CONVERTER_H_
 #define CERT_PROTO_CONVERTER_H_
 
-#include <typeinfo>
+#include <stdint.h>
+
 #include <vector>
 
-#include "X509_certificate.pb.h"
-#include "asn1_pdu_to_der.h"
 #include "asn1_universal_types_to_der.h"
+#include "x509_certificate.pb.h"
 
 namespace x509_certificate {
 
@@ -28,7 +28,7 @@ void Encode(const T& t, std::vector<uint8_t>& der) {
 // Encodes the |TYPE| found in X509 Certificates and writes the results to
 // |der|.
 #define DECLARE_ENCODE_FUNCTION(TYPE) \
-  template <>                                    \
+  template <>                         \
   void Encode<TYPE>(const TYPE& val, std::vector<uint8_t>& der)
 
 DECLARE_ENCODE_FUNCTION(TBSCertificateSequence);

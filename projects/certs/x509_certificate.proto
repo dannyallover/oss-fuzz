@@ -26,8 +26,8 @@ message TBSCertificateSequence {
   required Validity validity = 5;
   required Name subject = 6;
   required SubjectPublicKeyInfo subject_public_key_info = 7;
-  optional IssuerUniqueId issuer_unique_id = 8;
-  optional SubjectUniqueId subject_unique_id = 9;
+  optional UniqueIdentifier issuer_unique_id = 8;
+  optional UniqueIdentifier subject_unique_id = 9;
   optional Extensions extensions = 10;
 }
 
@@ -107,16 +107,6 @@ message SubjectPublicKey {
   // If |pdu| is present, encode |SubjectPublicKey| as an arbitraty pdu.
   optional asn1_pdu.PDU pdu = 1;
   required asn1_universal_types.BitString value = 2;
-}
-
-// See RFC 5280, 4.1 & 4.1.2.8.
-message IssuerUniqueId {
-  required UniqueIdentifier unique_identifier = 1;
-}
-
-// See RFC 5280, 4.1 & 4.1.2.8.
-message SubjectUniqueId {
-  required UniqueIdentifier unique_identifier = 1;
 }
 
 // See RFC 5280, 4.1 & 4.1.2.8.

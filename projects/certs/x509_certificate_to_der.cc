@@ -1,4 +1,7 @@
-#include "X509_certificate_to_der.h"
+#include "x509_certificate_to_der.h"
+
+#include "asn1_pdu_to_der.h"
+#include "common.h"
 
 namespace x509_certificate {
 
@@ -67,9 +70,9 @@ DECLARE_ENCODE_FUNCTION(VersionNumber) {
   // |version| is Context-specific with tag number 0 (RFC 5280, 4.1 & 4.1.2.1).
   // Takes on values 0, 1 and 2, so only require length of 1 to
   // encode it (RFC 5280, 4.1 & 4.1.2.1).
-  std::vector<uint8_t> derver_num = {0x80, 0x01,
-                                     static_cast<uint8_t>(val)};
-  der.insert(der.end(), derver_num.begin(), derver_num.end());
+  std::vector<uint8_t> der_version = {kAsn1Constructed, 0x01,
+                                      static_cast<uint8_t>(val)};
+  der.insert(der.end(), der_version.begin(), der_version.end());
 }
 
 DECLARE_ENCODE_FUNCTION(TBSCertificateSequence) {
@@ -85,28 +88,26 @@ DECLARE_ENCODE_FUNCTION(TBSCertificateSequence) {
   Encode(val.subject(), der);
   Encode(val.subject_public_key_info(), der);
 
-  // Preserve to later backtrack and explicitly set tag.
-  size_t pos_of_tag;
   // RFC 5280, 4.1: |issuer_unique_id| and |subject_unique_id|
   // are only set for v2 and v3 and |extensions| only set for v3.
   // However, set |issuer_unique_id|, |subject_unique_id|, and |extensions|
   // independently of the version number for interesting inputs.
   if (val.has_issuer_unique_id()) {
-    pos_of_tag = der.size();
-    Encode(val.issuer_unique_id().unique_identifier(), der);
+    size_t pos_of_tag = der.size();
+    Encode(val.issuer_unique_id(), der);
     // |issuer_unqiue_id| is Context-specific with tag number 1 (RFC 5280, 4.1
     // & 4.1.2.8).
     ReplaceTag(kAsn1ContextSpecific | 0x01, pos_of_tag, der);
   }
   if (val.has_subject_unique_id()) {
-    pos_of_tag = der.size();
-    Encode(val.subject_unique_id().unique_identifier(), der);
+    size_t pos_of_tag = der.size();
+    Encode(val.subject_unique_id(), der);
     // |subject_unqiue_id| is Context-specific with tag number 2 (RFC 5280, 4.1
     // & 4.1.2.8).
     ReplaceTag(kAsn1ContextSpecific | 0x02, pos_of_tag, der);
   }
   if (val.has_extensions()) {
-    pos_of_tag = der.size();
+    size_t pos_of_tag = der.size();
     Encode(val.extensions(), der);
     // |extensions| is Context-specific with tag number 3 (RFC 5280, 4.1
     // & 4.1.2.8).
