@@ -28,6 +28,10 @@ DEFINE_PROTO_FUZZER(const x509_certificate::MutatedChain mutated_chain) {
   std::vector<std::vector<uint8_t>> encoded_chain =
       MutatedChainToDER(mutated_chain);
 
+  if (encoded_chain.empty()) {
+    return;
+  }
+
   bssl::UniquePtr<STACK_OF(X509)> x509_chain(sk_X509_new_null());
 
   for (std::vector<uint8_t> encoded_x509 : encoded_chain) {
@@ -35,23 +39,20 @@ DEFINE_PROTO_FUZZER(const x509_certificate::MutatedChain mutated_chain) {
     size_t size = encoded_x509.size();
     bssl::UniquePtr<X509> x509(d2i_X509(NULL, &buf, size));
     if (!x509) {
-      return;
+      continue;
     }
     bssl::PushToStack(x509_chain.get(), bssl::UpRef(x509));
   }
 
-  bssl::ScopedX509_STORE_CTX ctx;
-  bssl::UniquePtr<X509_STORE>(verify_store);
-  bssl::UniquePtr<X509>(leaf);
-  if (!X509_STORE_CTX_init(ctx.get(), verify_store.get(), leaf.get(),
-                           x509_chain.get())) {
+  if(sk_X509_num(x509_chain.get()) == 0) {
     return;
   }
 
-  if (ctx.get()->cert == NULL) {
-    std::cout << "its null" << std::endl;
-  } else {
-    std::cout << "not" << std::endl;
+  bssl::ScopedX509_STORE_CTX ctx;
+  X509* leaf = sk_X509_value(x509_chain.get(), 0);
+  if (!X509_STORE_CTX_init(ctx.get(), NULL, leaf,
+                           x509_chain.get())) {
+    return;
   }
 
   X509_verify_cert(ctx.get());
