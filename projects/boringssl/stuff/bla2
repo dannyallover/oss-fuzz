@@ -1,0 +1,644 @@
+chain {
+  tbs_certificate {
+    value {
+      version {
+        value: v3
+      }
+      serial_number {
+        value {
+          val: "\000\274\001\101\005\042\330\314\177\002\000\000\000\000\171\144\177"
+        }
+      }
+      signature_algorithm {
+        value {
+          object_identifier {
+            id {
+              encoding: Primitive
+              id_class: Universal
+              tag_num {
+                low_tag_num: VAL6
+              }
+            }
+            len {
+            }
+            val {
+              val_array {
+                val_bits: "\052\206\110\206\367\015\001\001\013"
+              }
+            }
+          }
+          parameters {
+            id {
+              encoding: Primitive
+              id_class: Universal
+              tag_num {
+                low_tag_num: VAL5
+              }
+            }
+            len {
+            }
+            val {
+            }
+          }
+        }
+      }
+      issuer {
+        value {
+          id {
+            encoding: Constructed
+            id_class: Universal
+            tag_num {
+              low_tag_num: VAL16
+            }
+          }
+          len {
+          }
+          val {
+            val_array {
+              pdu {
+                id {
+                  encoding: Constructed
+                  id_class: Universal
+                  tag_num {
+                    low_tag_num: VAL17
+                  }
+                }
+                len {
+                }
+                val {
+                  val_array {
+                    pdu {
+                      id {
+                        encoding: Constructed
+                        id_class: Universal
+                        tag_num {
+                          low_tag_num: VAL16
+                        }
+                      }
+                      len {
+                      }
+                      val {
+                        val_array {
+                          pdu {
+                            id {
+                              encoding: Primitive
+                              id_class: Universal
+                              tag_num {
+                                low_tag_num: VAL6
+                              }
+                            }
+                            len {
+                            }
+                            val {
+                              val_array {
+                                val_bits: "\125\004\003"
+                              }
+                            }
+                          }
+                        }
+                        val_array {
+                          pdu {
+                            id {
+                              encoding: Primitive
+                              id_class: Universal
+                              tag_num {
+                                low_tag_num: VAL19
+                              }
+                            }
+                            len {
+                            }
+                            val {
+                              val_array {
+                                val_bits: "Test Certificate"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      validity {
+        value {
+          not_before {
+            value {
+              utc_time {
+                time_stamp {
+                  seconds: 1596875632
+                  nanos: 1
+                }
+              }
+            }
+          }
+          not_after {
+            value {
+              utc_time {
+                time_stamp {
+                  seconds: 1598554032
+                  nanos: 2
+                }
+              }
+            }
+          }
+        }
+      }
+      subject {
+        value {
+          id {
+            encoding: Constructed
+            id_class: Universal
+            tag_num {
+              low_tag_num: VAL16
+            }
+          }
+          len {
+          }
+          val {
+            val_array {
+              pdu {
+                id {
+                  encoding: Constructed
+                  id_class: Universal
+                  tag_num {
+                    low_tag_num: VAL17
+                  }
+                }
+                len {
+                }
+                val {
+                  val_array {
+                    pdu {
+                      id {
+                        encoding: Constructed
+                        id_class: Universal
+                        tag_num {
+                          low_tag_num: VAL16
+                        }
+                      }
+                      len {
+                      }
+                      val {
+                        val_array {
+                          pdu {
+                            id {
+                              encoding: Primitive
+                              id_class: Universal
+                              tag_num {
+                                low_tag_num: VAL6
+                              }
+                            }
+                            len {
+                            }
+                            val {
+                              val_array {
+                                val_bits: "\125\004\003"
+                              }
+                            }
+                          }
+                        }
+                        val_array {
+                          pdu {
+                            id {
+                              encoding: Primitive
+                              id_class: Universal
+                              tag_num {
+                                low_tag_num: VAL19
+                              }
+                            }
+                            len {
+                            }
+                            val {
+                              val_array {
+                                val_bits: "Test Certificate"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      subject_public_key_info {
+        value {
+          algorithm_identifier {
+            object_identifier {
+              id {
+                encoding: Primitive
+                id_class: Universal
+                tag_num {
+                  low_tag_num: VAL6
+                }
+              }
+              len {
+              }
+              val {
+                val_array {
+                  val_bits: "\052\206\110\316\075\002\001"
+                }
+              }
+            }
+            parameters {
+              id {
+                encoding: Primitive
+                id_class: Universal
+                tag_num {
+                  low_tag_num: VAL6
+                }
+              }
+              len {
+              }
+              val {
+                val_array {
+                  val_bits: "\052\206\110\316\075\003\001\007"
+                }
+              }
+            }
+          }
+          subject_public_key {
+            value {
+              val: "\004\274\034\252\226\157\157\231\110\171\126\141\113\177\377\334\071\010\072\324\115\342\330\207\200\257\075\030\136\161\055\316\011\160\127\071\070\137\052\356\250\065\364\072\206\206\132\035\307\061\062\033\215\254\320\106\255\303\374\245\323\030\066\150\253"
+              unused_bits: VAL0
+            }
+          }
+        }
+      }
+    }
+  }
+  signature_algorithm {
+    value {
+      object_identifier {
+        id {
+          encoding: Primitive
+          id_class: Universal
+          tag_num {
+            low_tag_num: VAL6
+          }
+        }
+        len {
+        }
+        val {
+          val_array {
+            val_bits: "\052\206\110\206\367\015\001\001\013"
+          }
+        }
+      }
+      parameters {
+        id {
+          encoding: Primitive
+          id_class: Universal
+          tag_num {
+            low_tag_num: VAL5
+          }
+        }
+        len {
+        }
+        val {
+        }
+      }
+    }
+  }
+  signature_value {
+    value {
+      val: "\00"
+      unused_bits: VAL0
+    }
+  }
+}
+chain {
+  tbs_certificate {
+    value {
+      version {
+        value: v3
+      }
+      serial_number {
+        value {
+          val: "\000\274\001\101\005\042\330\314\177\002\000\000\000\000\171\144\177"
+        }
+      }
+      signature_algorithm {
+        value {
+          object_identifier {
+            id {
+              encoding: Primitive
+              id_class: Universal
+              tag_num {
+                low_tag_num: VAL6
+              }
+            }
+            len {
+            }
+            val {
+              val_array {
+                val_bits: "\052\206\110\206\367\015\001\001\013"
+              }
+            }
+          }
+          parameters {
+            id {
+              encoding: Primitive
+              id_class: Universal
+              tag_num {
+                low_tag_num: VAL5
+              }
+            }
+            len {
+            }
+            val {
+            }
+          }
+        }
+      }
+      issuer {
+        value {
+          id {
+            encoding: Constructed
+            id_class: Universal
+            tag_num {
+              low_tag_num: VAL16
+            }
+          }
+          len {
+          }
+          val {
+            val_array {
+              pdu {
+                id {
+                  encoding: Constructed
+                  id_class: Universal
+                  tag_num {
+                    low_tag_num: VAL17
+                  }
+                }
+                len {
+                }
+                val {
+                  val_array {
+                    pdu {
+                      id {
+                        encoding: Constructed
+                        id_class: Universal
+                        tag_num {
+                          low_tag_num: VAL16
+                        }
+                      }
+                      len {
+                      }
+                      val {
+                        val_array {
+                          pdu {
+                            id {
+                              encoding: Primitive
+                              id_class: Universal
+                              tag_num {
+                                low_tag_num: VAL6
+                              }
+                            }
+                            len {
+                            }
+                            val {
+                              val_array {
+                                val_bits: "\125\004\003"
+                              }
+                            }
+                          }
+                        }
+                        val_array {
+                          pdu {
+                            id {
+                              encoding: Primitive
+                              id_class: Universal
+                              tag_num {
+                                low_tag_num: VAL19
+                              }
+                            }
+                            len {
+                            }
+                            val {
+                              val_array {
+                                val_bits: "Test Certificate"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      validity {
+        value {
+          not_before {
+            value {
+              utc_time {
+                time_stamp {
+                  seconds: 1596875632
+                  nanos: 1
+                }
+              }
+            }
+          }
+          not_after {
+            value {
+              utc_time {
+                time_stamp {
+                  seconds: 1598554033
+                  nanos: 2
+                }
+              }
+            }
+          }
+        }
+      }
+      subject {
+        value {
+          id {
+            encoding: Constructed
+            id_class: Universal
+            tag_num {
+              low_tag_num: VAL16
+            }
+          }
+          len {
+          }
+          val {
+            val_array {
+              pdu {
+                id {
+                  encoding: Constructed
+                  id_class: Universal
+                  tag_num {
+                    low_tag_num: VAL17
+                  }
+                }
+                len {
+                }
+                val {
+                  val_array {
+                    pdu {
+                      id {
+                        encoding: Constructed
+                        id_class: Universal
+                        tag_num {
+                          low_tag_num: VAL16
+                        }
+                      }
+                      len {
+                      }
+                      val {
+                        val_array {
+                          pdu {
+                            id {
+                              encoding: Primitive
+                              id_class: Universal
+                              tag_num {
+                                low_tag_num: VAL6
+                              }
+                            }
+                            len {
+                            }
+                            val {
+                              val_array {
+                                val_bits: "\125\004\003"
+                              }
+                            }
+                          }
+                        }
+                        val_array {
+                          pdu {
+                            id {
+                              encoding: Primitive
+                              id_class: Universal
+                              tag_num {
+                                low_tag_num: VAL19
+                              }
+                            }
+                            len {
+                            }
+                            val {
+                              val_array {
+                                val_bits: "Test Certificate"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      subject_public_key_info {
+        value {
+          algorithm_identifier {
+            object_identifier {
+              id {
+                encoding: Primitive
+                id_class: Universal
+                tag_num {
+                  low_tag_num: VAL6
+                }
+              }
+              len {
+              }
+              val {
+                val_array {
+                  val_bits: "\052\206\110\316\075\002\001"
+                }
+              }
+            }
+            parameters {
+              id {
+                encoding: Primitive
+                id_class: Universal
+                tag_num {
+                  low_tag_num: VAL6
+                }
+              }
+              len {
+              }
+              val {
+                val_array {
+                  val_bits: "\052\206\110\316\075\003\001\007"
+                }
+              }
+            }
+          }
+          subject_public_key {
+            value {
+              val: "\004\274\034\252\226\157\157\231\110\171\126\141\113\177\377\334\071\010\072\324\115\342\330\207\200\257\075\030\136\161\055\316\011\160\127\071\070\137\052\356\250\065\364\072\206\206\132\035\307\061\062\033\215\254\320\106\255\303\374\245\323\030\066\150\253"
+              unused_bits: VAL0
+            }
+          }
+        }
+      }
+    }
+  }
+  signature_algorithm {
+    value {
+      object_identifier {
+        id {
+          encoding: Primitive
+          id_class: Universal
+          tag_num {
+            low_tag_num: VAL6
+          }
+        }
+        len {
+        }
+        val {
+          val_array {
+            val_bits: "\052\206\110\206\367\015\001\001\013"
+          }
+        }
+      }
+      parameters {
+        id {
+          encoding: Primitive
+          id_class: Universal
+          tag_num {
+            low_tag_num: VAL5
+          }
+        }
+        len {
+        }
+        val {
+        }
+      }
+    }
+  }
+  signature_value {
+    value {
+      val: "\00"
+      unused_bits: VAL0
+    }
+  }
+}
+operations {
+  mutate_signature_operation {
+    valid: true
+    index: CERT_2
+  }
+}
+operations {
+  mutate_signature_operation {
+    valid: true
+    index: CERT_1
+  }
+}

@@ -758,6 +758,7 @@ def coverage(args):
         '-p',
         '%s:%s' % (args.port, args.port),
     ])
+  
 
   if args.corpus_dir:
     if not os.path.exists(args.corpus_dir):
@@ -765,7 +766,11 @@ def coverage(args):
             file=sys.stderr)
       return 1
     corpus_dir = os.path.realpath(args.corpus_dir)
+    print (run_args)
+    print()
     run_args.extend(['-v', '%s:/corpus/%s' % (corpus_dir, args.fuzz_target)])
+    print (run_args)
+    print()
   else:
     run_args.extend(['-v', '%s:/corpus' % _get_corpus_dir(args.project_name)])
 
